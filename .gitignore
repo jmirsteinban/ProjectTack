@@ -1,0 +1,37 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.iml
+
+# Root caches
+.gradle-cache/
+
+# Android / Gradle
+**/.gradle/
+**/.kotlin/
+**/build/
+**/captures/
+**/.externalNativeBuild/
+**/.cxx/
+**/local.properties
+
+# Android signing / artifacts
+*.jks
+*.keystore
+*.apk
+*.aab
+
+# JavaScript / tooling
+node_modules/
+dist/
+coverage/
+*.log
+
+# Environment / local secrets
+.env
+.env.*
+!.env.example

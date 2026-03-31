@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" role="img" aria-label="ProjectTrack">
+  <defs>
+    <linearGradient id="pt-bg" x1="0" y1="108" x2="108" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#101424"/>
+      <stop offset="0.58" stop-color="#281553"/>
+      <stop offset="1" stop-color="#5E1FB1"/>
+    </linearGradient>
+    <linearGradient id="pt-mid" x1="39" y1="74" x2="75" y2="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8E2CFF"/>
+      <stop offset="1" stop-color="#CB37FF"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="108" height="108" rx="24" fill="url(#pt-bg)"/>
+  <path d="M22 54L39 38V48L31 54L39 60V70L22 54Z" fill="#EDEBFF"/>
+  <path d="M36 34L69 49V59L36 74V63L54 54L36 45Z" fill="url(#pt-mid)"/>
+  <path d="M69 38L86 54L69 70V60L77 54L69 48V38Z" fill="#EDEBFF"/>
+</svg>
