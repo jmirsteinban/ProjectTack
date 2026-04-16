@@ -18,7 +18,7 @@ if (-not $OutputDirectory) {
   $OutputDirectory = Join-Path $repoRoot "dist\chrome"
 }
 
-$outputPath = New-Item -ItemType Directory -Force -Path $OutputDirectory
+$outputPath = [System.IO.Directory]::CreateDirectory($OutputDirectory)
 $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
 $version = [string]$manifest.version
 
@@ -39,7 +39,7 @@ if (Test-Path -LiteralPath $stagingPath) {
   Remove-Item -LiteralPath $stagingPath -Recurse -Force
 }
 
-New-Item -ItemType Directory -Force -Path $stagingPath | Out-Null
+[System.IO.Directory]::CreateDirectory($stagingPath) | Out-Null
 Get-ChildItem -LiteralPath $chromeDirectory -Force | ForEach-Object {
   Copy-Item -LiteralPath $_.FullName -Destination $stagingPath -Recurse -Force
 }

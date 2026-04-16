@@ -1,8 +1,8 @@
 const RELEASE_CHANNEL = {
-  apiUrl: "https://api.github.com/repos/jmirsteinban/ProjectTack/releases/latest",
-  releaseUrl: "https://github.com/jmirsteinban/ProjectTack/releases/latest",
+  appName: "projecttrack-chrome",
   releasesPageUrl: "https://github.com/jmirsteinban/ProjectTack/releases",
   zipAssetName: "ProjectTrack-Chrome.zip",
+  migrationFile: "Android/sql/app_releases_chrome_20260416.sql",
 };
 
 function getChromeRuntime() {
@@ -35,10 +35,60 @@ function compareVersions(left, right) {
   return 0;
 }
 
-function pickZipAsset(assets = []) {
-  return assets.find((asset) => asset?.name === RELEASE_CHANNEL.zipAssetName)
-    ?? assets.find((asset) => String(asset?.name ?? "").toLowerCase().endsWith(".zip"))
-    ?? null;
+function hasSupabaseConfig(config) {
+  return Boolean(config?.url && config?.publishableKey);
+}
+
+function buildRestUrl(config, pathAndQuery) {
+  return `${config.url.replace(/\/+$/, "")}/rest/v1/${pathAndQuery}`;
+}
+
+function buildHeaders(config, session) {
+  const bearer = session?.accessToken || config.publishableKey;
+  return {
+    apikey: config.publishableKey,
+    Authorization: `Bearer ${bearer}`,
+    Accept: "application/json",
+  };
+}
+
+function isMissingReleaseTable(status, body) {
+  const normalized = String(body ?? "").toLowerCase();
+  return status === 404
+    || normalized.includes("app_releases")
+    || normalized.includes("42p01")
+    || normalized.includes("could not find")
+    || normalized.includes("does not exist");
+}
+
+function mapReleaseRow(row = {}) {
+  const version = normalizeVersion(row.version || row.release_id || row.tag_name);
+  const releaseUrl = row.release_url || RELEASE_CHANNEL.releasesPageUrl;
+  return {
+    latestVersion: version,
+    releaseId: row.release_id || `v${version}`,
+    releaseName: row.release_name || row.title || `ProjectTrack Chrome ${version}`,
+    releaseUrl,
+    downloadUrl: row.download_url || releaseUrl,
+    assetName: row.asset_name || RELEASE_CHANNEL.zipAssetName,
+    publishedAt: row.published_at || row.created_at || "",
+  };
+}
+
+function setupRequiredState(currentVersion, checkedAt, message) {
+  return {
+    status: "setup-required",
+    currentVersion,
+    latestVersion: "",
+    releaseId: "",
+    releaseName: "",
+    releaseUrl: RELEASE_CHANNEL.releasesPageUrl,
+    downloadUrl: RELEASE_CHANNEL.releasesPageUrl,
+    assetName: RELEASE_CHANNEL.zipAssetName,
+    publishedAt: "",
+    checkedAt,
+    message,
+  };
 }
 
 export function getInstalledExtensionVersion() {
@@ -46,68 +96,88 @@ export function getInstalledExtensionVersion() {
   return manifest?.version ?? "0.0.0";
 }
 
-export async function checkChromeReleaseUpdate() {
+export async function checkChromeReleaseUpdate(options = {}) {
   const currentVersion = getInstalledExtensionVersion();
   const checkedAt = new Date().toISOString();
+  const { backendConfig, backendSession } = options;
 
-  const response = await fetch(RELEASE_CHANNEL.apiUrl, {
-    headers: {
-      Accept: "application/vnd.github+json",
-    },
-  });
-
-  if (!response.ok) {
-    if (response.status === 404) {
-      return {
-        status: "private",
-        currentVersion,
-        latestVersion: "",
-        releaseId: "",
-        releaseName: "",
-        releaseUrl: RELEASE_CHANNEL.releasesPageUrl,
-        downloadUrl: RELEASE_CHANNEL.releasesPageUrl,
-        assetName: RELEASE_CHANNEL.zipAssetName,
-        publishedAt: "",
-        checkedAt,
-        message: "The release channel is private. Open GitHub Releases with an authorized account to download the latest package.",
-      };
-    }
-
-    throw new Error(
-      `GitHub returned ${response.status} while checking the latest version.`
+  if (!hasSupabaseConfig(backendConfig)) {
+    return setupRequiredState(
+      currentVersion,
+      checkedAt,
+      "Supabase is not configured. Save the backend configuration before checking Chrome releases.",
     );
   }
 
-  const release = await response.json();
-  const latestVersion = normalizeVersion(release?.tag_name || release?.name);
-  if (!latestVersion) {
-    throw new Error("The latest release does not have a recognizable version tag, for example v0.2.0.");
+  if (!backendSession?.accessToken) {
+    return {
+      ...setupRequiredState(
+        currentVersion,
+        checkedAt,
+        "Sign in before checking the private Chrome release channel.",
+      ),
+      status: "auth-required",
+    };
   }
 
-  const zipAsset = pickZipAsset(release?.assets ?? []);
-  const releaseUrl = release?.html_url || RELEASE_CHANNEL.releaseUrl;
-  const downloadUrl = zipAsset?.browser_download_url || releaseUrl;
-  const isNewer = compareVersions(latestVersion, currentVersion) > 0;
+  const query = [
+    "app_releases",
+    "?select=app_name,version,release_id,release_name,release_url,download_url,asset_name,published_at,created_at",
+    `&app_name=eq.${encodeURIComponent(RELEASE_CHANNEL.appName)}`,
+    "&active=eq.true",
+    "&order=published_at.desc",
+    "&limit=1",
+  ].join("");
+
+  const response = await fetch(buildRestUrl(backendConfig, query), {
+    headers: buildHeaders(backendConfig, backendSession),
+  });
+  const body = await response.text();
+
+  if (!response.ok) {
+    if (isMissingReleaseTable(response.status, body)) {
+      return setupRequiredState(
+        currentVersion,
+        checkedAt,
+        `Apply ${RELEASE_CHANNEL.migrationFile} in Supabase to enable private release checks.`,
+      );
+    }
+
+    throw new Error(`Supabase returned ${response.status} while checking Chrome releases.`);
+  }
+
+  const rows = body ? JSON.parse(body) : [];
+  const release = mapReleaseRow(rows[0]);
+
+  if (!release.latestVersion) {
+    return setupRequiredState(
+      currentVersion,
+      checkedAt,
+      "No active Chrome release is registered in Supabase yet.",
+    );
+  }
+
+  const isNewer = compareVersions(release.latestVersion, currentVersion) > 0;
 
   return {
     status: isNewer ? "available" : "current",
     currentVersion,
-    latestVersion,
-    releaseId: release?.tag_name || latestVersion,
-    releaseName: release?.name || release?.tag_name || latestVersion,
-    releaseUrl,
-    downloadUrl,
-    assetName: zipAsset?.name || "",
-    publishedAt: release?.published_at || release?.created_at || "",
+    latestVersion: release.latestVersion,
+    releaseId: release.releaseId,
+    releaseName: release.releaseName,
+    releaseUrl: release.releaseUrl,
+    downloadUrl: release.downloadUrl,
+    assetName: release.assetName,
+    publishedAt: release.publishedAt,
     checkedAt,
     message: isNewer
-      ? `Version ${latestVersion} is available.`
+      ? `Version ${release.latestVersion} is available.`
       : `ProjectTrack Chrome is already on version ${currentVersion}.`,
   };
 }
 
 export async function openChromeReleaseDownload(updateState = {}) {
-  const url = updateState.downloadUrl || updateState.releaseUrl || RELEASE_CHANNEL.releaseUrl;
+  const url = updateState.downloadUrl || updateState.releaseUrl || RELEASE_CHANNEL.releasesPageUrl;
 
   if (typeof chrome !== "undefined" && chrome.tabs?.create) {
     await chrome.tabs.create({ url });

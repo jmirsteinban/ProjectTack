@@ -1,6 +1,6 @@
 ﻿# Documentacion Central - ProjectTrack
 
-Actualizado al: 2026-04-01
+Actualizado al: 2026-04-16
 Estado general: En progreso
 Alcance actual: Android + Extension Chrome
 
@@ -18,7 +18,7 @@ Concentrar en un solo archivo el estado funcional, tecnico y operativo de Projec
 
 - Android es la fuente funcional principal del producto.
 - Chrome replica progresivamente la experiencia Android dentro de la extension unica en `Chrome/`.
-- Chrome ya opera sobre un runtime unico activo montado desde `sidepanel.html`.
+- Chrome ya opera sobre una experiencia popup/full-tab activa; el side panel queda oculto temporalmente hasta nuevo aviso.
 - Chrome ya consolida una capa UI Bootstrap-ProjectTrack documentada y usada por el runtime real.
 - `docs/ToDo.md` pasa a ser la referencia corta para seguimiento activo, hallazgos y pendientes.
 - La guia viva de Chrome ya documenta `Hero card`, la escala tipografica `text-step-*` actualizada, utilidades de margen negativo/auto y variantes `pt-pill` con tamanos `sm` y `md`.
@@ -35,8 +35,28 @@ Concentrar en un solo archivo el estado funcional, tecnico y operativo de Projec
   - escritura remota inicial
   - borrado logico remoto inicial
   - relogin automatico con credenciales guardadas
+- La distribucion privada de Chrome ya no depende de OneDrive como entrega principal: GitHub Releases privado guarda el `.zip` y Supabase `public.app_releases` guarda la metadata de version.
+- `Profile / Extension Updates` consulta Supabase con sesion autenticada y abre el release privado de GitHub cuando hay una version nueva.
+- La extension no guarda tokens de GitHub; el usuario descarga el paquete con una cuenta autorizada.
+- Por limitacion de Chrome en extensiones `Load unpacked`, la actualizacion sigue siendo manual: descargar, descomprimir sobre la carpeta local y presionar `Reload`.
 
 ## Bitacora reciente
+
+### 2026-04-16
+
+- Se definio el nuevo canal privado de entrega para la extension Chrome sin OneDrive como punto principal.
+- Se agrego empaquetado local y CI para publicar assets de Chrome en GitHub Releases:
+  - `scripts/package-chrome-release.ps1`
+  - `.github/workflows/chrome-release.yml`
+- Se creo el release privado base `v0.1.0` con `ProjectTrack-Chrome.zip`, zip versionado y metadata JSON.
+- Se descarto guardar tokens de GitHub dentro de la extension porque el repositorio debe permanecer privado.
+- Se agrego `Android/sql/app_releases_chrome_20260416.sql` para crear `public.app_releases`, habilitar RLS y publicar la metadata inicial de `projecttrack-chrome` version `0.1.0`.
+- `Chrome/src/services/release-updates.js` ahora lee la ultima version desde Supabase usando la sesion autenticada del usuario.
+- `Chrome/src/screens/profile.js` muestra `Profile / Extension Updates` como panel de consulta y descarga guiada.
+- `Chrome/src/projecttrack-app.js` refresca el estado de actualizaciones despues del login exitoso.
+- La guia operativa del flujo queda en `docs/chrome/deployment-github-releases.md`.
+- Se confirmo en Supabase el canal `public.app_releases` y `Profile / Extension Updates` valida la version local `0.1.0` como al dia.
+- Se oculto temporalmente el side panel retirando `sidePanel` / `side_panel` del manifest y removiendo la accion `SidePanel` del popup.
 
 ### 2026-04-01
 
@@ -362,7 +382,8 @@ Concentrar en un solo archivo el estado funcional, tecnico y operativo de Projec
   - runbooks y documentos QA
 - `Chrome/`
   - extension unica de ProjectTrack
-  - host minimo del side panel
+  - popup y experiencia full-tab activa
+  - side panel conservado en archivos pero oculto temporalmente
 - `Chrome/src/`
   - runtime principal de ProjectTrack en `JavaScript`
 - `Chrome/styles/`
@@ -432,7 +453,10 @@ Concentrar en un solo archivo el estado funcional, tecnico y operativo de Projec
 
 ### Runtime activo
 
-- `Chrome/sidepanel.html` monta la extension real
+- `Chrome/popup.html` es la entrada visible desde el icono de la extension
+- `Chrome/dashboard.html` abre la experiencia full-tab principal
+- `Chrome/workspace.html` conserva la app completa de transicion
+- `Chrome/sidepanel.html` permanece en el repo, pero esta oculto temporalmente en el manifest y el popup
 - `Chrome/src/main.js` inicializa viewport y monta la app viva
 - `Chrome/src/projecttrack-app.js` controla navbar global, overlays, acciones y estado principal
 - `Chrome/src/projecttrack-router.js` resuelve la vista activa
@@ -550,6 +574,24 @@ Concentrar en un solo archivo el estado funcional, tecnico y operativo de Projec
   - cambio
   - nota
 - toggle remoto inicial de estado de nota
+- consulta de actualizaciones privadas de Chrome desde `public.app_releases`
+
+### Deployment privado Chrome
+
+- El paquete instalable de Chrome se genera desde `scripts/package-chrome-release.ps1`.
+- El release se publica como asset privado en GitHub Releases.
+- La metadata visible para la extension vive en Supabase:
+  - tabla: `public.app_releases`
+  - app: `projecttrack-chrome`
+  - migracion: `Android/sql/app_releases_chrome_20260416.sql`
+- El panel `Profile / Extension Updates` compara la version local de `Chrome/manifest.json` con la version activa de Supabase.
+- Estado validado: con la version local `0.1.0`, el panel confirma que la extension esta al dia.
+- Si existe una version nueva, la extension abre el release privado para que el usuario descargue `ProjectTrack-Chrome.zip`.
+- No se guarda token de GitHub en la extension.
+- La actualizacion de una extension cargada con `Load unpacked` requiere paso manual:
+  - descargar zip
+  - descomprimir sobre la carpeta local
+  - presionar `Reload` en `chrome://extensions`
 
 ### Comportamiento de sync en Chrome
 
@@ -648,6 +690,10 @@ Documento operativo principal para IA y seguimiento:
 
 - `docs/ToDo.md`
 
+Deployment Chrome:
+
+- `docs/chrome/deployment-github-releases.md`
+
 Documentos QA Android:
 
 - `Android/Casos_Uso_Pruebas.md`
@@ -662,6 +708,9 @@ Runbook y seguridad:
 ## Riesgos actuales
 
 - RLS puede bloquear lectura/escritura aun con backend configurado
+- en ambientes nuevos, si `Android/sql/app_releases_chrome_20260416.sql` no esta aplicado, `Profile / Extension Updates` mostrara que falta setup del canal de releases
+- GitHub Releases privado exige que el usuario tenga acceso al repo para descargar el zip
+- Chrome no permite auto-reemplazo completo de una extension `Load unpacked`; el paso final de actualizacion es manual
 - si `public.users` falla, las sugerencias `@` se degradan
 - si cambian las credenciales guardadas o dejan de ser validas, el relogin automatico dejara de funcionar hasta nuevo login manual
 - todavia hay casos borde por consolidar entre ids locales y remotos
@@ -675,7 +724,7 @@ Runbook y seguridad:
   - crear/editar cambio
   - crear/editar/completar/eliminar nota
   - delete remoto de proyecto y cambio
-- ejecutar pasada visual del sidepanel Chrome sobre el runtime activo:
+- ejecutar pasada visual de la experiencia Chrome activa:
   - dashboard
   - proyectos
   - detalle de proyecto
@@ -691,6 +740,7 @@ Runbook y seguridad:
 
 ### Media prioridad
 
+- evaluar canal futuro de actualizaciones automaticas si se requiere reemplazo sin pasos manuales, por ejemplo Chrome Web Store privado o gestion enterprise
 - completar campos avanzados de `changes`
 - depurar casos borde de ids locales vs remotos
 - reducir costo del full sync inicial en Chrome sin romper:
@@ -717,7 +767,7 @@ Runbook y seguridad:
 
 ## Proximo paso recomendado
 
-Ejecutar una pasada de QA visual y funcional del sidepanel Chrome sobre el runtime activo, incluyendo:
+Ejecutar una pasada de QA visual y funcional de la experiencia Chrome activa, incluyendo:
 
 - revision visual de:
   - navbar y breadcrumb

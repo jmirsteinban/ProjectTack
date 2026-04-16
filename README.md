@@ -3,7 +3,7 @@
 ProjectTrack es un repositorio mixto que concentra dos frentes del producto:
 
 - `Android/`: aplicacion Android, fuente funcional principal del producto.
-- `Chrome/`: extension de Chrome con side panel que replica progresivamente la experiencia de Android.
+- `Chrome/`: extension de Chrome con experiencia popup/full-tab que replica progresivamente la experiencia de Android.
 
 La referencia documental principal del estado actual del proyecto vive en:
 
@@ -20,6 +20,9 @@ ProjectTack/
 |  |- src/
 |  |- styles/
 |  |- manifest.json
+|  |- popup.html
+|  |- dashboard.html
+|  |- workspace.html
 |  `- sidepanel.html
 |- docs/
 |  |- DOCUMENTACION_CENTRAL_PROJECTTRACK.md
@@ -33,10 +36,13 @@ ProjectTack/
 - `docs/DOCUMENTACION_CENTRAL_PROJECTTRACK.md`: estado funcional, tecnico y operativo del proyecto.
 - `docs/ToDo.md`: lista corta de hallazgos, pendientes y contexto operativo.
 - `docs/chrome/projecttrack-ui.html`: guia viva del sistema UI de la extension Chrome.
+- `docs/chrome/deployment-github-releases.md`: guia de empaquetado y actualizacion privada de la extension Chrome.
 
 ## Chrome Extension
 
-La extension usa Manifest V3 y monta la app principal desde `Chrome/sidepanel.html`.
+La extension usa Manifest V3. La entrada visible actual es `Chrome/popup.html`, que abre la experiencia principal en `Chrome/dashboard.html`.
+
+El side panel queda oculto temporalmente hasta nuevo aviso. `Chrome/sidepanel.html` permanece en el repo, pero no esta publicado en `manifest.json` ni aparece como accion del popup.
 
 Puntos importantes:
 
@@ -51,6 +57,23 @@ Para probar la extension localmente:
 2. Activa `Developer mode`.
 3. Haz clic en `Load unpacked`.
 4. Selecciona la carpeta `Chrome/`.
+
+### Deployment y actualizaciones
+
+La distribucion privada de Chrome ya no depende de OneDrive como punto principal de entrega.
+
+- GitHub Releases privado guarda los paquetes `.zip`.
+- Supabase guarda solo la metadata de version en `public.app_releases`.
+- La extension consulta esa metadata despues del login y avisa si hay una version nueva.
+- La extension no guarda tokens de GitHub.
+
+Chrome no permite que una extension instalada como `Load unpacked` se reemplace sola. Por eso la actualizacion sigue siendo manual:
+
+1. Abrir `Profile / Extension Updates`.
+2. Abrir el release privado de GitHub.
+3. Descargar `ProjectTrack-Chrome.zip`.
+4. Descomprimirlo sobre la carpeta local usada en `Load unpacked`.
+5. Presionar `Reload` en `chrome://extensions`.
 
 ## Android
 
@@ -83,7 +106,7 @@ La implementacion activa de la extension Chrome ya trabaja con ese backend y la 
 Resumen corto:
 
 - Android sigue siendo la base funcional principal.
-- Chrome ya tiene runtime unico activo en el side panel.
+- Chrome ya tiene runtime web activo; el side panel queda oculto temporalmente.
 - Chrome usa una capa UI propia documentada como Bootstrap-ProjectTrack.
 - El trabajo activo se sigue desde `docs/ToDo.md`.
 

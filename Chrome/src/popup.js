@@ -16,9 +16,6 @@ function renderPopup() {
           <button type="button" class="pt-popup-action" data-action="open-dashboard">
             <span class="pt-popup-action-label">ProjectTrack</span>
           </button>
-          <button type="button" class="pt-popup-action" data-action="open-sidepanel">
-            <span class="pt-popup-action-label">SidePanel</span>
-          </button>
         </div>
       </section>
     </main>
@@ -39,14 +36,6 @@ function renderPopup() {
     }
 
     await chrome.tabs.create({ url });
-    window.close();
-  });
-
-  root.querySelector("[data-action='open-sidepanel']")?.addEventListener("click", async () => {
-    const currentWindow = await chrome.windows.getCurrent();
-    if (currentWindow?.id != null) {
-      await chrome.sidePanel.open({ windowId: currentWindow.id });
-    }
     window.close();
   });
 }

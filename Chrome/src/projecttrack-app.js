@@ -178,8 +178,8 @@ function createIdleReleaseUpdateState() {
     latestVersion: "",
     releaseId: "",
     releaseName: "",
-    releaseUrl: releaseChannel.releaseUrl,
-    downloadUrl: releaseChannel.releaseUrl,
+    releaseUrl: releaseChannel.releasesPageUrl,
+    downloadUrl: releaseChannel.releasesPageUrl,
     assetName: releaseChannel.zipAssetName,
     publishedAt: "",
     checkedAt: "",
@@ -817,7 +817,10 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     }
 
     try {
-      const updateState = await checkChromeReleaseUpdate();
+      const updateState = await checkChromeReleaseUpdate({
+        backendConfig: state.backendConfig,
+        backendSession: state.backendSession,
+      });
       state.releaseUpdate = updateState;
 
       if (updateState.status === "available") {
@@ -843,26 +846,10 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
             }
           );
         }
-      } else if (updateState.status === "private") {
-        if (promptedByUser) {
-          openConfirmDialog(
-            "Private release channel",
-            "ProjectTrack cannot read private GitHub releases without a token. Open GitHub with an authorized account to download the latest Chrome package.",
-            async () => {
-              await openChromeReleaseDownload(updateState);
-              setNotice(
-                "After downloading, unzip the package over your local Chrome folder and reload ProjectTrack from chrome://extensions.",
-                "info",
-                "Manual Update"
-              );
-            },
-            {
-              confirmLabel: "Open GitHub",
-              cancelLabel: "Later",
-              confirmButtonClass: "btn-primary"
-            }
-          );
-        }
+      } else if (updateState.status === "setup-required" && promptedByUser) {
+        setNotice(updateState.message, "info", "Release Setup Required");
+      } else if (updateState.status === "auth-required" && promptedByUser) {
+        setNotice(updateState.message, "info", "Sign In Required");
       } else if (promptedByUser) {
         setNotice(updateState.message, "success", "ProjectTrack Is Current");
       }
@@ -1618,6 +1605,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
         await reloadWorkspaceState(state, "workspace.reload.post-login");
         if (hasAuthenticatedSession(state)) {
           state.currentView = "dashboard";
+          void refreshChromeReleaseUpdate(false);
           const syncMeta = getLastWorkspaceSyncMeta();
           if (syncMeta.channel === "remote") {
             setNotice("Signed in and remote data is ready.", "success", "Backend Authenticated");

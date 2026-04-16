@@ -1,10 +1,11 @@
 # ToDo - ProjectTrack
 
-Actualizado al: 2026-04-01
+Actualizado al: 2026-04-16
 Proposito: Lista operativa de hallazgos y pendientes activos del proyecto
 Guia IA: Leer este archivo antes de analizar, proponer cambios o documentar el proyecto
 Documento canonico de estado: `docs/DOCUMENTACION_CENTRAL_PROJECTTRACK.md`
 Guia viva UI: `docs/chrome/projecttrack-ui.html`
+Guia deployment Chrome: `docs/chrome/deployment-github-releases.md`
 
 ## Contexto clave
 
@@ -14,7 +15,11 @@ Guia viva UI: `docs/chrome/projecttrack-ui.html`
 - Ruta proyecto Chrome: `Chrome/`
 - Ruta documentacion general: `docs/`
 - Ruta documentacion Chrome: `docs/chrome/`
-- Runtime Chrome activo: `Chrome/sidepanel.html`
+- Guia deployment Chrome privado: `docs/chrome/deployment-github-releases.md`
+- Migracion metadata releases Chrome: `Android/sql/app_releases_chrome_20260416.sql`
+- Runtime Chrome activo: `Chrome/dashboard.html` / `Chrome/workspace.html`
+- Popup Chrome activo: `Chrome/popup.html`
+- Side panel Chrome: oculto temporalmente hasta nuevo aviso
 - Entrypoint Chrome: `Chrome/src/main.js`
 - App Chrome: `Chrome/src/projecttrack-app.js`
 - Router Chrome: `Chrome/src/projecttrack-router.js`
@@ -54,11 +59,11 @@ Guia viva UI: `docs/chrome/projecttrack-ui.html`
 - Para botones, la convencion actual ya queda separada en 2 familias:
   - hero: `btn ... pt-hero-button`
   - runtime: `btn` + variante Bootstrap (`btn-primary`, `btn-secondary`, `btn-outline-*`, etc.)
-- La extension ya abre ahora 3 superficies distintas:
-  - `sidepanel.html`: launcher vertical compacto
+- La extension prioriza ahora la experiencia full-tab:
+  - `popup.html`: menu de entrada visible
   - `workspace.html`: app actual con `projecttrack.css`
   - `dashboard.html`: primera pagina full-tab Bootstrap-first
-- El icono de la extension ya no abre el panel directo: ahora abre `popup.html` con 2 acciones
+- El side panel queda oculto temporalmente: sin permiso `sidePanel`, sin `side_panel` en manifest y sin boton `SidePanel` en el popup
 - Bootstrap local real ya queda vendorizado en `Chrome/vendor/bootstrap`
 - Branding compartido para la nueva capa web ya vive tambien en `Chrome/styles/projecttrack-theme.css`
 - La guia viva ya documenta:
@@ -72,6 +77,11 @@ Guia viva UI: `docs/chrome/projecttrack-ui.html`
 - `profile.js`, `project-editor.js` y `change-editor.js` ya avanzaron a shell `Bootstrap-first` con `card bg-body-tertiary` + `card-body` + `row/col-*`
 - `projects.js`, `changes.js` y `project-detail.js` ya avanzaron tambien a shell `Bootstrap-first` para sus wrappers principales
 - `login.js` ya avanzo tambien a shell `Bootstrap-first` para su wrapper principal
+- La distribucion privada de Chrome ya usa GitHub Releases para guardar los `.zip` y Supabase `public.app_releases` para publicar la ultima version disponible
+- La extension consulta actualizaciones desde `Profile / Extension Updates` usando la sesion autenticada de Supabase
+- El release privado inicial `v0.1.0` ya existe como punto base del canal Chrome
+- La migracion `Android/sql/app_releases_chrome_20260416.sql` ya fue aplicada y `Profile / Extension Updates` fue validado con version local `0.1.0` al dia
+- Chrome no puede auto-reemplazar una extension `Load unpacked`; la descarga, descompresion y `Reload` siguen siendo manuales
 
 ## Mapa rapido de pantallas
 
@@ -102,7 +112,7 @@ Guia viva UI: `docs/chrome/projecttrack-ui.html`
 
 ## Pendientes priorizados
 
-1. Continuar `QA visual por pantalla` en sidepanel real
+1. Continuar `QA visual por pantalla` en la experiencia full-tab real
 2. Validar visualmente `Home / Projects`
 3. Validar visualmente `Home / Projects / Details`
 4. Continuar conversion `Bootstrap-first` en `Home / Projects / Details / Changes / Details` y `Home / Dashboard`

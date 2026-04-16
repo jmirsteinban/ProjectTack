@@ -63,7 +63,8 @@ function escapeHtml(value) {
 function releaseStatusTone(status) {
   if (status === "available") return "warning";
   if (status === "current") return "success";
-  if (status === "private") return "info";
+  if (status === "setup-required") return "warning";
+  if (status === "auth-required") return "info";
   if (status === "error") return "danger";
   return "info";
 }
@@ -71,7 +72,8 @@ function releaseStatusTone(status) {
 function releaseStatusTitle(status) {
   if (status === "available") return "New version available";
   if (status === "current") return "ProjectTrack is current";
-  if (status === "private") return "Private release channel";
+  if (status === "setup-required") return "Release table setup required";
+  if (status === "auth-required") return "Sign in required";
   if (status === "checking") return "Checking for updates";
   if (status === "error") return "Update check failed";
   return "Manual update channel";
@@ -166,7 +168,7 @@ export function renderProfileScreen(state, data) {
         <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
           <div>
             <h3 class="pt-section-title mb-1">Extension Updates</h3>
-            <p class="text-secondary mb-0">GitHub Releases is used as the package source for the manual Chrome build.</p>
+            <p class="text-secondary mb-0">Supabase tracks the latest private Chrome package and GitHub Releases stores the zip.</p>
           </div>
           <div class="d-flex gap-2 flex-wrap">
             <button type="button" class="btn btn-primary" data-action="check-extension-update" ${state.releaseUpdate?.status === "checking" ? "disabled" : ""}>Check Now</button>
