@@ -1,4 +1,8 @@
-export function createProjectTrackState() {
+export function createProjectTrackState(options = {}) {
+  const initialView = typeof options.initialView === "string" && options.initialView.trim()
+    ? options.initialView.trim()
+    : "dashboard";
+
   return {
     isReady: false,
     data: null,
@@ -29,11 +33,24 @@ export function createProjectTrackState() {
       updatedAt: null
     },
     backendConfigMessage: "",
+    releaseUpdate: {
+      status: "idle",
+      currentVersion: "",
+      latestVersion: "",
+      releaseId: "",
+      releaseName: "",
+      releaseUrl: "",
+      downloadUrl: "",
+      assetName: "",
+      publishedAt: "",
+      checkedAt: "",
+      message: "Update check has not run yet."
+    },
     notice: null,
     confirmDialog: null,
     navMenuOpen: false,
     viewHistory: [],
-    currentView: "dashboard",
+    currentView: initialView,
     projectDetailReturnView: "projects",
     changeDetailReturnView: "changes",
     projectEditorReturnView: "project-detail",
@@ -47,10 +64,14 @@ export function createProjectTrackState() {
     changeFieldErrors: {},
     changeEditorDraft: null,
     changeHeaderMenu: null,
+    taskImportMode: "import",
     noteFormError: "",
     noteDraftText: "",
+    noteLinkedTaskIds: [],
     noteModalOpen: false,
     editingNoteId: null,
+    taskExportStart: "",
+    taskExportEnd: "",
     projectSearchQuery: "",
     projectActivityFilter: "All",
     changeSearchQuery: ""

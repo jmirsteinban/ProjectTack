@@ -11,13 +11,18 @@
   },
   "permissions": [
     "sidePanel",
-    "storage"
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://api.github.com/*"
   ],
   "background": {
     "service_worker": "service-worker.js"
   },
   "action": {
     "default_title": "Abrir ProjectTrack",
+    "default_popup": "popup.html",
     "default_icon": {
       "16": "assets/icons/icon-16.png",
       "32": "assets/icons/icon-32.png",

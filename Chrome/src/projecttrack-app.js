@@ -16,7 +16,9 @@ import {
 import {
   getLastWorkspaceMutationMeta,
   getLastWorkspaceSyncMeta,
+  importChangeTasks,
   initializeWorkspace,
+  replaceChangeTasks,
   saveChange,
   saveNote,
   saveProfileName,
@@ -24,15 +26,24 @@ import {
   softDeleteChange,
   softDeleteNote,
   softDeleteProject,
-  toggleNoteStatus
+  toggleNoteStatus,
+  updateChangeTask
 } from "./services/workspace-store.js";
 import { pickNativeDirectoryPath } from "./services/native-host.js";
+import { parseTrackerWorkbook } from "./services/xlsx-import.js";
+import {
+  checkChromeReleaseUpdate,
+  getReleaseChannelSummary,
+  getInstalledExtensionVersion,
+  openChromeReleaseDownload
+} from "./services/release-updates.js";
 import {
   PROJECT_ACTIVITY_FILTERS,
+  translateTaskStatus,
   translatePriority,
   translateStatus
 } from "./services/ui-copy.js";
-import { getVisibleProjects } from "./services/workspace-selectors.js";
+import { getVisibleProjects, getVisibleTasksForChange } from "./services/workspace-selectors.js";
 import { renderProjectTrackBrand } from "./components/projecttrack-brand.js";
 
 function setAuthSubmissionState(state, isSubmitting, pendingStep = "") {
@@ -141,10 +152,7 @@ function navigateMain(state, viewId) {
   closeChangeHeaderMenu(state);
   state.projectFormError = "";
   state.changeFormError = "";
-  state.noteFormError = "";
-  state.noteDraftText = "";
-  state.noteModalOpen = false;
-  state.editingNoteId = null;
+  clearNoteComposerState(state);
   state.backendConfigMessage = "";
   state.authMessage = "";
 }
@@ -162,10 +170,35 @@ function syncInitializedState(state, initialized) {
   state.authState = initialized.authState ?? state.authState;
 }
 
+function createIdleReleaseUpdateState() {
+  const releaseChannel = getReleaseChannelSummary();
+  return {
+    status: "idle",
+    currentVersion: getInstalledExtensionVersion(),
+    latestVersion: "",
+    releaseId: "",
+    releaseName: "",
+    releaseUrl: releaseChannel.releaseUrl,
+    downloadUrl: releaseChannel.releaseUrl,
+    assetName: releaseChannel.zipAssetName,
+    publishedAt: "",
+    checkedAt: "",
+    message: "Update check has not run yet."
+  };
+}
+
 function clearChangeEditorState(state) {
   state.changeFormError = "";
   state.changeFieldErrors = {};
   state.changeEditorDraft = null;
+}
+
+function clearNoteComposerState(state) {
+  state.noteFormError = "";
+  state.noteDraftText = "";
+  state.noteLinkedTaskIds = [];
+  state.noteModalOpen = false;
+  state.editingNoteId = null;
 }
 
 function closeChangeHeaderMenu(state) {
@@ -183,6 +216,70 @@ function resolveSelectedChangeProject(state) {
   }
 
   return (state.data?.projects ?? []).find((item) => item.name === change.project) ?? null;
+}
+
+function resolveSelectedChangeTasks(state) {
+  const change = resolveSelectedChange(state);
+  if (!change) {
+    return [];
+  }
+
+  return getVisibleTasksForChange(state.data, change);
+}
+
+function parsePositiveInteger(value) {
+  const normalized = String(value ?? "").trim();
+  if (!normalized) {
+    return null;
+  }
+
+  const parsed = Number.parseInt(normalized, 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+function slugifyFilenamePart(value, fallback = "export") {
+  const normalized = String(value ?? "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48);
+
+  return normalized || fallback;
+}
+
+function buildChangeTaskExportContent(change, entries, startIndex) {
+  const header = [
+    `Project: ${change?.project ?? "Unknown Project"}`,
+    `Change: ${change?.title ?? "Unknown Change"}`,
+    `Exported: ${new Date().toISOString()}`,
+    "",
+  ];
+
+  const body = entries.flatMap((entry, index) => [
+    `TSKID ${startIndex + index}`,
+    `Status: ${translateTaskStatus(entry.status) || entry.status || "Pending"}`,
+    `Assignee: ${entry.assignedToName || "Unassigned"}`,
+    `Page: ${entry.page || "N/A"}`,
+    `Item: ${entry.itemNumber || "N/A"}`,
+    `Document: ${entry.documentName || "N/A"}`,
+    `Annotation: ${entry.annotationType || "N/A"}`,
+    `Request: ${entry.requestText || "No request text"}`,
+    "",
+  ]);
+
+  return [...header, ...body].join("\n");
+}
+
+function downloadTextFile(filename, content) {
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 function buildSelectedChangePayload(state, overrides = {}) {
@@ -215,10 +312,7 @@ function forceLoginScreen(state, message = "") {
   state.projectFormError = "";
   clearChangeEditorState(state);
   closeChangeHeaderMenu(state);
-  state.noteFormError = "";
-  state.noteDraftText = "";
-  state.noteModalOpen = false;
-  state.editingNoteId = null;
+  clearNoteComposerState(state);
   state.navMenuOpen = false;
   if (message) {
     state.authMessage = message;
@@ -262,10 +356,7 @@ function restorePreviousView(state, fallbackView) {
     state.changeEditorMode = previous.changeEditorMode;
     state.projectFormError = "";
     clearChangeEditorState(state);
-    state.noteFormError = "";
-    state.noteDraftText = "";
-    state.noteModalOpen = false;
-    state.editingNoteId = null;
+    clearNoteComposerState(state);
     state.backendConfigMessage = "";
     return;
   }
@@ -285,10 +376,15 @@ async function reloadWorkspaceState(state, reason = "workspace.reload") {
   }
 }
 
-export async function mountProjectTrackApp(rootNode) {
-  const state = createProjectTrackState();
+export async function mountProjectTrackApp(rootNode, options = {}) {
+  const state = createProjectTrackState(options);
+  state.releaseUpdate = {
+    ...createIdleReleaseUpdateState(),
+    ...(state.releaseUpdate ?? {})
+  };
   let noticeTimeoutId = null;
   let noticeFadeTimeoutId = null;
+  let promptedReleaseId = "";
   const appNode = document.createElement("div");
   appNode.className = "pt-app";
 
@@ -384,8 +480,8 @@ export async function mountProjectTrackApp(rootNode) {
               <p>${state.confirmDialog.message}</p>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-danger" data-action="confirm-dialog-accept">Confirm</button>
-              <button type="button" class="btn btn-secondary" data-action="confirm-dialog-cancel">Cancel</button>
+              <button type="button" class="btn ${state.confirmDialog.confirmButtonClass || "btn-danger"}" data-action="confirm-dialog-accept">${state.confirmDialog.confirmLabel || "Confirm"}</button>
+              <button type="button" class="btn btn-secondary" data-action="confirm-dialog-cancel">${state.confirmDialog.cancelLabel || "Cancel"}</button>
             </div>
           </section>
         </div>
@@ -461,12 +557,15 @@ export async function mountProjectTrackApp(rootNode) {
     setNotice(successMessage, "success", successTitle);
   }
 
-  function openConfirmDialog(title, message, onConfirm) {
+  function openConfirmDialog(title, message, onConfirm, options = {}) {
     state.confirmDialog = {
       open: true,
       title,
       message,
-      onConfirm
+      onConfirm,
+      confirmLabel: options.confirmLabel || "Confirm",
+      cancelLabel: options.cancelLabel || "Cancel",
+      confirmButtonClass: options.confirmButtonClass || "btn-danger"
     };
   }
 
@@ -478,6 +577,17 @@ export async function mountProjectTrackApp(rootNode) {
     if (!state.noteModalOpen) {
       return false;
     }
+
+    const changeTasks = resolveSelectedChangeTasks(state);
+    const taskFeatureStatus = state.data?.taskFeatureStatus ?? {
+      available: true,
+      missingRelations: [],
+      migrationFile: "Android/sql/change_tasks_excel_import_20260331.sql",
+    };
+    const tasksFeatureAvailable = taskFeatureStatus.available !== false;
+    const linkedTasksClass = changeTasks.length > 4
+      ? "pt-note-task-picker pt-note-task-picker--scroll"
+      : "pt-note-task-picker";
 
     overlayNode.innerHTML = `
       <div class="modal show" role="dialog" aria-modal="true" aria-label="${state.editingNoteId ? "Edit note" : "New note"}">
@@ -498,6 +608,38 @@ export async function mountProjectTrackApp(rootNode) {
                 <textarea class="form-control" data-field="note-text" placeholder="Write a note or TO-DO for this change...">${state.noteDraftText || ""}</textarea>
                 <div class="pt-note-mention-suggestions" data-note-mention-suggestions hidden></div>
               </div>
+              <div class="pt-project-editor-form">
+                <div class="d-flex align-items-center w-100 gap-2 flex-wrap">
+                  <label class="form-label m-0">Linked Tasks</label>
+                  <span class="pt-dashboard-count-chip">${changeTasks.length} available</span>
+                </div>
+                ${
+                  !tasksFeatureAvailable
+                    ? `<p class="form-text m-0">Linked tasks are unavailable until <code>${taskFeatureStatus.migrationFile}</code> is applied in Supabase.</p>`
+                    : changeTasks.length
+                    ? `
+                      <div class="${linkedTasksClass}">
+                        ${changeTasks.map((task) => `
+                          <label class="form-check pt-note-task-option">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              data-field="note-task-link"
+                              value="${task.id}"
+                              ${state.noteLinkedTaskIds.includes(task.id) ? "checked" : ""}
+                            />
+                            <span class="form-check-label d-grid gap-1 min-w-0">
+                              <strong>${task.label}</strong>
+                              <span class="text-body-secondary">${task.documentName || task.annotationType || "Task"}</span>
+                              <span>${task.requestText}</span>
+                            </span>
+                          </label>
+                        `).join("")}
+                      </div>
+                    `
+                    : `<p class="form-text m-0">Import tasks first if you need to link this note to tracker items.</p>`
+                }
+              </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-primary" data-action="save-note">${state.editingNoteId ? "Save Note" : "Create Note"}</button>
@@ -513,10 +655,7 @@ export async function mountProjectTrackApp(rootNode) {
 
   function closeNoteDialog() {
     closeChangeHeaderMenu(state);
-    state.noteModalOpen = false;
-    state.noteFormError = "";
-    state.noteDraftText = "";
-    state.editingNoteId = null;
+    clearNoteComposerState(state);
   }
 
   async function refreshUsersDirectoryFromBackend() {
@@ -665,6 +804,84 @@ export async function mountProjectTrackApp(rootNode) {
     wireActions();
   }
 
+  async function refreshChromeReleaseUpdate(promptedByUser = false) {
+    state.releaseUpdate = {
+      ...createIdleReleaseUpdateState(),
+      ...(state.releaseUpdate ?? {}),
+      status: "checking",
+      message: "Checking GitHub Releases for a newer package..."
+    };
+
+    if (promptedByUser) {
+      render();
+    }
+
+    try {
+      const updateState = await checkChromeReleaseUpdate();
+      state.releaseUpdate = updateState;
+
+      if (updateState.status === "available") {
+        const shouldPrompt = promptedByUser || promptedReleaseId !== updateState.releaseId;
+        promptedReleaseId = updateState.releaseId;
+
+        if (shouldPrompt) {
+          openConfirmDialog(
+            "ProjectTrack update available",
+            `Version ${updateState.latestVersion} is ready. Chrome cannot replace this unpacked extension automatically, but it can open the release package for download.`,
+            async () => {
+              await openChromeReleaseDownload(updateState);
+              setNotice(
+                "Download the zip, unzip it over your local Chrome folder, then reload ProjectTrack from chrome://extensions.",
+                "info",
+                "Manual Update"
+              );
+            },
+            {
+              confirmLabel: "Open Release",
+              cancelLabel: "Later",
+              confirmButtonClass: "btn-primary"
+            }
+          );
+        }
+      } else if (updateState.status === "private") {
+        if (promptedByUser) {
+          openConfirmDialog(
+            "Private release channel",
+            "ProjectTrack cannot read private GitHub releases without a token. Open GitHub with an authorized account to download the latest Chrome package.",
+            async () => {
+              await openChromeReleaseDownload(updateState);
+              setNotice(
+                "After downloading, unzip the package over your local Chrome folder and reload ProjectTrack from chrome://extensions.",
+                "info",
+                "Manual Update"
+              );
+            },
+            {
+              confirmLabel: "Open GitHub",
+              cancelLabel: "Later",
+              confirmButtonClass: "btn-primary"
+            }
+          );
+        }
+      } else if (promptedByUser) {
+        setNotice(updateState.message, "success", "ProjectTrack Is Current");
+      }
+    } catch (error) {
+      state.releaseUpdate = {
+        ...createIdleReleaseUpdateState(),
+        status: "error",
+        checkedAt: new Date().toISOString(),
+        message: error.message || "The update check could not be completed."
+      };
+
+      if (promptedByUser) {
+        setNotice(state.releaseUpdate.message, "info", "Update Check Failed");
+      }
+    }
+
+    render();
+  }
+
   async function copyTextToClipboard(value) {
     if (!value) {
       setNotice("There is no link available to copy.", "info", "Link Unavailable");
@@ -754,6 +971,104 @@ export async function mountProjectTrackApp(rootNode) {
       });
     });
 
+    viewNode.querySelector("[data-field='task-export-start']")?.addEventListener("input", (event) => {
+      state.taskExportStart = event.target.value;
+    });
+
+    viewNode.querySelector("[data-field='task-export-end']")?.addEventListener("input", (event) => {
+      state.taskExportEnd = event.target.value;
+    });
+
+    viewNode.querySelector("[data-field='change-task-import-file']")?.addEventListener("change", async (event) => {
+      const input = event.currentTarget;
+      const file = input.files?.[0];
+      input.value = "";
+
+      if (!file) {
+        return;
+      }
+      const taskImportMode = state.taskImportMode === "replace" ? "replace" : "import";
+      state.taskImportMode = "import";
+      if (state.data?.taskFeatureStatus?.available === false) {
+        setNotice(
+          `Apply ${state.data.taskFeatureStatus.migrationFile || "Android/sql/change_tasks_excel_import_20260331.sql"} in Supabase before ${taskImportMode === "replace" ? "replacing" : "importing"} tasks.`,
+          "info",
+          "Tasks Migration Required",
+        );
+        render();
+        return;
+      }
+
+      const change = resolveSelectedChange(state);
+      const project = resolveSelectedChangeProject(state);
+      if (!change || !project?.id) {
+        setNotice("The selected change or project could not be resolved for the task import.", "info", "Import Not Completed");
+        render();
+        return;
+      }
+
+      let parsedWorkbook;
+      try {
+        parsedWorkbook = await parseTrackerWorkbook(file);
+      } catch (error) {
+        setNotice(error.message || "The tracker workbook could not be parsed.", "info", "Import Not Completed");
+        render();
+        return;
+      }
+
+      if (taskImportMode === "replace" && !(parsedWorkbook.tasks ?? []).length) {
+        setNotice(
+          "Replace Tasks needs at least one valid task in the workbook so the current list is not cleared by accident.",
+          "info",
+          "Replace Not Completed",
+        );
+        render();
+        return;
+      }
+
+      const taskMutation = taskImportMode === "replace" ? replaceChangeTasks : importChangeTasks;
+      const nextData = await runProtectedAction(() => taskMutation(state.data, {
+        projectId: project.id,
+        changeId: change.id,
+        sourceFile: parsedWorkbook.fileName,
+        tasks: parsedWorkbook.tasks,
+      }), {
+        authMessage: taskImportMode === "replace"
+          ? "Your session expired while replacing tasks."
+          : "Your session expired while importing tasks.",
+        errorTitle: taskImportMode === "replace" ? "Tasks Not Replaced" : "Tasks Not Imported",
+      });
+      if (!nextData) {
+        render();
+        return;
+      }
+
+      state.data = nextData;
+      const mutationMeta = getLastWorkspaceMutationMeta();
+      const importedCount = mutationMeta.importedTaskCount ?? 0;
+      const updatedCount = mutationMeta.updatedTaskCount ?? 0;
+      const deletedCount = mutationMeta.deletedTaskCount ?? 0;
+      const noticeParts = [];
+      if (importedCount > 0) {
+        noticeParts.push(`${importedCount} imported`);
+      }
+      if (updatedCount > 0) {
+        noticeParts.push(`${updatedCount} refreshed`);
+      }
+      if (deletedCount > 0) {
+        noticeParts.push(`${deletedCount} removed`);
+      }
+      if (!noticeParts.length) {
+        noticeParts.push("no task changes were required");
+      }
+      applySyncNotice(
+        taskImportMode === "replace" ? "Tasks Replaced" : "Tasks Imported",
+        `${parsedWorkbook.fileName} was processed: ${noticeParts.join(", ")}.`,
+        taskImportMode === "replace" ? "Tasks Not Replaced" : "Tasks Not Synced",
+      );
+      render();
+    });
+
     const noteTextarea = overlayNode.querySelector("[data-field='note-text']") ?? viewNode.querySelector("[data-field='note-text']");
     const noteSuggestionNode = overlayNode.querySelector("[data-note-mention-suggestions]") ?? viewNode.querySelector("[data-note-mention-suggestions]");
     if (noteTextarea && noteSuggestionNode) {
@@ -786,6 +1101,76 @@ export async function mountProjectTrackApp(rootNode) {
       });
       updateSuggestions();
     }
+
+    overlayNode.querySelectorAll("[data-field='note-task-link']").forEach((node) => {
+      node.addEventListener("change", () => {
+        state.noteLinkedTaskIds = Array.from(
+          overlayNode.querySelectorAll("[data-field='note-task-link']:checked"),
+          (checkedNode) => checkedNode.value,
+        );
+      });
+    });
+
+    viewNode.querySelectorAll("[data-action='change-task-status']").forEach((node) => {
+      node.addEventListener("change", async () => {
+        const taskId = node.dataset.taskId;
+        const nextStatus = node.value;
+        const task = (state.data?.changeTasks ?? []).find((item) => item.id === taskId);
+        if (!task || task.status === nextStatus) {
+          return;
+        }
+
+        const nextData = await runProtectedAction(() => updateChangeTask(state.data, taskId, {
+          status: nextStatus,
+        }), {
+          authMessage: "Your session expired while updating the task status.",
+          errorTitle: "Task Not Updated",
+        });
+        if (!nextData) {
+          render();
+          return;
+        }
+
+        state.data = nextData;
+        applySyncNotice(
+          "Task Updated",
+          `${task.label} is now ${translateTaskStatus(nextStatus)}.`,
+          "Task Not Synced",
+        );
+        render();
+      });
+    });
+
+    viewNode.querySelectorAll("[data-action='change-task-assignee']").forEach((node) => {
+      node.addEventListener("change", async () => {
+        const taskId = node.dataset.taskId;
+        const nextAssigneeId = node.value || null;
+        const task = (state.data?.changeTasks ?? []).find((item) => item.id === taskId);
+        if (!task || task.assignedToId === nextAssigneeId) {
+          return;
+        }
+
+        const nextData = await runProtectedAction(() => updateChangeTask(state.data, taskId, {
+          assignedToId: nextAssigneeId,
+        }), {
+          authMessage: "Your session expired while updating the task assignee.",
+          errorTitle: "Task Not Updated",
+        });
+        if (!nextData) {
+          render();
+          return;
+        }
+
+        state.data = nextData;
+        const selectedUserName = (state.data?.users ?? []).find((user) => user.id === nextAssigneeId)?.name ?? "Unassigned";
+        applySyncNotice(
+          "Task Updated",
+          `${task.label} is now assigned to ${selectedUserName}.`,
+          "Task Not Synced",
+        );
+        render();
+      });
+    });
 
     const changeAssigneeInput = viewNode.querySelector("[data-field='change-assignees']");
     const changeAssigneeSuggestionNode = viewNode.querySelector("[data-change-assignee-suggestions]");
@@ -877,7 +1262,7 @@ export async function mountProjectTrackApp(rootNode) {
           const row = removeButton.closest("[data-url-row]");
           row?.remove();
           if (group.querySelectorAll("[data-url-row]").length === 0) {
-            group.innerHTML = `<div class="pt-editor-empty-row" data-empty-row><span>No URLs configured.</span></div>`;
+            group.innerHTML = `<div class="list-group-item pt-editor-empty-row" data-empty-row><span>No URLs configured.</span></div>`;
           }
         });
       });
@@ -889,7 +1274,7 @@ export async function mountProjectTrackApp(rootNode) {
         const group = row?.closest("[data-env-group]");
         row?.remove();
         if (group && group.querySelectorAll("[data-url-row]").length === 0) {
-          group.innerHTML = `<div class="pt-editor-empty-row" data-empty-row><span>No URLs configured.</span></div>`;
+          group.innerHTML = `<div class="list-group-item pt-editor-empty-row" data-empty-row><span>No URLs configured.</span></div>`;
         }
       });
     });
@@ -1002,9 +1387,7 @@ export async function mountProjectTrackApp(rootNode) {
       }
       pushViewHistory(state);
       clearChangeEditorState(state);
-      state.noteFormError = "";
-      state.noteDraftText = "";
-      state.editingNoteId = null;
+      clearNoteComposerState(state);
       state.changeEditorMode = "create";
       state.changeEditorReturnView = state.currentView;
       state.selectedChangeId = null;
@@ -1018,7 +1401,7 @@ export async function mountProjectTrackApp(rootNode) {
       }
       pushViewHistory(state);
       clearChangeEditorState(state);
-      state.noteFormError = "";
+      clearNoteComposerState(state);
       state.changeEditorMode = "edit";
       state.changeEditorReturnView = state.currentView;
       state.currentView = "change-editor";
@@ -1026,10 +1409,7 @@ export async function mountProjectTrackApp(rootNode) {
     });
     bindSimpleAction("back-to-change-detail", () => {
       clearChangeEditorState(state);
-      state.noteFormError = "";
-      state.noteDraftText = "";
-      state.noteModalOpen = false;
-      state.editingNoteId = null;
+      clearNoteComposerState(state);
       restorePreviousView(
         state,
         state.selectedChangeId
@@ -1046,10 +1426,7 @@ export async function mountProjectTrackApp(rootNode) {
       render();
     });
     bindSimpleAction("back-to-change-origin", () => {
-      state.noteFormError = "";
-      state.noteDraftText = "";
-      state.noteModalOpen = false;
-      state.editingNoteId = null;
+      clearNoteComposerState(state);
       restorePreviousView(state, state.changeDetailReturnView || "changes");
       if (state.currentView !== "change-detail") {
         state.selectedChangeId = null;
@@ -1159,6 +1536,20 @@ export async function mountProjectTrackApp(rootNode) {
 
       state.data = await saveProfileName(state.data, nextName);
       setNotice("The display name was updated.", "success", "Profile Updated");
+      render();
+    });
+
+    bindSimpleAction("check-extension-update", () => {
+      void refreshChromeReleaseUpdate(true);
+    });
+
+    bindSimpleAction("open-extension-release", async () => {
+      await openChromeReleaseDownload(state.releaseUpdate);
+      setNotice(
+        "Download the zip, unzip it over your local Chrome folder, then reload ProjectTrack from chrome://extensions.",
+        "info",
+        "Manual Update"
+      );
       render();
     });
 
@@ -1302,21 +1693,105 @@ export async function mountProjectTrackApp(rootNode) {
       render();
     });
 
+    bindSimpleAction("open-task-import", () => {
+      if (state.data?.taskFeatureStatus?.available === false) {
+        setNotice(
+          `Apply ${state.data.taskFeatureStatus.migrationFile || "Android/sql/change_tasks_excel_import_20260331.sql"} in Supabase before importing tasks.`,
+          "info",
+          "Tasks Migration Required",
+        );
+        render();
+        return;
+      }
+      if (!ensureAuthenticatedView("change-detail", "Sign in to import tasks from Excel.")) {
+        render();
+        return;
+      }
+      closeChangeHeaderMenu(state);
+      state.taskImportMode = "import";
+      viewNode.querySelector("[data-field='change-task-import-file']")?.click();
+    });
+
+    bindSimpleAction("open-task-replace", () => {
+      if (state.data?.taskFeatureStatus?.available === false) {
+        setNotice(
+          `Apply ${state.data.taskFeatureStatus.migrationFile || "Android/sql/change_tasks_excel_import_20260331.sql"} in Supabase before replacing tasks.`,
+          "info",
+          "Tasks Migration Required",
+        );
+        render();
+        return;
+      }
+      if (!ensureAuthenticatedView("change-detail", "Sign in to replace tasks from Excel.")) {
+        render();
+        return;
+      }
+      closeChangeHeaderMenu(state);
+      openConfirmDialog(
+        "Replace tasks",
+        "Import a workbook for this change and mark as deleted any current tasks that do not appear in that file.",
+        () => {
+          state.taskImportMode = "replace";
+          requestAnimationFrame(() => {
+            viewNode.querySelector("[data-field='change-task-import-file']")?.click();
+          });
+        },
+      );
+      render();
+    });
+
+    bindSimpleAction("export-change-tasks", () => {
+      const change = resolveSelectedChange(state);
+      const tasks = resolveSelectedChangeTasks(state);
+      if (!change || !tasks.length) {
+        setNotice("There are no tasks available to export for this change.", "info", "Export Not Completed");
+        render();
+        return;
+      }
+
+      const startRaw = viewNode.querySelector("[data-field='task-export-start']")?.value ?? state.taskExportStart;
+      const endRaw = viewNode.querySelector("[data-field='task-export-end']")?.value ?? state.taskExportEnd;
+      state.taskExportStart = startRaw;
+      state.taskExportEnd = endRaw;
+
+      const start = parsePositiveInteger(startRaw) ?? 1;
+      const end = parsePositiveInteger(endRaw) ?? tasks.length;
+
+      if (start < 1 || end < 1 || start > end || end > tasks.length) {
+        setNotice(
+          `Choose a valid TSKID range between 1 and ${tasks.length}.`,
+          "info",
+          "Export Not Completed",
+        );
+        render();
+        return;
+      }
+
+      const selectedEntries = tasks.slice(start - 1, end);
+      const fileName = `${slugifyFilenamePart(change.project, "project")}-${slugifyFilenamePart(change.title, "change")}-tasks-tskid-${start}-to-${end}.txt`;
+      const content = buildChangeTaskExportContent(change, selectedEntries, start);
+      downloadTextFile(fileName, content);
+      setNotice(`Tasks TSKID ${start} to ${end} were exported.`, "success", "Tasks Exported");
+      render();
+    });
+
     bindSimpleAction("open-note-modal", () => {
       if (!ensureAuthenticatedView("change-detail", "Sign in to create notes.")) {
         render();
         return;
       }
       closeChangeHeaderMenu(state);
-      state.noteFormError = "";
-      state.noteDraftText = "";
-      state.editingNoteId = null;
+      clearNoteComposerState(state);
       state.noteModalOpen = true;
       render();
     });
 
     bindSimpleAction("save-note", async () => {
       const text = overlayNode.querySelector("[data-field='note-text']")?.value.trim() ?? "";
+      state.noteLinkedTaskIds = Array.from(
+        overlayNode.querySelectorAll("[data-field='note-task-link']:checked"),
+        (node) => node.value,
+      );
       if (!text) {
         state.noteFormError = "The note cannot be empty.";
         render();
@@ -1337,7 +1812,8 @@ export async function mountProjectTrackApp(rootNode) {
         changeId: change.id,
         change: change.title,
         status: "Pendiente",
-        assigneeNames: change.assignees ?? []
+        assigneeNames: change.assignees ?? [],
+        linkedTaskIds: state.noteLinkedTaskIds,
       }, state.editingNoteId), {
         authMessage: "Your session expired while saving the note.",
         errorTitle: "Note Not Saved"
@@ -1347,9 +1823,7 @@ export async function mountProjectTrackApp(rootNode) {
         return;
       }
       state.data = nextData;
-      state.noteDraftText = "";
-      state.noteModalOpen = false;
-      state.editingNoteId = null;
+      clearNoteComposerState(state);
       applySyncNotice("Note Saved", "The note was saved successfully.", "Note Not Synced");
       render();
     });
@@ -1367,6 +1841,7 @@ export async function mountProjectTrackApp(rootNode) {
         state.editingNoteId = noteId;
         state.noteDraftText = note?.text ?? "";
         state.noteFormError = "";
+        state.noteLinkedTaskIds = [...(note?.linkedTaskIds ?? [])];
         state.noteModalOpen = true;
         render();
       });
@@ -1403,10 +1878,7 @@ export async function mountProjectTrackApp(rootNode) {
             }
             state.data = nextData;
             if (state.editingNoteId === node.dataset.noteId) {
-              state.noteModalOpen = false;
-              state.editingNoteId = null;
-              state.noteDraftText = "";
-              state.noteFormError = "";
+              clearNoteComposerState(state);
             }
             applySyncNotice("Note Deleted", "The note was marked as logically deleted.", "Note Not Synced");
           }
@@ -1432,11 +1904,12 @@ export async function mountProjectTrackApp(rootNode) {
   await reloadWorkspaceState(state, "workspace.initialize.bootstrap");
   state.isReady = true;
   render();
+  void refreshChromeReleaseUpdate(false);
 }
 
 function buildUrlRowMarkup(index) {
   return `
-    <div class="pt-editor-url-row" data-url-row>
+    <div class="list-group-item pt-editor-url-row" data-url-row>
       <div class="pt-editor-url-header">
         <strong>URL ${index}</strong>
         <button type="button" class="btn btn-secondary btn-sm" data-action="remove-url-row">Remove</button>

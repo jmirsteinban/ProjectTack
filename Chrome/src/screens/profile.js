@@ -38,6 +38,58 @@ function maskedKey(value) {
   return `${value.slice(0, 4)}...${value.slice(-4)}`;
 }
 
+function summaryCard(label, value) {
+  return `
+    <div class="col-12 col-sm-6 col-xl-4">
+      <article class="card bg-light border-0 h-100">
+        <div class="card-body">
+          <p class="text-secondary small mb-1">${label}</p>
+          <strong>${value}</strong>
+        </div>
+      </article>
+    </div>
+  `;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function releaseStatusTone(status) {
+  if (status === "available") return "warning";
+  if (status === "current") return "success";
+  if (status === "private") return "info";
+  if (status === "error") return "danger";
+  return "info";
+}
+
+function releaseStatusTitle(status) {
+  if (status === "available") return "New version available";
+  if (status === "current") return "ProjectTrack is current";
+  if (status === "private") return "Private release channel";
+  if (status === "checking") return "Checking for updates";
+  if (status === "error") return "Update check failed";
+  return "Manual update channel";
+}
+
+function formatDate(value) {
+  if (!value) {
+    return "No date";
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  return parsed.toLocaleString();
+}
+
 export function renderProfileScreen(state, data) {
   const visibleProjects = getVisibleProjects(data);
   const visibleChanges = getVisibleChanges(data);
@@ -46,8 +98,8 @@ export function renderProfileScreen(state, data) {
   const signInLabel = isSubmitting ? "Connecting..." : "Sign In";
   return `
     <section class="pt-screen-hero">
-      <div class="row">
-        <div class="col">
+      <div class="row g-3">
+        <div class="col-12 col-lg">
           <div class="pt-change-detail-topline">
             <span>Workspace / Profile</span>
           </div>
@@ -60,207 +112,203 @@ export function renderProfileScreen(state, data) {
             <span class="pt-mini-chip">${credentialsLabel(state.savedCredentials)}</span>
           </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="col d-flex justify-content-end gap-2 flex-wrap">
-          <button type="button" class="pt-back-button pt-back-button--hero" data-action="navigate-main" data-view-id="dashboard">Back</button>
+        <div class="col-12 col-lg-auto d-flex justify-content-lg-end align-items-start gap-2 flex-wrap">
+          <button type="button" class="btn btn-outline-primary pt-back-button pt-back-button--hero pt-hero-button" data-action="navigate-main" data-view-id="dashboard">Back</button>
         </div>
       </div>
     </section>
 
-    <section class="pt-screen-card d-grid gap-cus-14 min-w-0">
-      <h3 class="pt-section-title">Preferences</h3>
-      <div class="pt-row pt-row--comfortable">
-        <div class="pt-col pt-col-12 pt-col-lg-8 pt-field-group">
-          <label class="form-label" for="profile-display-name">Display Name</label>
-          <input
-            id="profile-display-name"
-            class="form-control"
-            type="text"
-            value="${data.user.name}"
-            data-field="profile-display-name"
-          >
+    <section class="card bg-body-tertiary">
+      <div class="card-body d-grid gap-3">
+        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+          <div>
+            <h3 class="pt-section-title mb-1">Preferences</h3>
+            <p class="text-secondary mb-0">Personal settings for the active workspace session.</p>
+          </div>
+          <button type="button" class="btn btn-primary" data-action="save-profile-name">Save Name</button>
         </div>
-        <div class="pt-col pt-col-12 pt-col-lg-4">
-          <div class="pt-actions-row">
-            <button type="button" class="btn btn-primary" data-action="save-profile-name">Save Name</button>
+        <div class="row g-3 align-items-end">
+          <div class="col-12 col-lg-8">
+            <label class="form-label" for="profile-display-name">Display Name</label>
+            <input
+              id="profile-display-name"
+              class="form-control"
+              type="text"
+              value="${data.user.name}"
+              data-field="profile-display-name"
+            >
+          </div>
+          <div class="col-12">
+            <p class="form-text mb-0">This display name only lives in memory while the extension is open.</p>
           </div>
         </div>
-        <div class="pt-col pt-col-12">
-          <p class="pt-row-subtle">This display name only lives in memory while the extension is open.</p>
+      </div>
+    </section>
+
+    <section class="card bg-body-tertiary">
+      <div class="card-body d-grid gap-3">
+        <div>
+          <h3 class="pt-section-title mb-1">Account</h3>
+          <p class="text-secondary mb-0">Authenticated user identity and current access state.</p>
+        </div>
+        <div class="row g-3">
+          ${summaryCard("Status", sessionLabel(state.backendSession))}
+          ${summaryCard("Email", state.backendSession?.user?.email || data.user.email)}
+          ${summaryCard("ID", state.backendSession?.user?.id || data.user.id || "mock-user-001")}
+          ${summaryCard("Role", data.user.role)}
+          ${summaryCard("Auth Flow", authFlowLabel(state.authState))}
         </div>
       </div>
     </section>
 
-    <section class="pt-screen-card d-grid gap-cus-14 min-w-0">
-      <div class="pt-row-top">
-        <h3 class="pt-section-title">Account</h3>
-      </div>
-      <div class="pt-grid-auto-190">
-        <article class="pt-meta-card">
-          <p>Status</p>
-          <strong>${sessionLabel(state.backendSession)}</strong>
-        </article>
-        <article class="pt-meta-card">
-          <p>Email</p>
-          <strong>${state.backendSession?.user?.email || data.user.email}</strong>
-        </article>
-        <article class="pt-meta-card">
-          <p>ID</p>
-          <strong>${state.backendSession?.user?.id || data.user.id || "mock-user-001"}</strong>
-        </article>
-        <article class="pt-meta-card">
-          <p>Role</p>
-          <strong>${data.user.role}</strong>
-        </article>
-        <article class="pt-meta-card">
-          <p>Auth Flow</p>
-          <strong>${authFlowLabel(state.authState)}</strong>
-        </article>
-      </div>
-    </section>
-
-    <section class="pt-screen-card d-grid gap-cus-14 min-w-0">
-      <div class="pt-row-top">
-        <h3 class="pt-section-title">Workspace</h3>
-      </div>
-      <div class="pt-grid-auto-190">
-        <article class="pt-meta-card">
-          <p>Visible Projects</p>
-          <strong>${visibleProjects.length}</strong>
-        </article>
-        <article class="pt-meta-card">
-          <p>Visible Changes</p>
-          <strong>${visibleChanges.length}</strong>
-        </article>
-        <article class="pt-meta-card">
-          <p>Current Filter</p>
-          <strong>${state.projectActivityFilter}</strong>
-        </article>
-        <article class="pt-meta-card">
-          <p>Backend</p>
-          <strong>${backendLabel(state.backendStatus)}</strong>
-        </article>
-        <article class="pt-meta-card">
-          <p>Credentials</p>
-          <strong>${credentialsLabel(state.savedCredentials)}</strong>
-        </article>
-      </div>
-    </section>
-
-    <section class="pt-screen-card d-grid gap-cus-14 min-w-0">
-      <div class="pt-row-top">
-        <h3 class="pt-section-title">Session</h3>
-      </div>
-      <div class="pt-row pt-row--comfortable">
-        <div class="pt-col pt-col-12 pt-col-sm-6 pt-field-group">
-          <label class="form-label" for="auth-email">Email</label>
-          <input
-            id="auth-email"
-            class="form-control"
-            type="email"
-            value="${state.backendSession?.user?.email || state.savedCredentials?.email || data.user.email || ""}"
-            placeholder="user@company.com"
-            data-field="auth-email"
-            ${disabledAttr}
-          >
-        </div>
-        <div class="pt-col pt-col-12 pt-col-sm-6 pt-field-group">
-          <label class="form-label" for="auth-password">Password</label>
-          <input
-            id="auth-password"
-            class="form-control"
-            type="password"
-            value=""
-            placeholder="Enter your password"
-            data-field="auth-password"
-            ${disabledAttr}
-          >
-        </div>
-        ${state.authPendingStep ? `
-          <div class="pt-col pt-col-12">
-            <section class="alert alert-info">
-              <strong>Processing access</strong>
-              <p>${state.authPendingStep}</p>
-            </section>
+    <section class="card bg-body-tertiary">
+      <div class="card-body d-grid gap-3">
+        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+          <div>
+            <h3 class="pt-section-title mb-1">Extension Updates</h3>
+            <p class="text-secondary mb-0">GitHub Releases is used as the package source for the manual Chrome build.</p>
           </div>
-        ` : ""}
-        <div class="pt-col pt-col-12">
-          <div class="pt-actions-row">
+          <div class="d-flex gap-2 flex-wrap">
+            <button type="button" class="btn btn-primary" data-action="check-extension-update" ${state.releaseUpdate?.status === "checking" ? "disabled" : ""}>Check Now</button>
+            <button type="button" class="btn btn-secondary" data-action="open-extension-release" ${state.releaseUpdate?.releaseUrl || state.releaseUpdate?.downloadUrl ? "" : "disabled"}>Open Release</button>
+          </div>
+        </div>
+        <section class="alert alert-${releaseStatusTone(state.releaseUpdate?.status)} mb-0">
+          <strong>${releaseStatusTitle(state.releaseUpdate?.status)}</strong>
+          <p class="mb-0">${escapeHtml(state.releaseUpdate?.message || "Use Check Now to look for a newer package.")}</p>
+        </section>
+        <div class="row g-3">
+          ${summaryCard("Installed Version", escapeHtml(state.releaseUpdate?.currentVersion || "Unknown"))}
+          ${summaryCard("Latest Release", escapeHtml(state.releaseUpdate?.latestVersion || "Not checked"))}
+          ${summaryCard("Package", escapeHtml(state.releaseUpdate?.assetName || "ProjectTrack-Chrome.zip"))}
+          ${summaryCard("Published", escapeHtml(formatDate(state.releaseUpdate?.publishedAt)))}
+          ${summaryCard("Last Check", escapeHtml(formatDate(state.releaseUpdate?.checkedAt)))}
+        </div>
+        <p class="form-text mb-0">Chrome cannot replace this unpacked extension by itself. After downloading, unzip the package over the local Chrome folder and reload the extension from <code>chrome://extensions</code>.</p>
+      </div>
+    </section>
+
+    <section class="card bg-body-tertiary">
+      <div class="card-body d-grid gap-3">
+        <div>
+          <h3 class="pt-section-title mb-1">Workspace</h3>
+          <p class="text-secondary mb-0">Visible data and current workspace context.</p>
+        </div>
+        <div class="row g-3">
+          ${summaryCard("Visible Projects", visibleProjects.length)}
+          ${summaryCard("Visible Changes", visibleChanges.length)}
+          ${summaryCard("Current Filter", state.projectActivityFilter)}
+          ${summaryCard("Backend", backendLabel(state.backendStatus))}
+          ${summaryCard("Credentials", credentialsLabel(state.savedCredentials))}
+        </div>
+      </div>
+    </section>
+
+    <section class="card bg-body-tertiary">
+      <div class="card-body d-grid gap-3">
+        <div>
+          <h3 class="pt-section-title mb-1">Session</h3>
+          <p class="text-secondary mb-0">Authentication for the remote workspace.</p>
+        </div>
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="auth-email">Email</label>
+            <input
+              id="auth-email"
+              class="form-control"
+              type="email"
+              value="${state.backendSession?.user?.email || state.savedCredentials?.email || data.user.email || ""}"
+              placeholder="user@company.com"
+              data-field="auth-email"
+              ${disabledAttr}
+            >
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="auth-password">Password</label>
+            <input
+              id="auth-password"
+              class="form-control"
+              type="password"
+              value=""
+              placeholder="Enter your password"
+              data-field="auth-password"
+              ${disabledAttr}
+            >
+          </div>
+          ${state.authPendingStep ? `
+            <div class="col-12">
+              <section class="alert alert-info mb-0">
+                <strong>Processing access</strong>
+                <p class="mb-0">${state.authPendingStep}</p>
+              </section>
+            </div>
+          ` : ""}
+          <div class="col-12 d-flex gap-2 flex-wrap">
             <button type="button" class="btn btn-primary" data-action="sign-in-backend" ${disabledAttr} aria-busy="${isSubmitting ? "true" : "false"}">${signInLabel}</button>
             <button type="button" class="btn btn-secondary" data-action="sign-out-backend" ${disabledAttr}>Sign Out</button>
           </div>
-        </div>
-        ${state.authMessage ? `<div class="pt-col pt-col-12"><section class="alert alert-danger"><strong>Authentication Required</strong><p>${state.authMessage}</p></section></div>` : ""}
-        <div class="pt-col pt-col-12">
-          <p class="form-text">When the login is valid, credentials are stored for automatic re-login while you do not sign out manually.</p>
+          ${state.authMessage ? `<div class="col-12"><section class="alert alert-danger mb-0"><strong>Authentication Required</strong><p class="mb-0">${state.authMessage}</p></section></div>` : ""}
+          <div class="col-12">
+            <p class="form-text mb-0">When the login is valid, credentials are stored for automatic re-login while you do not sign out manually.</p>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="pt-screen-card d-grid gap-cus-14 min-w-0">
-      <div class="pt-row-top">
-        <h3 class="pt-section-title">Backend</h3>
-      </div>
-      <div class="pt-row pt-row--comfortable">
-        <div class="pt-col pt-col-12 pt-field-group">
-          <label class="form-label" for="backend-url">Supabase URL</label>
-          <input
-            id="backend-url"
-            class="form-control"
-            type="text"
-            value="${state.backendConfig?.url ?? ""}"
-            placeholder="https://your-project.supabase.co"
-            data-field="backend-url"
-            ${disabledAttr}
-          >
+    <section class="card bg-body-tertiary">
+      <div class="card-body d-grid gap-3">
+        <div>
+          <h3 class="pt-section-title mb-1">Backend</h3>
+          <p class="text-secondary mb-0">Supabase connection used by the extension.</p>
         </div>
-        <div class="pt-col pt-col-12 pt-field-group">
-          <label class="form-label" for="backend-publishable-key">Publishable Key</label>
-          <input
-            id="backend-publishable-key"
-            class="form-control"
-            type="password"
-            value="${state.backendConfig?.publishableKey ?? ""}"
-            placeholder="sb_publishable_..."
-            data-field="backend-publishable-key"
-            ${disabledAttr}
-          >
-        </div>
-        <div class="pt-col pt-col-12">
-          <div class="pt-actions-row">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label" for="backend-url">Supabase URL</label>
+            <input
+              id="backend-url"
+              class="form-control"
+              type="text"
+              value="${state.backendConfig?.url ?? ""}"
+              placeholder="https://your-project.supabase.co"
+              data-field="backend-url"
+              ${disabledAttr}
+            >
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="backend-publishable-key">Publishable Key</label>
+            <input
+              id="backend-publishable-key"
+              class="form-control"
+              type="password"
+              value="${state.backendConfig?.publishableKey ?? ""}"
+              placeholder="sb_publishable_..."
+              data-field="backend-publishable-key"
+              ${disabledAttr}
+            >
+          </div>
+          <div class="col-12 d-flex gap-2 flex-wrap">
             <button type="button" class="btn btn-primary" data-action="save-backend-config" ${disabledAttr}>Save Configuration</button>
             <button type="button" class="btn btn-secondary" data-action="clear-backend-config" ${disabledAttr}>Clear</button>
           </div>
+          ${state.backendConfigMessage ? `<div class="col-12"><section class="alert alert-${configMessageTone(state.backendConfigMessage)} mb-0"><strong>Backend</strong><p class="mb-0">${state.backendConfigMessage}</p></section></div>` : ""}
+          <div class="col-12">
+            <p class="form-text mb-0">The configuration is stored in chrome.storage. Without a valid session, the extension does not show workspace data.</p>
+          </div>
         </div>
-        ${state.backendConfigMessage ? `<div class="pt-col pt-col-12"><section class="alert alert-${configMessageTone(state.backendConfigMessage)}"><strong>Backend</strong><p>${state.backendConfigMessage}</p></section></div>` : ""}
-        <div class="pt-col pt-col-12">
-          <p class="form-text">The configuration is stored in chrome.storage. Without a valid session, the extension does not show workspace data.</p>
+        <div class="row g-3">
+          ${summaryCard("Configured URL", state.backendConfig?.url || "Not configured")}
+          ${summaryCard("Configured Key", maskedKey(state.backendConfig?.publishableKey ?? ""))}
+          ${summaryCard("Mode", state.backendStatus?.mode ?? "auth-required")}
+          ${summaryCard("Updated", state.backendConfig?.updatedAt ?? "No date")}
         </div>
-      </div>
-      <div class="pt-grid-auto-190">
-        <article class="pt-meta-card">
-          <p>Configured URL</p>
-          <strong>${state.backendConfig?.url || "Not configured"}</strong>
-        </article>
-        <article class="pt-meta-card">
-          <p>Configured Key</p>
-          <strong>${maskedKey(state.backendConfig?.publishableKey ?? "")}</strong>
-        </article>
-        <article class="pt-meta-card">
-          <p>Mode</p>
-          <strong>${state.backendStatus?.mode ?? "auth-required"}</strong>
-        </article>
-        <article class="pt-meta-card">
-          <p>Updated</p>
-          <strong>${state.backendConfig?.updatedAt ?? "No date"}</strong>
-        </article>
       </div>
     </section>
 
-    <section class="pt-screen-card d-grid gap-cus-14 min-w-0">
-      <h3 class="pt-section-title">Access Notice</h3>
-      <p>The extension no longer uses silent local fallback. If the session expires or you sign out manually, the screen stays locked on login until authentication is restored.</p>
+    <section class="card bg-body-tertiary">
+      <div class="card-body">
+        <h3 class="pt-section-title mb-2">Access Notice</h3>
+        <p class="mb-0">The extension no longer uses silent local fallback. If the session expires or you sign out manually, the screen stays locked on login until authentication is restored.</p>
+      </div>
     </section>
   `;
 }

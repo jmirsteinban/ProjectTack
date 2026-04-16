@@ -1,0 +1,42 @@
+name: Chrome Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package-chrome:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify manifest version
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: |
+          $manifest = Get-Content -Raw -LiteralPath "Chrome/manifest.json" | ConvertFrom-Json
+          $refName = "${{ github.ref_name }}"
+          $tagVersion = if ($refName.StartsWith("v")) { $refName.Substring(1) } else { $refName }
+          if ($manifest.version -ne $tagVersion) {
+            throw "Chrome/manifest.json version '$($manifest.version)' must match tag '${{ github.ref_name }}'."
+          }
+
+      - name: Package Chrome extension
+        shell: pwsh
+        run: ./scripts/package-chrome-release.ps1
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/chrome/ProjectTrack-Chrome.zip
+            dist/chrome/ProjectTrack-Chrome-v*.zip
+            dist/chrome/projecttrack-chrome-release.json
