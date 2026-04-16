@@ -1,4 +1,9 @@
 export const projectTrackMockData = {
+  taskFeatureStatus: {
+    available: true,
+    missingRelations: [],
+    migrationFile: "Android/sql/change_tasks_excel_import_20260331.sql"
+  },
   user: {
     name: "Demo User",
     role: "Analysis and tracking",
@@ -144,13 +149,23 @@ export const projectTrackMockData = {
       id: "NT-201",
       text: "@DemoUser review the evidence before the STG pass",
       project: "Chrome Workspace",
+      changeId: "CHG-101",
       change: "Replicate the Android dashboard in Chrome",
-      status: "Pendiente"
+      status: "Pendiente",
+      linkedTaskIds: ["TASK-301"],
+      linkedTasks: [
+        {
+          id: "TASK-301",
+          label: "P12 / #1 / Login",
+          status: "Pendiente"
+        }
+      ]
     },
     {
       id: "NT-202",
       text: "@DemoUser confirm the visual adjustment functional validation",
       project: "ProjectTrack Core",
+      changeId: "CHG-103",
       change: "Review ProjectTrack Core consistency",
       status: "Completado"
     },
@@ -158,8 +173,113 @@ export const projectTrackMockData = {
       id: "NT-203",
       text: "@DemoUser document the final panel behavior",
       project: "Chrome Workspace",
+      changeId: "CHG-102",
       change: "Define the shell persistent layout",
       status: "Pendiente"
+    }
+  ],
+  changeTasks: [
+    {
+      id: "TASK-301",
+      projectId: "PRJ-002",
+      project: "Chrome Workspace",
+      changeId: "CHG-101",
+      change: "Replicate the Android dashboard in Chrome",
+      sourceFile: "IB01 - Tracker.xlsx",
+      sourceExternalId: "101",
+      taskKey: "source:101",
+      page: "12",
+      itemNumber: "1",
+      documentName: "Login",
+      requestText: "[Sticky Note] Update the hero spacing and align the KPI labels with the side panel shell.",
+      annotationType: "Sticky Note",
+      status: "Pendiente",
+      assignedToId: "user_12345678",
+      assignedToName: "Demo User",
+      importedBy: "user_12345678",
+      importedByName: "Demo User",
+      importedAt: "2026-03-30T14:10:00.000Z",
+      completedAt: null,
+      label: "P12 / #1 / Login",
+      linkedNoteIds: ["NT-201"],
+      linkedNoteCount: 1,
+      linkedNotes: [
+        {
+          id: "NT-201",
+          text: "@DemoUser review the evidence before the STG pass",
+          status: "Pendiente"
+        }
+      ]
+    },
+    {
+      id: "TASK-302",
+      projectId: "PRJ-002",
+      project: "Chrome Workspace",
+      changeId: "CHG-101",
+      change: "Replicate the Android dashboard in Chrome",
+      sourceFile: "IB01 - Tracker.xlsx",
+      sourceExternalId: "102",
+      taskKey: "source:102",
+      page: "14",
+      itemNumber: "2",
+      documentName: "Dashboard",
+      requestText: "[Cross-Out] Remove the redundant divider below the greeting section and tighten the card spacing.",
+      annotationType: "Cross-Out",
+      status: "En desarrollo",
+      assignedToId: "user_qa_team",
+      assignedToName: "QA Team",
+      importedBy: "user_12345678",
+      importedByName: "Demo User",
+      importedAt: "2026-03-30T14:10:00.000Z",
+      completedAt: null,
+      label: "P14 / #2 / Dashboard",
+      linkedNoteIds: [],
+      linkedNoteCount: 0,
+      linkedNotes: []
+    },
+    {
+      id: "TASK-303",
+      projectId: "PRJ-002",
+      project: "Chrome Workspace",
+      changeId: "CHG-101",
+      change: "Replicate the Android dashboard in Chrome",
+      sourceFile: "IB01 - Tracker.xlsx",
+      sourceExternalId: "103",
+      taskKey: "source:103",
+      page: "16",
+      itemNumber: "3",
+      documentName: "Panels",
+      requestText: "[Comment on Text] Confirm the final copy for the activity counters after QA review.",
+      annotationType: "Comment on Text",
+      status: "Completado",
+      assignedToId: "user_support",
+      assignedToName: "Support",
+      importedBy: "user_12345678",
+      importedByName: "Demo User",
+      importedAt: "2026-03-30T14:10:00.000Z",
+      completedAt: "2026-03-31T09:42:00.000Z",
+      label: "P16 / #3 / Panels",
+      linkedNoteIds: [],
+      linkedNoteCount: 0,
+      linkedNotes: []
+    }
+  ],
+  changeTaskEvents: [
+    {
+      id: "TKE-401",
+      taskId: "TASK-301",
+      taskLabel: "P12 / #1 / Login",
+      projectId: "PRJ-002",
+      project: "Chrome Workspace",
+      changeId: "CHG-101",
+      change: "Replicate the Android dashboard in Chrome",
+      eventType: "imported",
+      eventText: "Task imported from Excel.",
+      previousValue: null,
+      nextValue: "Pendiente",
+      createdBy: "user_12345678",
+      createdByName: "Demo User",
+      createdAt: "2026-03-30T14:10:00.000Z"
     }
   ],
   dashboardMetrics: [

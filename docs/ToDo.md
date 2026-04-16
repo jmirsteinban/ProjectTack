@@ -1,6 +1,6 @@
 # ToDo - ProjectTrack
 
-Actualizado al: 2026-03-31
+Actualizado al: 2026-04-01
 Proposito: Lista operativa de hallazgos y pendientes activos del proyecto
 Guia IA: Leer este archivo antes de analizar, proponer cambios o documentar el proyecto
 Documento canonico de estado: `docs/DOCUMENTACION_CENTRAL_PROJECTTRACK.md`
@@ -38,16 +38,40 @@ Guia viva UI: `docs/chrome/projecttrack-ui.html`
 - `change-detail.js` ya recibio una ronda manual de reordenamiento visual
 - `change-detail.js` ahora permite editar `status` y `priority` inline desde pills dropdown en el header
 - `change-detail.js` ya muestra `History` y se alimenta desde `project_notes` con `is_todo = false`
+- `change-detail.js` ya muestra `Tasks` debajo de `Environments`
+- `Tasks` ya permite:
+  - importar tracker `.xlsx` por cambio
+  - reemplazar tareas del cambio desde workbook, marcando como eliminadas las que ya no existan en el archivo
+  - editar `assignee` inline
+  - editar `status` inline
+  - vincular notas con tareas desde el modal de notas
+- `Tasks` ya permite exportar por rango usando `From TSKID / To TSKID`
+- La persistencia nueva depende de `Android/sql/change_tasks_excel_import_20260331.sql`
 - El patron actual de `pt-screen-hero` ya quedo homologado en las pantallas principales usando `row` + `col-*` en lugar del shell viejo por `pt-screen-hero-layout`
 - La shell neutra recomendada para superficies nuevas ahora es `card bg-body-tertiary`
 - `.bg-body-tertiary` ya queda alineado con el fondo real de `.card` mediante `--pt-card-bg`
+- Para listas apiladas del runtime, la preferencia actual ya pasa a `list-group` + `list-group-item`
+- Para botones, la convencion actual ya queda separada en 2 familias:
+  - hero: `btn ... pt-hero-button`
+  - runtime: `btn` + variante Bootstrap (`btn-primary`, `btn-secondary`, `btn-outline-*`, etc.)
+- La extension ya abre ahora 3 superficies distintas:
+  - `sidepanel.html`: launcher vertical compacto
+  - `workspace.html`: app actual con `projecttrack.css`
+  - `dashboard.html`: primera pagina full-tab Bootstrap-first
+- El icono de la extension ya no abre el panel directo: ahora abre `popup.html` con 2 acciones
+- Bootstrap local real ya queda vendorizado en `Chrome/vendor/bootstrap`
+- Branding compartido para la nueva capa web ya vive tambien en `Chrome/styles/projecttrack-theme.css`
 - La guia viva ya documenta:
   - `Hero card`
   - escala `text-step-*`
   - margenes negativos
+  - familias de botones, paleta runtime y receta `bg-*-subtle`
   - margenes `auto`
   - `pt-pill` con tamanos `sm` y `md`
   - convencion `card bg-body-tertiary` para cards y panels base
+- `profile.js`, `project-editor.js` y `change-editor.js` ya avanzaron a shell `Bootstrap-first` con `card bg-body-tertiary` + `card-body` + `row/col-*`
+- `projects.js`, `changes.js` y `project-detail.js` ya avanzaron tambien a shell `Bootstrap-first` para sus wrappers principales
+- `login.js` ya avanzo tambien a shell `Bootstrap-first` para su wrapper principal
 
 ## Mapa rapido de pantallas
 
@@ -66,24 +90,27 @@ Guia viva UI: `docs/chrome/projecttrack-ui.html`
 
 ## Hallazgos activos
 
-- `projects.js`: falta afinar detalles visuales de cambios recientes bajo la convencion actual de cards
-- `project-editor.js`: falta revisar color de botones, densidad del formulario y posicion de cards/controles
-- `project-detail.js`: falta reordenamiento visual fino de cards, enlaces y lectura general de la pantalla
-- `changes.js`: falta pulido visual equivalente al nivel ya aplicado en `change-detail.js`
-- `change-editor.js`: falta validar pulido visual, botones y acciones restantes
-- `login.js`: falta revisar consistencia visual final, estados de carga y errores reales
-- `profile.js`: falta validar densidad visual y consistencia de bloques backend/session
+- `projects.js`: falta validar visualmente la nueva shell Bootstrap-first y afinar detalles de cambios recientes
+- `project-editor.js`: falta validar visualmente la nueva shell Bootstrap-first y ajustar densidad fina del formulario
+- `project-detail.js`: falta validar visualmente la nueva shell Bootstrap-first y afinar lectura final de cards/enlaces
+- `changes.js`: falta validar visualmente la nueva shell Bootstrap-first y pulido equivalente al nivel ya aplicado en `change-detail.js`
+- `change-editor.js`: falta validar visualmente la nueva shell Bootstrap-first y ajustar controles restantes
+- `login.js`: falta validar visualmente la nueva shell Bootstrap-first, estados de carga y errores reales
+- `profile.js`: falta validar visualmente la nueva shell Bootstrap-first y densidad final de backend/session
+- `Tasks`: falta futura pantalla o widget de `burndown chart` apoyado en `change_task_events`
 - Documentacion funcional: falta seguir migrando a ingles donde aplique y decidir que contenido historico permanece en espanol
 
 ## Pendientes priorizados
 
 1. Continuar `QA visual por pantalla` en sidepanel real
-2. Terminar pulido de `Home / Projects`
-3. Terminar pulido de `Home / Projects / Details`
-4. Extender pulido a `Change Screens` restantes: `changes.js` y `change-editor.js`
-5. Revisar `Home / Login`
+2. Validar visualmente `Home / Projects`
+3. Validar visualmente `Home / Projects / Details`
+4. Continuar conversion `Bootstrap-first` en `Home / Projects / Details / Changes / Details` y `Home / Dashboard`
+5. Validar visualmente `Home / Login`
 6. Revisar `Home / Profile`
-7. Cerrar documentacion funcional restante en ingles
+7. Aplicar en Supabase la migracion `Android/sql/change_tasks_excel_import_20260331.sql`
+8. Disenar la siguiente fase de `Tasks`: burndown chart por proyecto/cambio
+9. Cerrar documentacion funcional restante en ingles
 
 ## Reglas para IA
 

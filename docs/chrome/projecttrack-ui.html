@@ -2321,26 +2321,338 @@
       <!-- Components / buttons and actions -->
       <section id="actions" class="card bg-body-tertiary card-body d-grid gap-cus-16 min-w-0">
         <h2>Buttons</h2>
-        <p>ProjectTrack ya expone una capa Bootstrap-ProjectTrack para acciones. La referencia recomendada es
-          <code>.btn</code> con variantes como <code>.btn-primary</code>, <code>.btn-secondary</code>,
-          <code>.btn-outline-primary</code>, <code>.btn-danger</code> y modificadores como <code>.btn-sm</code> y
-          <code>.btn-lg</code>. Las clases <code>pt-*</code> existentes siguen vivas como alias de producto.
+        <p>ProjectTrack maneja dos familias. La base normal es <code>.btn</code> con variantes Bootstrap-first para
+          cualquier area del producto. Cuando una accion vive en el hero, se apoya en la misma base pero agrega
+          <code>.pt-hero-button</code>, que fuerza una sola forma y una sola superficie visual para toda la cabecera.
+          Las clases <code>pt-*</code> historicas siguen vivas como alias de producto.
         </p>
 
         <div class="pt-grid-auto-320">
-          <article class="card bg-body-tertiary card-body d-grid gap-cus-14 min-w-0">
-            <span class="badge text-bg-secondary rounded-pill">Variantes base</span>
-            <div class="card bg-body-tertiary card-body bg-doc-preview-gradient shadow-none rounded-4">
+          <article class="card bg-body-tertiary card-body d-grid min-w-0">
+            <span class="badge text-bg-secondary rounded-pill">Hero buttons</span>
+            <div class="card bg-body-tertiary card-body bg-hero-gradient text-white shadow-none rounded-4 d-grid gap-3">
+              <p class="m-0">En heroes, el color no comunica jerarquia. Todas las acciones comparten la misma
+                superficie y la misma silueta.</p>
               <div class="d-flex flex-wrap gap-2 align-items-center">
-                <button type="button" class="btn btn-primary">Primary</button>
-                <button type="button" class="btn btn-secondary">Secondary</button>
-                <button type="button" class="btn btn-outline-primary">Outline</button>
-                <button type="button" class="btn btn-danger">Danger</button>
-                <button type="button" class="btn btn-link">Link</button>
+                <button type="button" class="btn btn-secondary pt-hero-button">View Project</button>
+                <button type="button" class="btn btn-primary pt-hero-button">Edit Project</button>
+                <button type="button" class="btn btn-danger pt-hero-button">Delete</button>
+                <button type="button" class="btn btn-outline-primary pt-hero-button">Back</button>
               </div>
             </div>
 
-            <span class="badge text-bg-secondary rounded-pill">Tamaños y grupo</span>
+            <pre class="pt-code-block rounded-3">&lt;button class="btn btn-primary pt-hero-button"&gt;Save Project&lt;/button&gt;
+&lt;button class="btn btn-outline-primary pt-hero-button"&gt;Cancel&lt;/button&gt;
+&lt;button class="btn btn-danger pt-hero-button"&gt;Delete&lt;/button&gt;</pre>
+
+            <p class="card-text">Usalo solo en CTAs de cabecera, heroes y entradas principales como el dashboard hero.
+              Inputs, filtros y botones de formulario siguen perteneciendo a la familia runtime aunque esten cerca del
+              hero.</p>
+
+            <span class="badge text-bg-secondary rounded-pill">Runtime buttons</span>
+
+
+            <div class="table-responsive rounded-3">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Vista Previa</th>
+                    <th>Clase</th>
+                    <th>Codigo</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-primary">.btn .btn-primary</button>
+                    </td>
+                    <td>
+                      btn btn-primary
+                    </td>
+                    <td rowspan="8" class="align-middle text-center">
+                      <br>
+                      <button class="btn btn-primary">Guardar</button>
+                      <button class="btn btn-secondary">Cancelar</button>
+                      <button class="btn btn-outline-primary">Volver</button>
+                      <button class="btn btn-danger">Eliminar</button>
+                      <br><br>
+
+                      <pre class="pt-code-block rounded-3">&lt;button class="btn btn-primary"&gt;Guardar&lt;/button&gt;
+&lt;button class="btn btn-secondary"&gt;Cancelar&lt;/button&gt;
+&lt;button class="btn btn-outline-primary"&gt;Volver&lt;/button&gt;
+&lt;button class="btn btn-danger"&gt;Eliminar&lt;/button&gt;</pre>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-secondary">.btn .btn-secondary</button>
+                    </td>
+                    <td>
+                      btn btn-secondary
+                    </td>
+                  </tr>
+
+
+
+
+                </tbody>
+              </table>
+            </div>
+            <br>
+
+
+
+
+
+
+
+            <span class="badge text-bg-secondary rounded-pill">Bootstrap buttons</span>
+
+
+
+
+            <div class="table-responsive rounded-3">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Vista Previa</th>
+                    <th>Clase</th>
+                    <th>Codigo</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-primary">.btn .btn-primary</button>
+                    </td>
+                    <td>
+                      btn btn-primary
+                    </td>
+                    <td rowspan="8" class="align-middle text-center">
+                      <br>
+                      <button class="btn btn-primary">Guardar</button>
+                      <button class="btn btn-secondary">Cancelar</button>
+                      <button class="btn btn-outline-primary">Volver</button>
+                      <button class="btn btn-danger">Eliminar</button>
+                      <br><br>
+
+                      <pre class="pt-code-block rounded-3">&lt;button class="btn btn-primary"&gt;Guardar&lt;/button&gt;
+&lt;button class="btn btn-secondary"&gt;Cancelar&lt;/button&gt;
+&lt;button class="btn btn-outline-primary"&gt;Volver&lt;/button&gt;
+&lt;button class="btn btn-danger"&gt;Eliminar&lt;/button&gt;</pre>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-secondary">.btn .btn-secondary</button>
+                    </td>
+                    <td>
+                      btn btn-secondary
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-success">.btn .btn-success</button>
+                    </td>
+                    <td>
+                      btn btn-success
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-info">.btn .btn-info</button>
+                    </td>
+                    <td>
+                      btn btn-info
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-warning">.btn .btn-warning</button>
+                    </td>
+                    <td>
+                      btn btn-warning
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-danger">.btn .btn-danger</button>
+                    </td>
+                    <td>
+                      btn btn-danger
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-light">.btn .btn-light</button>
+                    </td>
+                    <td>
+                      btn btn-light
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-dark">.btn .btn-dark</button>
+                    </td>
+                    <td>
+                      btn btn-dark
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+            <br>
+
+            <div class="table-responsive rounded-3">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Vista Previa</th>
+                    <th>Clase</th>
+                    <th>Codigo</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-outline-primary">.btn .btn-outline-primary</button>
+                    </td>
+                    <td>
+                      btn btn-outline-primary
+                    </td>
+                    <td rowspan="8" class="align-middle text-center">
+                      <br>
+                      <button class="btn btn-outline-primary">Guardar</button>
+                      <button class="btn btn-outline-secondary">Cancelar</button>
+                      <button class="btn btn-outline-primary">Volver</button>
+                      <button class="btn btn-outline-danger">Eliminar</button>
+                      <br><br>
+
+                      <pre class="pt-code-block rounded-3">&lt;button class="btn btn-outline-primary"&gt;Guardar&lt;/button&gt;
+&lt;button class="btn btn-outline-secondary"&gt;Cancelar&lt;/button&gt;
+&lt;button class="btn btn-outline-primary"&gt;Volver&lt;/button&gt;
+&lt;button class="btn btn-outline-danger"&gt;Eliminar&lt;/button&gt;</pre>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-outline-secondary">.btn .btn-outline-secondary</button>
+                    </td>
+                    <td>
+                      btn btn-outline-secondary
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-outline-success">.btn .btn-outline-success</button>
+                    </td>
+                    <td>
+                      btn btn-outline-success
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-outline-info">.btn .btn-outline-info</button>
+                    </td>
+                    <td>
+                      btn btn-outline-info
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-outline-warning">.btn .btn-outline-warning</button>
+                    </td>
+                    <td>
+                      btn btn-outline-warning
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-outline-danger">.btn .btn-outline-danger</button>
+                    </td>
+                    <td>
+                      btn btn-outline-danger
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-outline-dark">.btn .btn-outline-dark</button>
+                    </td>
+                    <td>
+                      btn btn-outline-dark
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <button type="button" class="btn btn-outline-dark">.btn .btn-outline-dark</button>
+                    </td>
+                    <td>
+                      btn btn-outline-dark
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+            <br>
+
+
+
+
+          </article>
+        </div>
+
+        <div class="pt-grid-auto-320">
+          <article class="card bg-body-tertiary card-body d-grid gap-cus-14 min-w-0">
+            <span class="badge text-bg-secondary rounded-pill">Runtime palette + subtle bg</span>
+            <div class="card bg-body-tertiary card-body bg-doc-preview-gradient shadow-none rounded-4 d-grid gap-3">
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                <button type="button"
+                  class="btn bg-primary-subtle text-primary-emphasis border border-primary-subtle shadow-none">Primary
+                  subtle</button>
+                <button type="button"
+                  class="btn bg-success-subtle text-success-emphasis border border-success-subtle shadow-none">Success
+                  subtle</button>
+                <button type="button"
+                  class="btn bg-info-subtle text-info-emphasis border border-info-subtle shadow-none">Info
+                  subtle</button>
+                <button type="button"
+                  class="btn bg-warning-subtle text-warning-emphasis border border-warning-subtle shadow-none">Warning
+                  subtle</button>
+                <button type="button"
+                  class="btn bg-danger-subtle text-danger-emphasis border border-danger-subtle shadow-none">Danger
+                  subtle</button>
+              </div>
+              <p class="m-0">No inventamos <code>.btn-subtle-*</code>. Para acciones contextuales usamos composicion
+                Bootstrap-first con <code>.btn</code> + <code>bg-*</code> + <code>text-*-emphasis</code> +
+                <code>border-*-subtle</code>.
+              </p>
+            </div>
+
+            <pre class="pt-code-block rounded-3">&lt;button class="btn bg-warning-subtle text-warning-emphasis border border-warning-subtle shadow-none"&gt;
+  Create Note
+&lt;/button&gt;</pre>
+
+            <span class="badge text-bg-secondary rounded-pill">Sizes, groups and aliases</span>
             <div class="card bg-body-tertiary card-body bg-doc-preview-gradient shadow-none rounded-4 d-grid gap-3">
               <div class="d-flex flex-wrap gap-2 align-items-center">
                 <button type="button" class="btn btn-primary btn-sm">btn-sm</button>
@@ -2349,47 +2661,53 @@
               </div>
               <div class="btn-toolbar">
                 <div class="btn-group" role="group" aria-label="Acciones de ejemplo">
-                  <button type="button" class="btn btn-secondary">Cancelar</button>
-                  <button type="button" class="btn btn-primary">Guardar</button>
-                  <button type="button" class="btn btn-danger">Eliminar</button>
+                  <button type="button" class="btn btn-secondary">Cancel</button>
+                  <button type="button" class="btn btn-primary">Save</button>
+                  <button type="button" class="btn btn-danger">Delete</button>
                 </div>
               </div>
             </div>
-
-            <pre class="pt-code-block rounded-3">&lt;button class="btn btn-primary"&gt;Guardar&lt;/button&gt;
-&lt;button class="btn btn-secondary"&gt;Cancelar&lt;/button&gt;
-&lt;button class="btn btn-outline-primary"&gt;Volver&lt;/button&gt;
-&lt;button class="btn btn-danger"&gt;Eliminar&lt;/button&gt;</pre>
 
             <div class="table-responsive rounded-3">
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Bootstrap-ProjectTrack</th>
+                    <th>Familia</th>
+                    <th>Referencia</th>
                     <th>Alias ProjectTrack</th>
                     <th>Uso</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td><code>.btn .btn-primary</code></td>
+                    <td>Hero</td>
+                    <td><code>.btn ... .pt-hero-button</code></td>
+                    <td><code>.pt-dashboard-hero-button</code> / <code>.pt-back-button--hero</code></td>
+                    <td>Acciones de cabecera, heroes y CTA principal de dashboard.</td>
+                  </tr>
+                  <tr>
+                    <td>Runtime / primary</td>
+                    <td><code>.btn.btn-primary</code></td>
                     <td><code>.pt-profile-save-button</code> / <code>.pt-change-create-button</code></td>
-                    <td>Acciones principales de guardado o avance.</td>
+                    <td>Guardado, avance y acciones principales.</td>
                   </tr>
                   <tr>
-                    <td><code>.btn .btn-secondary</code></td>
-                    <td><code>.pt-editor-secondary-button</code></td>
-                    <td>Acciones neutrales o de cancelacion.</td>
+                    <td>Runtime / secondary</td>
+                    <td><code>.btn.btn-secondary</code></td>
+                    <td><code>.pt-editor-secondary-button</code> / <code>.pt-editor-inline-button</code></td>
+                    <td>Acciones neutrales y soporte operacional.</td>
                   </tr>
                   <tr>
-                    <td><code>.btn .btn-outline-primary</code></td>
+                    <td>Runtime / outline</td>
+                    <td><code>.btn.btn-outline-*</code></td>
                     <td><code>.pt-back-button</code></td>
-                    <td>Regreso, acciones de soporte o contexto.</td>
+                    <td>Regreso, filtros, acciones contextuales y baja jerarquia.</td>
                   </tr>
                   <tr>
-                    <td><code>.btn .btn-danger</code></td>
+                    <td>Runtime / danger</td>
+                    <td><code>.btn.btn-danger</code></td>
                     <td><code>.pt-danger-button</code></td>
-                    <td>Acciones destructivas o confirmaciones de riesgo.</td>
+                    <td>Acciones destructivas y confirmaciones de riesgo.</td>
                   </tr>
                 </tbody>
               </table>
@@ -2896,14 +3214,14 @@
                 <h3>Hello, Demo User</h3>
                 <p>You have 3 open tasks to move forward today.</p>
               </div>
-              <button type="button" class="pt-dashboard-hero-button">Go to Projects</button>
+              <button type="button" class="btn pt-dashboard-hero-button pt-hero-button">Go to Projects</button>
             </section>
             <pre class="pt-code-block rounded-3">&lt;section class="pt-dashboard-hero-card"&gt;
   &lt;div class="pt-dashboard-hero-copy"&gt;
     &lt;h3&gt;Hello, Demo User&lt;/h3&gt;
     &lt;p&gt;You have 3 open tasks to move forward today.&lt;/p&gt;
   &lt;/div&gt;
-  &lt;button type="button" class="pt-dashboard-hero-button"&gt;Go to Projects&lt;/button&gt;
+  &lt;button type="button" class="btn pt-dashboard-hero-button pt-hero-button"&gt;Go to Projects&lt;/button&gt;
 &lt;/section&gt;</pre>
           </article>
           <article class="card bg-body-tertiary card-body d-grid gap-cus-14 min-w-0">
@@ -2927,8 +3245,9 @@
               <div class="row">
                 <div class="col d-flex justify-content-end gap-2 flex-wrap">
                   <button type="button"
-                    class="btn btn-outline-primary pt-back-button pt-back-button--hero">Back</button>
-                  <button type="button" class="btn btn-primary pt-change-create-button">New Project</button>
+                    class="btn btn-outline-primary pt-back-button pt-back-button--hero pt-hero-button">Back</button>
+                  <button type="button" class="btn btn-primary pt-change-create-button pt-hero-button">New
+                    Project</button>
                 </div>
               </div>
             </section>
@@ -2946,8 +3265,8 @@
   &lt;/div&gt;
   &lt;div class="row"&gt;
     &lt;div class="col d-flex justify-content-end gap-2 flex-wrap"&gt;
-      &lt;button type="button" class="btn btn-outline-primary pt-back-button pt-back-button--hero"&gt;Back&lt;/button&gt;
-      &lt;button type="button" class="btn btn-primary pt-change-create-button"&gt;New Project&lt;/button&gt;
+      &lt;button type="button" class="btn btn-outline-primary pt-back-button pt-back-button--hero pt-hero-button"&gt;Back&lt;/button&gt;
+      &lt;button type="button" class="btn btn-primary pt-change-create-button pt-hero-button"&gt;New Project&lt;/button&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/section&gt;</pre>
@@ -2980,7 +3299,8 @@
               </tr>
               <tr>
                 <td><code>.pt-change-detail-topline</code> + <code>.pt-change-detail-copy</code> +
-                  <code>.pt-change-detail-meta</code></td>
+                  <code>.pt-change-detail-meta</code>
+                </td>
                 <td>Copy y metadata</td>
                 <td>Resuelve breadcrumb corto, titulo, descripcion y chips dentro del hero actual.</td>
               </tr>

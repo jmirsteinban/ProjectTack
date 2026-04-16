@@ -2,16 +2,20 @@
 import {
   CHANGE_PRIORITY_OPTIONS,
   CHANGE_STATUS_OPTIONS,
+  TASK_STATUS_OPTIONS,
   isCompletedStatus,
   priorityClass,
   statusClass,
+  taskStatusClass,
   translatePriority,
   translateStatus,
+  translateTaskStatus,
 } from "../services/ui-copy.js";
 import {
   getVisibleChanges,
   getVisibleNotesForChange,
   getVisibleProjects,
+  getVisibleTasksForChange,
 } from "../services/workspace-selectors.js";
 
 function urlsByEnvironment(project, environment) {
@@ -107,6 +111,26 @@ function noteMentions(note) {
   `;
 }
 
+function noteLinkedTasks(note) {
+  if (!(note.linkedTasks ?? []).length) {
+    return "";
+  }
+
+  return `
+    <div class="pt-inline-list">
+      ${(note.linkedTasks ?? [])
+        .map(
+          (task) => `
+        <span class="pt-mini-chip pt-mini-chip--task" title="${task.documentName || task.label}">
+          ${task.label}
+        </span>
+      `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
 function formatHistoryTimestamp(value) {
   if (!value) {
     return "Recently";
@@ -176,6 +200,13 @@ export function renderChangeDetailScreen(state, data) {
   }
   const project = visibleProjects.find((item) => item.name === change.project);
   const notes = getVisibleNotesForChange(data, change);
+  const tasks = getVisibleTasksForChange(data, change);
+  const taskFeatureStatus = data.taskFeatureStatus ?? {
+    available: true,
+    missingRelations: [],
+    migrationFile: "Android/sql/change_tasks_excel_import_20260331.sql",
+  };
+  const tasksFeatureAvailable = taskFeatureStatus.available !== false;
   const siblingChanges = visibleChanges.filter(
     (item) => item.project === change.project && item.id !== change.id,
   );
@@ -188,6 +219,13 @@ export function renderChangeDetailScreen(state, data) {
   const historyEntries = (data.changeHistory ?? []).filter(
     (item) => item.changeId === change.id,
   );
+  const taskOpenCount = tasks.filter(
+    (task) => !["Completado", "Error"].includes(task.status),
+  ).length;
+  const taskCompletedCount = tasks.filter(
+    (task) => task.status === "Completado",
+  ).length;
+  const taskErrorCount = tasks.filter((task) => task.status === "Error").length;
 
   const environmentCards = visibleEnvironments
     .map((environment) => {
@@ -207,7 +245,7 @@ export function renderChangeDetailScreen(state, data) {
           : `<p>No URLs configured for this environment.</p>`;
 
       return `
-      <div class="col-12 col-lg-4">
+      <div class="col-12">
         <article class="${environmentCardSurfaceClasses(environment)}">
           <div class="position-absolute top-0 start-0 translate-middle-y ms-3 px-1 bg-body-tertiary">
             <span class="pt-pill pt-pill--md ${environmentTone(environment)}">${environment}</span>
@@ -226,20 +264,19 @@ export function renderChangeDetailScreen(state, data) {
       ? notes
           .map(
             (note, index) => `
-      <article class="card bg-body-tertiary pt-change-note-card">
-        <div class="card-body">
-          <div class="pt-row-top">
-            <span class="pt-row-subtle">Note #${index + 1}</span>
-            <span class="pt-pill ${statusClass(note.status)}">${translateStatus(note.status)}</span>
-          </div>
-          <strong>${note.text}</strong>
-          <p>${note.project}</p>
-          ${noteMentions(note)}
-          <div class="pt-project-editor-actions">
-            <button type="button" class="btn btn-secondary btn-sm" data-action="edit-note" data-note-id="${note.id}">Edit</button>
-            <button type="button" class="btn btn-secondary btn-sm" data-action="toggle-note-status" data-note-id="${note.id}">${isCompletedStatus(note.status) ? "Reopen" : "Complete"}</button>
-            <button type="button" class="btn btn-secondary btn-sm" data-action="delete-note" data-note-id="${note.id}">Delete</button>
-          </div>
+      <article class="list-group-item pt-change-note-card">
+        <div class="pt-row-top">
+          <span class="pt-row-subtle">Note #${index + 1}</span>
+          <span class="pt-pill ${statusClass(note.status)}">${translateStatus(note.status)}</span>
+        </div>
+        <strong>${note.text}</strong>
+        <p>${note.project}</p>
+        ${noteMentions(note)}
+        ${noteLinkedTasks(note)}
+        <div class="pt-project-editor-actions">
+          <button type="button" class="btn btn-secondary btn-sm" data-action="edit-note" data-note-id="${note.id}">Edit</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-action="toggle-note-status" data-note-id="${note.id}">${isCompletedStatus(note.status) ? "Reopen" : "Complete"}</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-action="delete-note" data-note-id="${note.id}">Delete</button>
         </div>
       </article>
     `,
@@ -247,11 +284,74 @@ export function renderChangeDetailScreen(state, data) {
           .join("")
       : `<div class="pt-empty-state-card"><strong>No related notes</strong><p>There are no visible notes related to this change yet.</p></div>`;
 
+  const taskRows = !tasksFeatureAvailable
+    ? `
+        <section class="alert alert-warning pt-change-task-warning" role="status">
+          <strong>Tasks require the Supabase migration and permissions.</strong>
+          <p>Apply or re-run <code>${taskFeatureStatus.migrationFile}</code> so the tables, grants and RLS policies are available for authenticated users.</p>
+        </section>
+      `
+    : tasks.length > 0
+      ? tasks
+          .map(
+            (task, index) => `
+      <article class="list-group-item pt-change-task-card">
+        <div class="d-grid gap-3 min-w-0">
+          <div class="pt-row-top gap-2">
+            <span class="pt-row-subtle">TSKID ${index + 1}</span>
+            <span class="pt-pill ${taskStatusClass(task.status)}">${translateTaskStatus(task.status)}</span>
+          </div>
+          <div class="d-flex flex-wrap align-items-center gap-2 min-w-0 pt-change-task-meta">
+            ${task.page ? `<span class="pt-mini-chip">Page ${task.page}</span>` : ""}
+            ${task.itemNumber ? `<span class="pt-mini-chip">#${task.itemNumber}</span>` : ""}
+            ${task.annotationType ? `<span class="pt-mini-chip pt-mini-chip--task">${task.annotationType}</span>` : ""}
+            ${task.linkedNoteCount > 0 ? `<span class="pt-mini-chip pt-mini-chip--task">${task.linkedNoteCount} linked ${task.linkedNoteCount === 1 ? "note" : "notes"}</span>` : ""}
+          </div>
+          <div class="d-grid gap-1 min-w-0">
+            ${task.documentName ? `<strong class="pt-change-task-title">${task.documentName}</strong>` : ""}
+            <p class="pt-change-task-request m-0">${task.requestText}</p>
+          </div>
+          <div class="row g-2 pt-change-task-controls">
+            <div class="col-12 col-sm-6">
+              <label class="form-label" for="task-assignee-${task.id}">Assignee</label>
+              <select id="task-assignee-${task.id}" class="form-select" data-action="change-task-assignee" data-task-id="${task.id}"${tasksFeatureAvailable ? "" : " disabled"}>
+                <option value="">Unassigned</option>
+                ${(data.users ?? [])
+                  .map(
+                    (user) => `
+                  <option value="${user.id}"${user.id === task.assignedToId ? " selected" : ""}>${user.name || user.email}</option>
+                `,
+                  )
+                  .join("")}
+              </select>
+            </div>
+            <div class="col-12 col-sm-6">
+              <label class="form-label" for="task-status-${task.id}">Status</label>
+              <select id="task-status-${task.id}" class="form-select" data-action="change-task-status" data-task-id="${task.id}"${tasksFeatureAvailable ? "" : " disabled"}>
+                ${TASK_STATUS_OPTIONS.map(
+                  (statusValue) => `
+                  <option value="${statusValue}"${statusValue === task.status ? " selected" : ""}>${translateTaskStatus(statusValue)}</option>
+                `,
+                ).join("")}
+              </select>
+            </div>
+          </div>
+        </div>
+      </article>
+    `,
+          )
+          .join("")
+      : `<div class="pt-empty-state-card"><strong>No tasks imported</strong><p>Import the tracker workbook to register the requested modifications for this change.</p></div>`;
+  const taskListClass =
+    tasks.length > 4
+      ? "list-group pt-change-task-list pt-change-task-list--scroll"
+      : "list-group pt-change-task-list";
+
   const siblingRows = siblingChanges
     .slice(0, 3)
     .map(
       (item) => `
-    <article class="pt-project-change-item pt-clickable-card" data-change-id="${item.id}">
+    <article class="list-group-item list-group-item-action pt-project-list-group-item pt-clickable-card" data-change-id="${item.id}">
       <div class="pt-row-top">
         <strong>${item.title}</strong>
         <div class="pt-dashboard-pill-stack">
@@ -270,24 +370,21 @@ export function renderChangeDetailScreen(state, data) {
       ? historyEntries
           .map(
             (entry, index) => `
-      <article class="bg-body-tertiary">
-        <div>
-          <div class="pt-row-top">
-            <span class="pt-row-subtle">HSTID ${index + 1}</span>
-            <span>${formatHistoryTimestamp(entry.createdAt)}</span>
-          </div>
-          <p>${entry.text || "A change update was recorded."}</p>
+      <article class="list-group-item pt-change-history-item">
+        <div class="pt-row-top">
+          <span class="pt-row-subtle">HSTID ${index + 1}</span>
+          <span>${formatHistoryTimestamp(entry.createdAt)}</span>
         </div>
+        <p>${entry.text || "A change update was recorded."}</p>
       </article>
-      <div class="pt-section-separator my-2"></div>
     `,
           )
           .join("")
       : `<div class="pt-empty-state-card"><strong>No history yet</strong><p>Status and priority updates will be recorded here automatically.</p></div>`;
   const historyListClass =
     historyEntries.length > 4
-      ? "pt-list pt-change-history-list pt-change-history-list--scroll"
-      : "pt-list pt-change-history-list";
+      ? "list-group pt-change-history-list pt-change-history-list--scroll"
+      : "list-group pt-change-history-list";
 
   return `
     <section class="pt-screen-hero">
@@ -314,19 +411,19 @@ export function renderChangeDetailScreen(state, data) {
 
         <div class="row g-2">
             <div class="col d-flex justify-content-end gap-2 flex-wrap">
-                <button type="button" class="btn btn-secondary pt-editor-secondary-button" data-action="open-change-project">
+                <button type="button" class="btn btn-secondary pt-editor-secondary-button pt-hero-button" data-action="open-change-project">
                     View Project
                 </button>
 
-                <button type="button" class="btn btn-primary pt-change-create-button" data-action="open-change-editor">
+                <button type="button" class="btn btn-primary pt-change-create-button pt-hero-button" data-action="open-change-editor">
                     Edit Change
                 </button>
 
-                <button type="button" class="btn btn-danger pt-danger-button" data-action="delete-change">
+                <button type="button" class="btn btn-danger pt-danger-button pt-hero-button" data-action="delete-change">
                     Delete Change
                 </button>
 
-                <button type="button" class="btn btn-outline-primary pt-back-button pt-back-button--hero" data-action="back-to-change-origin">
+                <button type="button" class="btn btn-outline-primary pt-back-button pt-back-button--hero pt-hero-button" data-action="back-to-change-origin">
                     Back
                 </button>
             </div>
@@ -380,9 +477,16 @@ export function renderChangeDetailScreen(state, data) {
             <div class="pt-change-summary-row">
               <span class="pt-change-summary-label">Assignees:</span>
               <div class="pt-inline-list">
-                ${(change.assignees ?? []).length > 0
-                  ? change.assignees.map((assignee) => `<span class="pt-mini-chip">${assignee}</span>`).join("")
-                  : `<span class="text-body-secondary">No assignees</span>`}
+                ${
+                  (change.assignees ?? []).length > 0
+                    ? change.assignees
+                        .map(
+                          (assignee) =>
+                            `<span class="pt-mini-chip">${assignee}</span>`,
+                        )
+                        .join("")
+                    : `<span class="text-body-secondary">No assignees</span>`
+                }
               </div>
             </div>
           </div>
@@ -421,6 +525,44 @@ export function renderChangeDetailScreen(state, data) {
       </div>
 
       <div class="card-body">
+        <div class="d-flex align-items-center w-100 gap-2 flex-wrap">
+          <div class="d-flex flex-column">
+            <h3 class="pt-section-title">Tasks</h3>
+          </div>
+
+          <div class="d-flex gap-2 ms-auto flex-wrap align-items-end pt-range-export-controls">
+            <span class="pt-dashboard-count-chip">${taskOpenCount} open</span>
+            <span class="pt-dashboard-count-chip">${taskCompletedCount} completed</span>
+            ${taskErrorCount > 0 ? `<span class="pt-dashboard-count-chip">${taskErrorCount} error</span>` : ""}
+            <button type="button" class="btn btn-secondary pt-change-task-import-button" data-action="open-task-import"${tasksFeatureAvailable ? "" : " disabled"}>
+              <span class="material-symbols-outlined pt-ms-wght-700 pt-ms-opsz-20" aria-hidden="true">upload_file</span>
+              <span>Import Tasks from Excel</span>
+            </button>
+            <button type="button" class="btn btn-outline-secondary pt-change-task-import-button" data-action="open-task-replace"${tasksFeatureAvailable ? "" : " disabled"}>
+              <span class="material-symbols-outlined pt-ms-wght-700 pt-ms-opsz-20" aria-hidden="true">sync_saved_locally</span>
+              <span>Replace Tasks</span>
+            </button>
+            <div class="d-flex flex-column">
+              <label class="form-label mb-1" for="task-export-start">From TSKID</label>
+              <input id="task-export-start" type="number" min="1" max="${Math.max(tasks.length, 1)}" inputmode="numeric" class="form-control pt-range-export-field" data-field="task-export-start" value="${state.taskExportStart ?? ""}" placeholder="1">
+            </div>
+            <div class="d-flex flex-column">
+              <label class="form-label mb-1" for="task-export-end">To TSKID</label>
+              <input id="task-export-end" type="number" min="1" max="${Math.max(tasks.length, 1)}" inputmode="numeric" class="form-control pt-range-export-field" data-field="task-export-end" value="${state.taskExportEnd ?? ""}" placeholder="${tasks.length || 1}">
+            </div>
+            <button type="button" class="btn btn-outline-secondary pt-change-task-import-button" data-action="export-change-tasks"${tasks.length ? "" : " disabled"}>
+              <span class="material-symbols-outlined pt-ms-wght-700 pt-ms-opsz-20" aria-hidden="true">download</span>
+              <span>Export</span>
+            </button>
+          </div>
+        </div>
+        <input type="file" class="visually-hidden" data-field="change-task-import-file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+        <div class="${taskListClass}">${taskRows}</div>
+      </div>
+
+      <div class="pt-section-separator mx-3"></div>
+
+      <div class="card-body">
         <div class="d-flex align-items-center w-100">
           <div class="d-flex flex-column">
             <h3 class="pt-section-title">Notes</h3>
@@ -434,18 +576,20 @@ export function renderChangeDetailScreen(state, data) {
             </button>
           </div>
         </div>
-        <div class="pt-list">${todoRows}</div>
+        ${notes.length
+          ? `<div class="list-group">${todoRows}</div>`
+          : todoRows}
       </div>
 
       <div class="pt-section-separator mx-3"></div>
 
       <div class="card-body">
-        <div class="d-flex align-items-center w-100">
+        <div class="d-flex align-items-center w-100 gap-2 flex-wrap">
           <div class="d-flex flex-column">
             <h3 class="pt-section-title">History</h3>
           </div>
 
-          <div class="d-flex gap-2 ms-auto">
+          <div class="d-flex gap-2 ms-auto flex-wrap">
             <span class="pt-dashboard-count-chip">${historyEntries.length} events</span>
           </div>
         </div>
@@ -462,7 +606,9 @@ export function renderChangeDetailScreen(state, data) {
         </div>
         <span class="pt-dashboard-count-chip">${siblingChanges.length} related</span>
       </div>
-      <div class="pt-list">${siblingRows || `<div class="pt-empty-state-card"><strong>No related changes</strong><p>There are no other visible changes for this project.</p></div>`}</div>
+      ${siblingRows
+        ? `<div class="list-group">${siblingRows}</div>`
+        : `<div class="pt-empty-state-card"><strong>No related changes</strong><p>There are no other visible changes for this project.</p></div>`}
     </section>
   `;
 }

@@ -17,6 +17,12 @@ function syncProjectTrackViewport(contentNode) {
 }
 
 async function mountProjectTrackExtension(rootNode) {
+  const searchParams = new URLSearchParams(window.location.search);
+  const requestedView = searchParams.get("view");
+  const initialView = ["dashboard", "projects", "changes", "profile", "login"].includes(requestedView)
+    ? requestedView
+    : "dashboard";
+
   const host = document.createElement("div");
   host.className = "projecttrack-root";
 
@@ -36,7 +42,7 @@ async function mountProjectTrackExtension(rootNode) {
   }
 
   try {
-    await mountProjectTrackApp(content);
+    await mountProjectTrackApp(content, { initialView });
   } catch (error) {
     console.error("[ProjectTrack] Could not mount the extension.", error);
     content.innerHTML = `

@@ -220,7 +220,7 @@ export function renderDashboardScreen(data) {
           <h3>Hello, ${data.user.name}</h3>
           <p>You have ${openTodoCount} open tasks to move forward today.</p>
         </div>
-        <button type="button" class="pt-dashboard-hero-button" data-action="go-to-projects">Go to Projects</button>
+        <button type="button" class="btn pt-dashboard-hero-button pt-hero-button" data-action="go-to-projects">Go to Projects</button>
       </section>
 
       <section class="pt-dashboard-metric-strip pt-grid-auto-150">${metrics}</section>

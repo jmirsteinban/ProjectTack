@@ -1,6 +1,7 @@
 import {
   ensureAuthenticatedBackendSession,
   fetchRemoteWorkspaceData,
+  importRemoteChangeTasks,
   isBackendAuthError,
   loadBackendAuthState,
   loadBackendConfig,
@@ -10,10 +11,12 @@ import {
   saveRemoteChange,
   saveRemoteNote,
   saveRemoteProject,
+  replaceRemoteChangeTasks,
   softDeleteRemoteChange,
   softDeleteRemoteNote,
   softDeleteRemoteProject,
-  toggleRemoteNoteStatus
+  toggleRemoteNoteStatus,
+  updateRemoteChangeTask
 } from "./backend.js";
 
 let lastWorkspaceSyncMeta = {
@@ -28,7 +31,11 @@ let lastWorkspaceMutationMeta = {
   ok: false,
   createdProjectId: null,
   createdChangeId: null,
-  createdNoteId: null
+  createdNoteId: null,
+  importedTaskCount: 0,
+  updatedTaskCount: 0,
+  deletedTaskCount: 0,
+  taskImportMode: "import"
 };
 
 function setWorkspaceSyncMeta(meta) {
@@ -87,7 +94,14 @@ function createLockedWorkspace(seedData, session = null) {
     projects: [],
     changes: [],
     changeHistory: [],
+    changeTasks: [],
+    changeTaskEvents: [],
     mentionedNotes: [],
+    taskFeatureStatus: {
+      available: true,
+      missingRelations: [],
+      migrationFile: "Android/sql/change_tasks_excel_import_20260331.sql"
+    },
     dashboardHero: {
       ...base.dashboardHero,
       openTodoCount: 0
@@ -134,7 +148,11 @@ async function executeRemoteMutation(operation, action, refreshData) {
     ok: false,
     createdProjectId: null,
     createdChangeId: null,
-    createdNoteId: null
+    createdNoteId: null,
+    importedTaskCount: 0,
+    updatedTaskCount: 0,
+    deletedTaskCount: 0,
+    taskImportMode: "import"
   });
 
   try {
@@ -159,7 +177,11 @@ async function executeRemoteMutation(operation, action, refreshData) {
       ok: false,
       createdProjectId: null,
       createdChangeId: null,
-      createdNoteId: null
+      createdNoteId: null,
+      importedTaskCount: 0,
+      updatedTaskCount: 0,
+      deletedTaskCount: 0,
+      taskImportMode: "import"
     });
     setWorkspaceSyncMeta({
       channel: isBackendAuthError(error) ? "auth-required" : "remote-error",
@@ -303,6 +325,30 @@ export async function softDeleteNote(data, noteId) {
   return executeRemoteMutation(
     "delete-note",
     (backendConfig) => softDeleteRemoteNote(backendConfig, noteId),
+    data
+  );
+}
+
+export async function importChangeTasks(data, payload) {
+  return executeRemoteMutation(
+    "import-change-tasks",
+    (backendConfig) => importRemoteChangeTasks(backendConfig, data, payload),
+    data
+  );
+}
+
+export async function replaceChangeTasks(data, payload) {
+  return executeRemoteMutation(
+    "replace-change-tasks",
+    (backendConfig) => replaceRemoteChangeTasks(backendConfig, data, payload),
+    data
+  );
+}
+
+export async function updateChangeTask(data, taskId, payload) {
+  return executeRemoteMutation(
+    "update-change-task",
+    (backendConfig) => updateRemoteChangeTask(backendConfig, taskId, payload),
     data
   );
 }

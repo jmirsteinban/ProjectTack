@@ -1,6 +1,6 @@
 ﻿# Documentacion Central - ProjectTrack
 
-Actualizado al: 2026-03-31
+Actualizado al: 2026-04-01
 Estado general: En progreso
 Alcance actual: Android + Extension Chrome
 
@@ -23,9 +23,12 @@ Concentrar en un solo archivo el estado funcional, tecnico y operativo de Projec
 - `docs/ToDo.md` pasa a ser la referencia corta para seguimiento activo, hallazgos y pendientes.
 - La guia viva de Chrome ya documenta `Hero card`, la escala tipografica `text-step-*` actualizada, utilidades de margen negativo/auto y variantes `pt-pill` con tamanos `sm` y `md`.
 - La shell neutra recomendada para cards y panels en Chrome es `card bg-body-tertiary`, con `.bg-body-tertiary` mapeado a `--pt-card-bg`.
+- Para listas apiladas, la shell recomendada en runtime es `list-group` + `list-group-item`, dejando `pt-*` solo para layout o tipografia de dominio.
 - En Chrome, `Bootstrap-ProjectTrack` es el design system base y `Grid` es la capa de layout, con viewport minimo de `360px`, ancho de diseno optimo de `550px` y breakpoints propios.
 - Se define como direccion actual del producto en Chrome una migracion global a ingles para texto visible del runtime y documentacion funcional.
 - Supabase es el backend real para datos, auth y reglas RLS.
+- `Home / Projects / Details / Changes / Details` ya incluye una seccion `Tasks` con importacion `.xlsx`, asignacion inline, cambio de estado y vinculacion de notas con tareas.
+- `Home / Projects / Details / Changes / Details` ya incluye tambien `Replace Tasks` y exportacion de `Tasks` por rango `TSKID`.
 - Chrome ya tiene:
   - auth real inicial
   - lectura remota inicial
@@ -34,6 +37,16 @@ Concentrar en un solo archivo el estado funcional, tecnico y operativo de Projec
   - relogin automatico con credenciales guardadas
 
 ## Bitacora reciente
+
+### 2026-04-01
+
+- Se continuo la pasada `Bootstrap-first` en el runtime clasico de `workspace.html`.
+- `Chrome/src/screens/profile.js` ya migro sus shells principales de `pt-screen-card`, `pt-row` y `pt-col-*` hacia `card bg-body-tertiary`, `card-body`, `row` y `col-*`.
+- `Chrome/src/screens/project-editor.js` ya usa `card bg-body-tertiary`, `card-body`, `row` y `col-*` como estructura base del formulario y de los 3 panels de ambientes.
+- `Chrome/src/screens/change-editor.js` ya usa `card bg-body-tertiary`, `card-body`, `row` y `col-*` como estructura base de informacion general, estado/prioridad, ambientes y accesos.
+- `Chrome/src/screens/projects.js`, `Chrome/src/screens/changes.js` y `Chrome/src/screens/project-detail.js` ya removieron sus shells principales `pt-screen-card` / `pt-row-top` para priorizar `card bg-body-tertiary`, `card-header`, `card-body`, `row`, `col-*` y `d-flex`.
+- `Chrome/src/screens/login.js` ya migro su wrapper principal a `card bg-body-tertiary` y `card-body`, conservando solo el shell propio del bloque de acceso.
+- En esta ronda se deja `pt-*` solo para piezas de dominio que aun aportan comportamiento o estilo especifico, como grids de eleccion, sugerencias, chips y filas de URLs.
 
 ### 2026-03-31
 
@@ -49,6 +62,22 @@ Concentrar en un solo archivo el estado funcional, tecnico y operativo de Projec
   - pills de `status` y `priority` ahora se editan inline desde dropdowns en el header
   - cada cambio inline de `status` o `priority` ya genera una entrada persistente en `History`
   - el historico de cambios se persiste en `project_notes` con `is_todo = false`
+  - se agrego la seccion `Tasks` debajo de `Environments`, con importacion de tracker Excel por cambio
+  - la importacion de tareas ahora consume archivos `.xlsx` estilo tracker y registra tareas reales en `change_tasks`
+  - `Tasks` ahora diferencia entre `Import Tasks from Excel` y `Replace Tasks`; el reemplazo elimina logicamente las tareas del cambio que no existan en el nuevo workbook
+  - las tareas permiten actualizar `assignee` y `status` inline desde la pantalla de detalle del cambio
+  - las notas ahora pueden vincular una o varias tareas del cambio mediante `project_note_task_links`
+  - se agrego la bitacora base `change_task_events` para historico y futuro `burndown chart`
+  - `Tasks` ahora permite exportar por rango manual `From TSKID / To TSKID`
+  - se hizo una pasada de alineacion `Bootstrap-first` sobre listas del runtime; `Changes`, `Notes`, `History`, `Other Project Changes` y grupos de URLs del editor ya priorizan `list-group`
+  - se redefinio el sistema de botones en 2 familias documentadas: `Hero buttons` con `pt-hero-button` y `Runtime buttons` con paleta Bootstrap-first
+  - la guia viva `projecttrack-ui.html` ahora documenta tambien la receta oficial para botones contextuales con `bg-*-subtle` + `text-*-emphasis` + `border-*-subtle`
+  - `sidepanel.html` ya no monta la app completa: ahora funciona como launcher vertical con accesos a `dashboard.html`, `workspace.html` y acciones compactas del panel
+  - el icono principal de la extension ahora abre `popup.html` con 2 opciones explicitas: `ProjectTrack` y `SidePanel`
+  - se agrego `dashboard.html` como primera superficie full-tab Bootstrap-first usando Bootstrap local real en `Chrome/vendor/bootstrap`
+  - se agrego `workspace.html` como shell de transicion para seguir abriendo la app actual completa fuera del panel lateral
+  - se versionaron `projecttrack-theme.css` y `projecttrack-fulltab.css` para separar branding compartido de la nueva capa web full-tab
+  - la migracion requerida para Supabase queda versionada en `Android/sql/change_tasks_excel_import_20260331.sql`
 
 ### 2026-03-25
 

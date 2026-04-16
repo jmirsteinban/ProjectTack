@@ -202,16 +202,17 @@ export function isBackendAuthError(error) {
   return [
     "se requiere iniciar sesion",
     "sign in required",
-    "auth",
     "jwt",
-    "token",
-    "session",
-    "sesion",
+    "session expired",
+    "session is not active",
+    "session required",
+    "sesion expirada",
     "supabase 401",
     "supabase 403",
     "invalid login credentials",
     "refresh_token",
-    "not authenticated"
+    "not authenticated",
+    "access token",
   ].some((token) => message.includes(token));
 }
 
@@ -322,8 +323,74 @@ function isMissingColumnError(error, columnName) {
   return message.includes("does not exist") && message.includes(columnName.toLowerCase());
 }
 
+function isMissingRelationError(error, relationName) {
+  const message = String(error?.message ?? "").toLowerCase();
+  const relation = String(relationName ?? "").toLowerCase();
+  return message.includes(relation) && (
+    message.includes("does not exist")
+    || message.includes("could not find")
+    || message.includes("42p01")
+  );
+}
+
+function isRelationPermissionError(error, relationName) {
+  const message = String(error?.message ?? "").toLowerCase();
+  const relation = String(relationName ?? "").toLowerCase();
+  return message.includes(relation) && (
+    message.includes("permission denied")
+    || message.includes("forbidden")
+    || message.includes("row-level security")
+    || message.includes("rls")
+    || message.includes("42501")
+  );
+}
+
+async function fetchOptionalJson(config, pathAndQuery, session, relationNames = []) {
+  try {
+    return {
+      rows: await fetchJson(config, pathAndQuery, session),
+      missingRelation: null,
+      permissionDeniedRelation: null,
+    };
+  } catch (error) {
+    const missingRelation = relationNames.find((relationName) => isMissingRelationError(error, relationName)) ?? null;
+    if (missingRelation) {
+      return {
+        rows: [],
+        missingRelation,
+        permissionDeniedRelation: null,
+      };
+    }
+
+    const permissionDeniedRelation = relationNames.find((relationName) => isRelationPermissionError(error, relationName)) ?? null;
+    if (permissionDeniedRelation) {
+      return {
+        rows: [],
+        missingRelation: null,
+        permissionDeniedRelation,
+      };
+    }
+    throw error;
+  }
+}
+
+function taskFeatureUnavailableError(relationName, reason = "missing") {
+  const target = relationName === "project_note_task_links"
+    ? "the note-task link table"
+    : "the task tables";
+  if (reason === "forbidden") {
+    return new Error(
+      `ProjectTrack Tasks is blocked by Supabase permissions on ${target}. Re-run Android/sql/change_tasks_excel_import_20260331.sql so grants and RLS policies are applied for authenticated users.`,
+    );
+  }
+  return new Error(
+    `ProjectTrack Tasks is not available because ${target} is missing. Apply Android/sql/change_tasks_excel_import_20260331.sql in Supabase and retry.`,
+  );
+}
+
 async function fetchUsersWithFallback(config, session) {
   const candidateQueries = [
+    "users?select=*",
     "users?select=id,user_id,email,display_name,full_name,name",
     "users?select=id,email,display_name,full_name,name",
     "users?select=id,email,full_name,name",
@@ -438,11 +505,74 @@ function isChangeStatusConstraintViolation(error) {
     || (normalized.includes("changes") && normalized.includes("status") && normalized.includes("constraint"));
 }
 
+function canonicalTaskStatus(status) {
+  const normalized = String(status ?? "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ");
+
+  switch (normalized) {
+    case "":
+    case "pendiente":
+    case "pending":
+      return "pendiente";
+    case "en progreso":
+    case "en desarrollo":
+    case "in progress":
+      return "en_desarrollo";
+    case "completado":
+    case "completed":
+    case "done":
+      return "completado";
+    case "error":
+    case "blocked":
+    case "bloqueado":
+      return "error";
+    default:
+      return normalized;
+  }
+}
+
+function normalizeTaskStatus(status) {
+  switch (canonicalTaskStatus(status)) {
+    case "pendiente":
+      return "Pendiente";
+    case "en_desarrollo":
+      return "En desarrollo";
+    case "completado":
+      return "Completado";
+    case "error":
+      return "Error";
+    default: {
+      const value = String(status ?? "").trim();
+      return value || "Pendiente";
+    }
+  }
+}
+
 function normalizeEnvironment(value) {
   const normalized = (value ?? "").trim().toUpperCase();
   if (normalized === "STG") return "STG";
   if (normalized === "PROD") return "PROD";
   return "QA";
+}
+
+function taskLabelFromValues(page, itemNumber, documentName) {
+  const pageLabel = page ? `P${page}` : "Task";
+  const numberLabel = itemNumber ? `#${itemNumber}` : null;
+  const documentLabel = documentName ? String(documentName).trim() : null;
+  return [pageLabel, numberLabel, documentLabel].filter(Boolean).join(" / ");
+}
+
+function createTaskLegacySignature(taskLike) {
+  return [
+    taskLike?.documentName,
+    taskLike?.requestText,
+  ]
+    .map((value) => String(value ?? "").trim().toLowerCase().replace(/\s+/g, " "))
+    .join("|");
 }
 
 function visibleEnvironmentsFromChange(row) {
@@ -520,13 +650,14 @@ function mapRemoteChanges(changeRows, projectsById, assigneesByChangeId, usersBy
   });
 }
 
-function mapRemoteNotes(noteRows, projectsById, changesById, noteAssigneesByNoteId, usersById) {
+function mapRemoteNotes(noteRows, projectsById, changesById, noteAssigneesByNoteId, usersById, noteTaskIdsByNoteId = new Map(), tasksById = new Map()) {
   return noteRows.map((row) => {
     const project = projectsById.get(row.project_id) ?? null;
     const change = changesById.get(row.change_id) ?? null;
     const assigneeIds = noteAssigneesByNoteId.get(row.id) ?? [];
     const fallbackAssigned = row.assigned_to ? [row.assigned_to] : [];
     const combined = Array.from(new Set([...assigneeIds, ...fallbackAssigned]));
+    const linkedTaskIds = Array.from(new Set(noteTaskIdsByNoteId.get(row.id) ?? []));
     const mentionUsers = combined.map((id) => {
       const resolved = usersById.get(id);
       const handleSource = resolved?.name || resolved?.email || id;
@@ -551,7 +682,17 @@ function mapRemoteNotes(noteRows, projectsById, changesById, noteAssigneesByNote
       createdBy: row.created_by ?? null,
       createdAt: row.created_at ?? null,
       mentions: Array.from(new Set((String(row.text ?? "").match(/@[A-Za-z0-9._-]+/g) ?? []))),
-      mentionUsers
+      mentionUsers,
+      linkedTaskIds,
+      linkedTasks: linkedTaskIds
+        .map((taskId) => tasksById.get(taskId))
+        .filter(Boolean)
+        .map((task) => ({
+          id: task.id,
+          label: task.label,
+          status: task.status,
+          documentName: task.documentName,
+        })),
     };
   });
 }
@@ -585,6 +726,112 @@ function mapRemoteChangeHistory(noteRows, projectsById, changesById, usersById) 
     });
 }
 
+function mapRemoteTasks(taskRows, projectsById, changesById, usersById, noteTaskIdsByTaskId = new Map()) {
+  return [...taskRows]
+    .map((row) => {
+      const project = projectsById.get(row.project_id) ?? null;
+      const change = changesById.get(row.change_id) ?? null;
+      const assignedUser = usersById.get(row.assigned_to);
+      const importedByUser = usersById.get(row.imported_by) ?? usersById.get(row.created_by);
+      const page = String(row.page ?? "").trim();
+      const itemNumber = String(row.item_number ?? "").trim();
+      const documentName = String(row.document_name ?? "").trim();
+      const linkedNoteIds = Array.from(new Set(noteTaskIdsByTaskId.get(row.id) ?? []));
+
+      return {
+        id: row.id,
+        projectId: row.project_id ?? project?.id ?? null,
+        project: project?.name ?? row.project_id ?? "Project",
+        changeId: row.change_id ?? change?.id ?? null,
+        change: change?.title ?? row.change_id ?? "Change",
+        sourceFile: row.source_file ?? "",
+        sourceExternalId: row.source_external_id ?? "",
+        taskKey: row.task_key ?? "",
+        page,
+        itemNumber,
+        documentName,
+        requestText: row.request_text ?? "",
+        annotationType: row.annotation_type ?? "",
+        status: normalizeTaskStatus(row.status),
+        assignedToId: row.assigned_to ?? null,
+        assignedToName: assignedUser?.name || assignedUser?.email || "",
+        importedBy: row.imported_by ?? row.created_by ?? null,
+        importedByName: importedByUser?.name || importedByUser?.email || "Unknown user",
+        importedAt: row.imported_at ?? null,
+        completedAt: row.completed_at ?? null,
+        label: taskLabelFromValues(page, itemNumber, documentName),
+        linkedNoteIds,
+        linkedNoteCount: linkedNoteIds.length,
+      };
+    })
+    .filter((task) => task.changeId)
+    .sort((left, right) => {
+      const leftPage = Number(left.page);
+      const rightPage = Number(right.page);
+      const leftHasPage = String(left.page ?? "").trim() !== "";
+      const rightHasPage = String(right.page ?? "").trim() !== "";
+      if (leftHasPage !== rightHasPage) {
+        return leftHasPage ? -1 : 1;
+      }
+      if (Number.isFinite(leftPage) && Number.isFinite(rightPage) && leftPage !== rightPage) {
+        return leftPage - rightPage;
+      }
+
+      const pageCompare = String(left.page).localeCompare(String(right.page), undefined, { numeric: true, sensitivity: "base" });
+      if (pageCompare !== 0) {
+        return pageCompare;
+      }
+
+      const leftHasItem = String(left.itemNumber ?? "").trim() !== "";
+      const rightHasItem = String(right.itemNumber ?? "").trim() !== "";
+      if (leftHasItem !== rightHasItem) {
+        return leftHasItem ? -1 : 1;
+      }
+      const numberCompare = String(left.itemNumber).localeCompare(String(right.itemNumber), undefined, { numeric: true, sensitivity: "base" });
+      if (numberCompare !== 0) {
+        return numberCompare;
+      }
+
+      return String(left.documentName).localeCompare(String(right.documentName), undefined, { sensitivity: "base" });
+    });
+}
+
+function mapRemoteTaskEvents(eventRows, tasksById, projectsById, changesById, usersById) {
+  return [...eventRows]
+    .map((row) => {
+      const task = tasksById.get(row.task_id) ?? null;
+      const project = projectsById.get(row.project_id) ?? null;
+      const change = changesById.get(row.change_id) ?? null;
+      const actor = usersById.get(row.created_by);
+
+      return {
+        id: row.id,
+        taskId: row.task_id ?? task?.id ?? null,
+        taskLabel: task?.label ?? "Task",
+        projectId: row.project_id ?? project?.id ?? null,
+        project: project?.name ?? row.project_id ?? "Project",
+        changeId: row.change_id ?? change?.id ?? null,
+        change: change?.title ?? row.change_id ?? "Change",
+        eventType: row.event_type ?? "updated",
+        eventText: row.event_text ?? "Task updated.",
+        previousValue: row.previous_value ?? null,
+        nextValue: row.next_value ?? null,
+        createdBy: row.created_by ?? null,
+        createdByName: actor?.name || actor?.email || "Unknown user",
+        createdAt: row.created_at ?? null,
+      };
+    })
+    .filter((event) => event.taskId)
+    .sort((left, right) => {
+      const leftTime = Date.parse(left.createdAt ?? "");
+      const rightTime = Date.parse(right.createdAt ?? "");
+      if (Number.isNaN(leftTime) && Number.isNaN(rightTime)) return 0;
+      if (Number.isNaN(leftTime)) return 1;
+      if (Number.isNaN(rightTime)) return -1;
+      return rightTime - leftTime;
+    });
+}
+
 export async function fetchRemoteWorkspaceData(config, currentData) {
   if (!config?.url || !config?.publishableKey) {
     throw new Error("Backend not configured");
@@ -592,7 +839,17 @@ export async function fetchRemoteWorkspaceData(config, currentData) {
 
   const session = await ensureAuthenticatedBackendSession(config);
 
-  const [projectRows, changeRows, changeAssigneeRows, noteRows, historyRows, noteAssigneeRows] = await Promise.all([
+  const [
+    projectRows,
+    changeRows,
+    changeAssigneeRows,
+    noteRows,
+    historyRows,
+    noteAssigneeRows,
+    taskRowsResult,
+    noteTaskLinkRowsResult,
+    taskEventRowsResult,
+  ] = await Promise.all([
     fetchJson(
       config,
       "projects?select=id,name,description,start_date,onedrive_link,workfront_link,qa_urls,stg_urls,prod_urls,is_deleted&is_deleted=eq.false",
@@ -622,10 +879,49 @@ export async function fetchRemoteWorkspaceData(config, currentData) {
       config,
       "project_note_assignees?select=note_id,user_id,mention_order",
       session
+    ),
+    fetchOptionalJson(
+      config,
+      "change_tasks?select=id,project_id,change_id,source_file,source_external_id,task_key,page,item_number,document_name,request_text,annotation_type,status,assigned_to,created_by,imported_by,imported_at,completed_at,is_deleted&is_deleted=eq.false",
+      session,
+      ["change_tasks"]
+    ),
+    fetchOptionalJson(
+      config,
+      "project_note_task_links?select=note_id,task_id",
+      session,
+      ["project_note_task_links"]
+    ),
+    fetchOptionalJson(
+      config,
+      "change_task_events?select=id,task_id,project_id,change_id,event_type,event_text,previous_value,next_value,created_by,created_at",
+      session,
+      ["change_task_events"]
     )
   ]);
 
   const userRows = await fetchUsersWithFallback(config, session);
+  const taskRows = taskRowsResult.rows ?? [];
+  const noteTaskLinkRows = noteTaskLinkRowsResult.rows ?? [];
+  const taskEventRows = taskEventRowsResult.rows ?? [];
+  const taskFeatureMissingRelations = Array.from(
+    new Set(
+      [
+        taskRowsResult.missingRelation,
+        noteTaskLinkRowsResult.missingRelation,
+        taskEventRowsResult.missingRelation,
+      ].filter(Boolean),
+    ),
+  );
+  const taskFeaturePermissionDeniedRelations = Array.from(
+    new Set(
+      [
+        taskRowsResult.permissionDeniedRelation,
+        noteTaskLinkRowsResult.permissionDeniedRelation,
+        taskEventRowsResult.permissionDeniedRelation,
+      ].filter(Boolean),
+    ),
+  );
 
   const users = userRows.map(normalizeUserRow).filter((user) => user.id);
   const usersById = new Map(users.map((user) => [user.id, user]));
@@ -647,13 +943,67 @@ export async function fetchRemoteWorkspaceData(config, currentData) {
     map.set(row.note_id, current);
     return map;
   }, new Map());
+  const noteTaskIdsByNoteId = noteTaskLinkRows.reduce((map, row) => {
+    if (!row.note_id || !row.task_id) {
+      return map;
+    }
+    const current = map.get(row.note_id) ?? [];
+    current.push(row.task_id);
+    map.set(row.note_id, current);
+    return map;
+  }, new Map());
+  const noteTaskIdsByTaskId = noteTaskLinkRows.reduce((map, row) => {
+    if (!row.note_id || !row.task_id) {
+      return map;
+    }
+    const current = map.get(row.task_id) ?? [];
+    current.push(row.note_id);
+    map.set(row.task_id, current);
+    return map;
+  }, new Map());
 
   const projects = mapRemoteProjects(projectRows, changeRows);
   const projectsById = new Map(projects.map((project) => [project.id, project]));
   const changes = mapRemoteChanges(changeRows, projectsById, assigneesByChangeId, usersById);
   const changesById = new Map(changes.map((change) => [change.id, change]));
-  const notes = mapRemoteNotes(noteRows, projectsById, changesById, noteAssigneesByNoteId, usersById);
+  const changeTasks = mapRemoteTasks(taskRows, projectsById, changesById, usersById, noteTaskIdsByTaskId);
+  const tasksById = new Map(changeTasks.map((task) => [task.id, task]));
+  const notes = mapRemoteNotes(
+    noteRows,
+    projectsById,
+    changesById,
+    noteAssigneesByNoteId,
+    usersById,
+    noteTaskIdsByNoteId,
+    tasksById,
+  );
+  const notesById = new Map(notes.map((note) => [note.id, note]));
+  const hydratedTasks = changeTasks.map((task) => ({
+    ...task,
+    linkedNotes: task.linkedNoteIds
+      .map((noteId) => notesById.get(noteId))
+      .filter(Boolean)
+      .map((note) => ({
+        id: note.id,
+        text: note.text,
+        status: note.status,
+      })),
+  }));
+  const hydratedTasksById = new Map(hydratedTasks.map((task) => [task.id, task]));
+  const hydratedNotes = notes.map((note) => ({
+    ...note,
+    linkedTasks: note.linkedTaskIds
+      .map((taskId) => hydratedTasksById.get(taskId))
+      .filter(Boolean)
+      .map((task) => ({
+        id: task.id,
+        label: task.label,
+        status: task.status,
+        documentName: task.documentName,
+      })),
+  }));
   const changeHistory = mapRemoteChangeHistory(historyRows, projectsById, changesById, usersById);
+  const changeTaskEvents = mapRemoteTaskEvents(taskEventRows, hydratedTasksById, projectsById, changesById, usersById);
 
   return {
     ...structuredClone(currentData),
@@ -667,7 +1017,15 @@ export async function fetchRemoteWorkspaceData(config, currentData) {
     projects,
     changes,
     changeHistory,
-    mentionedNotes: notes
+    changeTasks: hydratedTasks,
+    changeTaskEvents,
+    taskFeatureStatus: {
+      available: taskFeatureMissingRelations.length === 0 && taskFeaturePermissionDeniedRelations.length === 0,
+      missingRelations: taskFeatureMissingRelations,
+      permissionDeniedRelations: taskFeaturePermissionDeniedRelations,
+      migrationFile: "Android/sql/change_tasks_excel_import_20260331.sql",
+    },
+    mentionedNotes: hydratedNotes
   };
 }
 
@@ -811,6 +1169,25 @@ function resolveAssignedUserIds(data, assigneeNames) {
       .map((name) => byName.get((name ?? "").trim().toLowerCase()))
       .filter(Boolean)
   ));
+}
+
+function toRemoteTaskWrite(payload, session) {
+  return {
+    project_id: payload.projectId,
+    change_id: payload.changeId,
+    source_file: payload.sourceFile || null,
+    source_external_id: payload.sourceExternalId || null,
+    task_key: payload.taskKey,
+    page: payload.page || null,
+    item_number: payload.itemNumber || null,
+    document_name: payload.documentName || null,
+    request_text: payload.requestText,
+    annotation_type: payload.annotationType || null,
+    status: normalizeTaskStatus(payload.status || "Pendiente"),
+    assigned_to: payload.assignedToId || null,
+    imported_by: payload.importedBy || session.user?.id || null,
+    created_by: payload.createdBy || session.user?.id || null,
+  };
 }
 
 async function replaceChangeAssignees(config, session, changeId, userIds) {
@@ -990,6 +1367,55 @@ async function replaceNoteAssignees(config, session, noteId, userIds) {
   );
 }
 
+async function replaceNoteTaskLinks(config, session, noteId, taskIds) {
+  try {
+    await requestJson(
+      config,
+      `project_note_task_links?note_id=eq.${encodeURIComponent(noteId)}`,
+      { method: "DELETE", headers: { Prefer: "return=minimal" } },
+      session
+    );
+  } catch (error) {
+    if (isMissingRelationError(error, "project_note_task_links")) {
+      if (!taskIds.length) {
+        return;
+      }
+      throw taskFeatureUnavailableError("project_note_task_links");
+    }
+    if (isRelationPermissionError(error, "project_note_task_links")) {
+      throw taskFeatureUnavailableError("project_note_task_links", "forbidden");
+    }
+    throw error;
+  }
+
+  if (!taskIds.length) {
+    return;
+  }
+
+  try {
+    await requestJson(
+      config,
+      "project_note_task_links",
+      {
+        method: "POST",
+        body: taskIds.map((taskId) => ({
+          note_id: noteId,
+          task_id: taskId,
+        })),
+      },
+      session
+    );
+  } catch (error) {
+    if (isMissingRelationError(error, "project_note_task_links")) {
+      throw taskFeatureUnavailableError("project_note_task_links");
+    }
+    if (isRelationPermissionError(error, "project_note_task_links")) {
+      throw taskFeatureUnavailableError("project_note_task_links", "forbidden");
+    }
+    throw error;
+  }
+}
+
 export async function saveRemoteNote(config, data, payload, editingNoteId) {
   const session = await ensureAuthenticatedBackendSession(config);
 
@@ -1011,6 +1437,7 @@ export async function saveRemoteNote(config, data, payload, editingNoteId) {
       session
     );
     await replaceNoteAssignees(config, session, editingNoteId, assignedUserIds);
+    await replaceNoteTaskLinks(config, session, editingNoteId, payload.linkedTaskIds ?? []);
     return;
   }
 
@@ -1018,10 +1445,181 @@ export async function saveRemoteNote(config, data, payload, editingNoteId) {
   const createdId = Array.isArray(rows) ? rows[0]?.id : rows?.id;
   if (createdId) {
     await replaceNoteAssignees(config, session, createdId, assignedUserIds);
+    await replaceNoteTaskLinks(config, session, createdId, payload.linkedTaskIds ?? []);
   }
   return {
     createdNoteId: createdId ?? null
   };
+}
+
+async function syncRemoteChangeTasks(config, data, payload, options = {}) {
+  const session = await ensureAuthenticatedBackendSession(config);
+  const existingTasks = (data?.changeTasks ?? []).filter((task) => task.changeId === payload.changeId);
+  const existingByKey = new Map(existingTasks.map((task) => [task.taskKey, task]));
+  const existingBySourceId = new Map(
+    existingTasks
+      .filter((task) => String(task.sourceExternalId ?? "").trim())
+      .map((task) => [String(task.sourceExternalId).trim(), task]),
+  );
+  const existingByLegacySignature = new Map(
+    existingTasks.map((task) => [createTaskLegacySignature(task), task]),
+  );
+  const createRows = [];
+  const updateEntries = [];
+  const matchedTaskIds = new Set();
+  const replaceMissing = options.replaceMissing === true;
+
+  for (const item of payload.tasks ?? []) {
+    if (!item?.taskKey || !item.requestText) {
+      continue;
+    }
+
+    const currentTask = (
+      existingByKey.get(item.taskKey)
+      || (item.sourceExternalId ? existingBySourceId.get(String(item.sourceExternalId).trim()) : null)
+      || existingByLegacySignature.get(createTaskLegacySignature(item))
+    );
+    if (currentTask) {
+      matchedTaskIds.add(currentTask.id);
+      const nextMetadata = {
+        source_file: payload.sourceFile || currentTask.sourceFile || null,
+        source_external_id: item.sourceExternalId || null,
+        task_key: item.taskKey,
+        page: item.page || null,
+        item_number: item.itemNumber || null,
+        document_name: item.documentName || null,
+        request_text: item.requestText,
+        annotation_type: item.annotationType || null,
+      };
+
+      const changed = (
+        currentTask.sourceFile !== (nextMetadata.source_file ?? "")
+        || currentTask.sourceExternalId !== (nextMetadata.source_external_id ?? "")
+        || currentTask.taskKey !== nextMetadata.task_key
+        || currentTask.page !== (nextMetadata.page ?? "")
+        || currentTask.itemNumber !== (nextMetadata.item_number ?? "")
+        || currentTask.documentName !== (nextMetadata.document_name ?? "")
+        || currentTask.requestText !== nextMetadata.request_text
+        || currentTask.annotationType !== (nextMetadata.annotation_type ?? "")
+      );
+
+      if (changed) {
+        updateEntries.push({
+          id: currentTask.id,
+          body: nextMetadata,
+        });
+      }
+      continue;
+    }
+
+    createRows.push(toRemoteTaskWrite({
+      ...item,
+      projectId: payload.projectId,
+      changeId: payload.changeId,
+      sourceFile: payload.sourceFile,
+      assignedToId: null,
+      status: "Pendiente",
+      importedBy: session.user?.id ?? null,
+      createdBy: session.user?.id ?? null,
+    }, session));
+  }
+
+  const deleteEntries = replaceMissing
+    ? existingTasks
+        .filter((task) => !matchedTaskIds.has(task.id))
+        .map((task) => ({
+          id: task.id,
+          body: {
+            is_deleted: true,
+            deleted_at: new Date().toISOString(),
+            deleted_by: session.user?.id ?? null,
+          },
+        }))
+    : [];
+
+  try {
+    if (createRows.length) {
+      await requestJson(config, "change_tasks", { method: "POST", body: createRows }, session);
+    }
+
+    for (const entry of updateEntries) {
+      await requestJson(
+        config,
+        `change_tasks?id=eq.${encodeURIComponent(entry.id)}`,
+        { method: "PATCH", body: entry.body },
+        session
+      );
+    }
+
+    for (const entry of deleteEntries) {
+      await requestJson(
+        config,
+        `change_tasks?id=eq.${encodeURIComponent(entry.id)}`,
+        { method: "PATCH", body: entry.body },
+        session,
+      );
+    }
+  } catch (error) {
+    if (isMissingRelationError(error, "change_tasks")) {
+      throw taskFeatureUnavailableError("change_tasks");
+    }
+    if (isRelationPermissionError(error, "change_tasks")) {
+      throw taskFeatureUnavailableError("change_tasks", "forbidden");
+    }
+    throw error;
+  }
+
+  return {
+    importedTaskCount: createRows.length,
+    updatedTaskCount: updateEntries.length,
+    deletedTaskCount: deleteEntries.length,
+    taskImportMode: replaceMissing ? "replace" : "import",
+  };
+}
+
+export async function importRemoteChangeTasks(config, data, payload) {
+  return syncRemoteChangeTasks(config, data, payload, {
+    replaceMissing: false,
+  });
+}
+
+export async function replaceRemoteChangeTasks(config, data, payload) {
+  return syncRemoteChangeTasks(config, data, payload, {
+    replaceMissing: true,
+  });
+}
+
+export async function updateRemoteChangeTask(config, taskId, payload) {
+  const session = await ensureAuthenticatedBackendSession(config);
+  const body = {};
+
+  if ("status" in payload) {
+    body.status = normalizeTaskStatus(payload.status);
+  }
+  if ("assignedToId" in payload) {
+    body.assigned_to = payload.assignedToId || null;
+  }
+
+  if (!Object.keys(body).length) {
+    return;
+  }
+
+  try {
+    await requestJson(
+      config,
+      `change_tasks?id=eq.${encodeURIComponent(taskId)}`,
+      { method: "PATCH", body },
+      session
+    );
+  } catch (error) {
+    if (isMissingRelationError(error, "change_tasks")) {
+      throw taskFeatureUnavailableError("change_tasks");
+    }
+    if (isRelationPermissionError(error, "change_tasks")) {
+      throw taskFeatureUnavailableError("change_tasks", "forbidden");
+    }
+    throw error;
+  }
 }
 
 export async function toggleRemoteNoteStatus(config, noteId, completed) {

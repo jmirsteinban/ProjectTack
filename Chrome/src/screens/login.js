@@ -6,19 +6,19 @@ export function renderLoginScreen(state, data) {
   const disabledAttr = isSubmitting ? "disabled" : "";
 
   return `
-    <section class="pt-screen-card pt-login-card">
+    <section class="card bg-body-tertiary pt-login-card">
       <section class="pt-screen-hero pt-screen-hero--login pt-login-card-hero">
-        <div class="row">
-          <div class="col">
+        <div class="row g-3">
+          <div class="col-12">
             <h3 class="pt-section-title pt-login-title">
               <span class="pt-login-title-icon">${renderProjectTrackBrand(32)}</span>
               <span>Sign In</span>
             </h3>
-            <p class="pt-login-breadcrumb">Home / Login</p>
+            <p class="pt-login-breadcrumb mb-0">Home / Login</p>
           </div>
         </div>
       </section>
-      <div class="pt-profile-form">
+      <div class="card-body pt-profile-form d-grid gap-3">
         <div class="d-grid gap-2 min-w-0">
           <label class="form-label" for="auth-email">Email</label>
           <input
@@ -44,15 +44,15 @@ export function renderLoginScreen(state, data) {
           >
         </div>
         ${state.authPendingStep ? `
-          <section class="alert alert-info">
+          <section class="alert alert-info mb-0">
             <strong>Processing access</strong>
-            <p>${state.authPendingStep}</p>
+            <p class="mb-0">${state.authPendingStep}</p>
           </section>
         ` : ""}
         <div class="pt-project-editor-actions">
           <button type="button" class="btn btn-primary pt-login-submit-button" data-action="sign-in-backend" ${disabledAttr} aria-busy="${isSubmitting ? "true" : "false"}">${submitLabel}</button>
         </div>
-        ${state.authMessage ? `<section class="alert alert-danger"><strong>Authentication Required</strong><p>${state.authMessage}</p></section>` : ""}
+        ${state.authMessage ? `<section class="alert alert-danger mb-0"><strong>Authentication Required</strong><p class="mb-0">${state.authMessage}</p></section>` : ""}
       </div>
     </section>
   `;

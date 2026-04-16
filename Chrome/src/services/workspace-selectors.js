@@ -14,6 +14,10 @@ export function getVisibleNotes(data) {
   return (data?.mentionedNotes ?? []).filter(isVisible);
 }
 
+export function getVisibleTasks(data) {
+  return (data?.changeTasks ?? []).filter(isVisible);
+}
+
 export function getVisibleChangesForProject(data, projectName) {
   return getVisibleChanges(data).filter((change) => change.project === projectName);
 }
@@ -22,4 +26,10 @@ export function getVisibleNotesForChange(data, changeOrTitle) {
   const changeId = typeof changeOrTitle === "object" ? changeOrTitle?.id : null;
   const changeTitle = typeof changeOrTitle === "object" ? changeOrTitle?.title : changeOrTitle;
   return getVisibleNotes(data).filter((note) => note.changeId === changeId || note.change === changeTitle);
+}
+
+export function getVisibleTasksForChange(data, changeOrTitle) {
+  const changeId = typeof changeOrTitle === "object" ? changeOrTitle?.id : null;
+  const changeTitle = typeof changeOrTitle === "object" ? changeOrTitle?.title : changeOrTitle;
+  return getVisibleTasks(data).filter((task) => task.changeId === changeId || task.change === changeTitle);
 }

@@ -63,9 +63,9 @@ export function renderProjectsScreen(state, data) {
             .map(
               (change) => `
         <article class="list-group-item list-group-item-action pt-project-list-group-item pt-clickable-card" data-change-id="${change.id}">
-          <div class="pt-row-top">
+          <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
             <strong>${change.title}</strong>
-            <div class="pt-dashboard-pill-stack">
+            <div class="d-flex gap-2 flex-wrap">
               <span class="pt-pill ${statusClass(change.status)}">${translateStatus(change.status)}</span>
               <span class="pt-pill ${priorityClass(change.priority)}">${translatePriority(change.priority)}</span>
             </div>
@@ -81,7 +81,7 @@ export function renderProjectsScreen(state, data) {
 
       return `
       <article class="card bg-body-tertiary rounded-3 pt-project-card" data-project-id="${project.id}">
-        <div class="card-header pt-row-top">
+        <div class="card-header d-flex justify-content-between align-items-start gap-3 flex-wrap">
           <strong class="pt-project-title">${project.name}</strong>
           <div class="pt-project-date-row">
             <span>Created:</span>
@@ -102,52 +102,38 @@ export function renderProjectsScreen(state, data) {
 
   return `
     <section class="pt-screen-hero">
-        <div class="row">
-            <div class="col">
-
-                <h1 class="pt-screen-hero-title">Projects</h1>
-
-                <div class="row">
-                    <p>Centralize workspace tracking and jump quickly into each project's recent changes.</p>
-                </div>
-
-            </div>
-
+      <div class="row g-3">
+        <div class="col-12">
+          <h1 class="pt-screen-hero-title">Projects</h1>
+          <p class="mb-0">Centralize workspace tracking and jump quickly into each project's recent changes.</p>
         </div>
-
-        <div class="row">
-
-            <div class="col d-flex">
-
-                <span class="pt-project-search-icon" aria-hidden="true">
-
-                    <svg viewBox="0 0 24 24" focusable="false">
-                        <path
-                            d="M10.5 4a6.5 6.5 0 1 0 4.03 11.6l4.43 4.43 1.41-1.41-4.43-4.43A6.5 6.5 0 0 0 10.5 4Zm0 2a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Z" />
-                    </svg>
-
-                </span>
-
-                <input class="form-control" type="text" value="${state.projectSearchQuery}" placeholder="Search projects..." data-input="project-search">
-                <button type="button" class="btn btn-secondary pt-project-filter-button" data-action="cycle-project-filter">${state.projectActivityFilter}</button>
-         
-            </div>
-
-            <div class="col d-flex justify-content-end gap-2 flex-wrap">
-
-                <button type="button" class="btn btn-outline-primary pt-back-button pt-back-button--hero" data-action="navigate-main" data-view-id="dashboard">Back</button>
-                <button type="button" class="btn btn-primary pt-change-create-button" data-action="open-project-create">New Project</button>
-            </div>
+        <div class="col-12 col-lg">
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="pt-project-search-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path
+                  d="M10.5 4a6.5 6.5 0 1 0 4.03 11.6l4.43 4.43 1.41-1.41-4.43-4.43A6.5 6.5 0 0 0 10.5 4Zm0 2a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Z" />
+              </svg>
+            </span>
+            <input class="form-control" type="text" value="${state.projectSearchQuery}" placeholder="Search projects..." data-input="project-search">
+            <button type="button" class="btn btn-secondary pt-project-filter-button" data-action="cycle-project-filter">${state.projectActivityFilter}</button>
+          </div>
         </div>
+        <div class="col-12 col-lg-auto d-flex justify-content-lg-end align-items-start gap-2 flex-wrap">
+          <button type="button" class="btn btn-outline-primary pt-back-button pt-back-button--hero pt-hero-button" data-action="navigate-main" data-view-id="dashboard">Back</button>
+          <button type="button" class="btn btn-primary pt-change-create-button pt-hero-button" data-action="open-project-create">New Project</button>
+        </div>
+      </div>
     </section>
 
     ${
       rows ||
-      `<div class="pt-empty-state-card pt-empty-state-card--projects">
-        <strong>${emptyTitle}</strong>
-        <p>${emptyDescription}</p>
-      </div>
-    `
+      `<section class="card bg-body-tertiary">
+        <div class="card-body">
+          <strong>${emptyTitle}</strong>
+          <p class="mb-0">${emptyDescription}</p>
+        </div>
+      </section>`
     }
   `;
 }
