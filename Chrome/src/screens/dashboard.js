@@ -94,7 +94,7 @@ export function renderDashboardScreen(data) {
   const metrics = buildDashboardMetrics(data, activeAssignedChanges)
     .map(
       (metric) => `
-    <div class="col-12 col-sm-6 col-xl-3">
+    <div class="col">
       <article class="card h-100 pt-web-card pt-web-metric-card border-0">
         <div class="card-body">
           <p class="text-uppercase small fw-semibold text-secondary mb-2">${escapeHtml(metric.title)}</p>
@@ -220,7 +220,7 @@ export function renderDashboardScreen(data) {
         </div>
       </section>
 
-      <section class="row g-3 g-xl-4">${metrics}</section>
+      <section class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-6 g-3 g-xl-4">${metrics}</section>
 
       <section class="row g-4">
 

@@ -47,7 +47,15 @@ import { getVisibleProjects, getVisibleTasksForChange } from "./services/workspa
 import { renderProjectTrackBrand } from "./components/projecttrack-brand.js";
 import { escapeAttribute, escapeHtml } from "./services/html.js";
 
-const PROJECTTRACK_UI_GUIDE_URL = "file:///C:/Users/jordan.molina/Astellas%20Pharma%20Inc/Oviedo,%20Guillermo%5BNon-Employee%5D%20-%20ASTELLAS/TOOLS/ProjectTack/docs/chrome/projecttrack-ui.html";
+const PROJECTTRACK_UI_GUIDE_PATH = "docs/projecttrack-ui.html";
+
+function getProjectTrackUiGuideUrl() {
+  if (typeof chrome !== "undefined" && chrome.runtime?.getURL) {
+    return chrome.runtime.getURL(PROJECTTRACK_UI_GUIDE_PATH);
+  }
+  return `../${PROJECTTRACK_UI_GUIDE_PATH}`;
+}
+
 
 function setAuthSubmissionState(state, isSubmitting, pendingStep = "") {
   state.authIsSubmitting = isSubmitting;
@@ -440,6 +448,13 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
       (html, [placeholder, value]) => html.split(placeholder).join(value),
       template
     );
+    if (!navbar.querySelector("[data-action='open-ui-guide']")) {
+      navbar.querySelector(".pt-web-user-menu")?.insertAdjacentHTML(
+        "beforeend",
+        `<li><hr class="dropdown-divider"></li>
+        <li><button type="button" class="dropdown-item" data-action="open-ui-guide">UI Guide</button></li>`
+      );
+    }
   }
 
   function renderNotice() {
@@ -911,11 +926,12 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     });
 
     navbar.querySelector("[data-action='open-ui-guide']")?.addEventListener("click", async () => {
+      const url = getProjectTrackUiGuideUrl();
       if (typeof chrome !== "undefined" && chrome.tabs?.create) {
-        await chrome.tabs.create({ url: PROJECTTRACK_UI_GUIDE_URL });
+        await chrome.tabs.create({ url });
         return;
       }
-      window.open(PROJECTTRACK_UI_GUIDE_URL, "_blank", "noopener,noreferrer");
+      window.open(url, "_blank", "noopener,noreferrer");
     });
 
     navbar.querySelector("[data-action='dismiss-notice']")?.addEventListener("click", () => {
