@@ -7,6 +7,7 @@ import {
 } from "../services/ui-copy.js";
 import { getVisibleChangesForProject, getVisibleProjects } from "../services/workspace-selectors.js";
 import { escapeAttribute, escapeHtml, isHttpUrl } from "../services/html.js";
+import { renderHeroCard } from "../components/hero-card.js";
 
 function environmentCardClass(environment) {
   if (environment === "QA") return "status-progress";
@@ -93,54 +94,42 @@ export function renderProjectDetailScreen(state, data) {
   const relatedChanges = getVisibleChangesForProject(data, project.name);
   const status = projectStatusLabel(relatedChanges);
   const recentChanges = relatedChanges.map((change) => `
-    <article class="list-group-item list-group-item-action pt-project-list-group-item pt-clickable-card" data-change-id="${escapeAttribute(change.id)}" role="button" tabindex="0">
+    <article class="list-group-item list-group-item-action py-3 pt-clickable-card" data-change-id="${escapeAttribute(change.id)}" role="button" tabindex="0">
       <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
-        <strong class="pt-project-detail-change-title">${escapeHtml(change.title)}</strong>
+        <strong class="min-w-0">${escapeHtml(change.title)}</strong>
         <div class="d-flex gap-2 flex-wrap">
-          <span class="pt-pill neutral">${escapeHtml(change.id)}</span>
-          <span class="pt-pill ${statusClass(change.status)}">${escapeHtml(translateStatus(change.status))}</span>
-          <span class="pt-pill ${priorityClass(change.priority)}">${escapeHtml(translatePriority(change.priority))}</span>
+          <span class="badge rounded-pill text-bg-light border">${escapeHtml(change.id)}</span>
+          <span class="badge rounded-pill pt-pill ${statusClass(change.status)}">${escapeHtml(translateStatus(change.status))}</span>
+          <span class="badge rounded-pill pt-pill ${priorityClass(change.priority)}">${escapeHtml(translatePriority(change.priority))}</span>
         </div>
       </div>
-      <p class="pt-project-list-group-caption">${escapeHtml(change.description || "No description")}</p>
+      <p class="mb-0 mt-2 small text-secondary">${escapeHtml(change.description || "No description")}</p>
     </article>
   `).join("");
 
   return `
-    <section class="pt-screen-hero">
-      <div class="row g-3">
-        <div class="col-12 col-lg">
-          <div class="pt-change-detail-topline">
-            <span>Project</span>
-          </div>
-          <div class="pt-project-detail-copy">
-            <h3>${escapeHtml(project.name)}</h3>
-            <p>${escapeHtml(project.description || "Review the status, environments and related changes for this project.")}</p>
-          </div>
-          <div class="pt-change-detail-meta">
-            <span class="pt-mini-chip">Start: ${escapeHtml(project.startDate || "Not defined")}</span>
-          </div>
-        </div>
-        <div class="col-12 col-lg-auto d-flex justify-content-lg-end align-items-start gap-2 flex-wrap">
-          <button type="button" class="btn btn-primary pt-change-create-button pt-hero-button" data-action="open-change-create">Add Change</button>
-          <button type="button" class="btn btn-primary pt-change-create-button pt-hero-button" data-action="open-project-editor">Edit Project</button>
-          <button type="button" class="btn btn-danger pt-danger-button pt-hero-button" data-action="delete-project">Delete Project</button>
-          <button type="button" class="btn btn-outline-primary pt-back-button pt-back-button--hero pt-hero-button" data-action="back-to-project-origin">Back</button>
-        </div>
-      </div>
-    </section>
+    ${renderHeroCard({
+      title: project.name,
+      description: project.description || "Review the status, environments and related changes for this project.",
+      meta: [`Start: ${project.startDate || "Not defined"}`],
+      actionsHtml: `
+        <button type="button" class="btn btn-light" data-action="open-change-create">Add Change</button>
+        <button type="button" class="btn btn-light" data-action="open-project-editor">Edit Project</button>
+        <button type="button" class="btn btn-danger" data-action="delete-project">Delete Project</button>
+        <button type="button" class="btn btn-outline-light" data-action="back-to-project-origin">Back</button>`
+    })}
 
     <section class="card bg-body-tertiary">
       <div class="card-body d-grid gap-3">
         <div>
-          <h3 class="pt-section-title mb-1">Project Details</h3>
-          <div class="pt-change-detail-meta">
-            <span class="pt-mini-chip">Status: ${escapeHtml(status)}</span>
+          <h2 class="h5 fw-semibold mb-1">Project Details</h2>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="badge rounded-pill text-bg-light border">Status: ${escapeHtml(status)}</span>
           </div>
         </div>
         <div class="d-flex gap-2 flex-wrap">
-          <span class="pt-mini-chip">${escapeHtml(project.id)}</span>
-          <span class="pt-mini-chip">Related Changes: ${escapeHtml(String(relatedChanges.length))}</span>
+          <span class="badge rounded-pill text-bg-light border">${escapeHtml(project.id)}</span>
+          <span class="badge rounded-pill text-bg-light border">Related Changes: ${escapeHtml(String(relatedChanges.length))}</span>
         </div>
         <div class="row g-3">
           <div class="col-12 col-md-5">
@@ -180,7 +169,7 @@ export function renderProjectDetailScreen(state, data) {
     <section class="card bg-body-tertiary">
       <div class="card-body d-grid gap-3">
         <div>
-          <h3 class="pt-section-title mb-0">Project Environments</h3>
+          <h2 class="h5 fw-semibold mb-0">Project Environments</h2>
         </div>
         <div class="row g-3">
           <div class="col-12 col-sm-6 col-lg-4">
@@ -217,9 +206,9 @@ export function renderProjectDetailScreen(state, data) {
         <div class="pt-section-separator"></div>
         <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
           <div>
-            <h3 class="pt-section-title mb-0">Project Changes</h3>
+            <h2 class="h5 fw-semibold mb-0">Project Changes</h2>
           </div>
-          <span class="pt-dashboard-count-chip">${relatedChanges.length} changes</span>
+          <span class="badge rounded-pill text-bg-light border">${relatedChanges.length} changes</span>
         </div>
         ${recentChanges
           ? `<div class="list-group">${recentChanges}</div>`

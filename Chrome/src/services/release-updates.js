@@ -2,7 +2,7 @@ const RELEASE_CHANNEL = {
   appName: "projecttrack-chrome",
   releasesPageUrl: "https://github.com/jmirsteinban/ProjectTack/releases",
   zipAssetName: "ProjectTrack-Chrome.zip",
-  migrationFile: "Android/sql/app_releases_chrome_20260416.sql",
+  migrationFile: "sql/app_releases_chrome_20260416.sql",
 };
 
 function getChromeRuntime() {

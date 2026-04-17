@@ -135,6 +135,10 @@
   box-shadow: 0 20px 42px rgba(45, 24, 88, 0.24);
 }
 
+.pt-hero-card {
+  padding: 1.5rem;
+}
+
 .pt-web-hero .badge.bg-white {
   background: rgba(255, 255, 255, 0.92) !important;
 }
@@ -234,7 +238,17 @@
     border-radius: 1.4rem;
   }
 
+  .pt-hero-card {
+    padding: 1rem;
+  }
+
   .pt-web-user-copy {
     display: none;
+  }
+}
+
+@media (min-width: 1200px) {
+  .pt-hero-card {
+    padding: 3rem;
   }
 }

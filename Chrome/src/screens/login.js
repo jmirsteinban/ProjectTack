@@ -37,9 +37,9 @@ export function renderLoginScreen(state, data = {}) {
   const authMessageState = authMessagePresentation(authMessage);
 
   return `
-    <section class="card border-0 shadow-sm pt-login-card">
+    <section class="card border-0 shadow-sm overflow-hidden w-100">
       <div class="card-body p-0">
-        <section class="pt-web-hero pt-login-card-hero">
+        <section class="pt-web-hero rounded-0 shadow-none">
           <div class="p-4 p-xl-5">
             <div class="d-flex align-items-center gap-3 mb-3">
               ${renderProjectTrackBrand(34)}
@@ -50,7 +50,7 @@ export function renderLoginScreen(state, data = {}) {
           </div>
         </section>
       </div>
-      <div class="card-body pt-profile-form d-grid gap-3 p-4">
+      <div class="card-body d-grid gap-3 p-4">
         <div class="d-grid gap-2 min-w-0">
           <label class="form-label" for="auth-email">Email</label>
           <input
@@ -75,7 +75,7 @@ export function renderLoginScreen(state, data = {}) {
             ${disabledAttr}
           >
         </div>
-        <div class="pt-login-status-slot d-grid gap-2">
+        <div class="d-grid gap-2">
           ${state.authPendingStep ? `
           <section class="alert alert-info border-info-subtle bg-info-subtle text-info-emphasis mb-0" role="status">
             <strong>Processing access</strong>
@@ -85,7 +85,7 @@ export function renderLoginScreen(state, data = {}) {
           ${authMessage ? `<section class="alert ${authMessageState.className} mb-0" role="${authMessageState.role}"><strong>${authMessageState.heading}</strong><p class="mb-0">${escapeHtml(authMessage)}</p></section>` : ""}
         </div>
         <div class="d-flex flex-wrap gap-2">
-          <button type="button" class="btn btn-primary pt-login-submit-button" data-action="sign-in-backend" ${disabledAttr} aria-busy="${isSubmitting ? "true" : "false"}">${escapeHtml(submitLabel)}</button>
+          <button type="button" class="btn btn-primary px-4" data-action="sign-in-backend" ${disabledAttr} aria-busy="${isSubmitting ? "true" : "false"}">${escapeHtml(submitLabel)}</button>
         </div>
       </div>
     </section>

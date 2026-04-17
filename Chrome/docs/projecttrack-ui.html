@@ -6,6 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ProjectTrack UI - CSS Docs</title>
   <link rel="stylesheet" href="../styles/projecttrack.css">
+  <link rel="stylesheet" href="../vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="../styles/projecttrack-theme.css">
+  <link rel="stylesheet" href="../styles/projecttrack-fulltab.css">
+  <link rel="stylesheet" href="../styles/projecttrack-workspace.css">
 </head>
 
 <body class="pt-doc-body">
@@ -27,6 +31,7 @@
         <a class="nav-link" href="#interaction">Interaccion</a>
         <a class="nav-link" href="#material-google-icons">Material Icons</a>
         <a class="nav-link" href="#navbar">NavBar</a>
+        <a class="nav-link" href="#release-channel">Release Channel</a>
         <a class="nav-link" href="#text-colors">Text colors</a>
       </nav>
     </div>
@@ -84,6 +89,7 @@
         <a class="nav-link" href="#breadcrumb">Breadcrumb</a>
         <a class="nav-link" href="#material-google-icons">Material Symbols e Icons</a>
         <a class="nav-link" href="#navbar">NavBar</a>
+        <a class="nav-link" href="#release-channel">Release Channel</a>
       </nav>
 
       <h5 class="text-uppercase small fw-semibold text-body-secondary m-0">Tipografia</h5>
@@ -105,9 +111,10 @@
         </div>
         <h1>Documentacion del sistema visual de ProjectTrack Chrome</h1>
         <br>
-        <p>Esta guia reune elementos compatibles con Bootstrap 5.3 y componentes reales del app.
+        <p>Esta guia reune el stack actual de Chrome: Bootstrap local, tema ProjectTrack, runtime full-tab,
+          componentes editables y patrones reales del workspace.
           <br> La meta es que la documentacion se sienta como una referencia de framework y al mismo tiempo sirva como
-          mapa exacto del CSS que ya usa ProjectTrack.
+          mapa exacto del HTML/CSS/JS que ya usa ProjectTrack.
         </p>
         <br>
 
@@ -118,15 +125,53 @@
       <section id="introduction" class="card bg-body-tertiary card-body rounded-2 d-grid gap-cus-16 min-w-0">
         <h2>Introduccion</h2>
 
-        <p>ProjectTrack UI documenta el microfrontend: tokens, layout primitives, acciones,
-          formularios, estados y superficies. La capa de layout dentro del sistema se llama <strong>ProjectTrack
-            Grid</strong>, con viewport minimo de <strong>360px</strong> y ancho de diseno optimo de
-          <strong>550px</strong>.
+        <p>ProjectTrack UI documenta el runtime Chrome actual: tokens, layout primitives, acciones,
+          formularios, estados, superficies, navbar global, canal de releases y vistas full-tab. La entrada principal
+          de producto es <code>Chrome/workspace.html</code>; la referencia visual Bootstrap-first quedo integrada en el
+          workspace y en esta guia consultable.
         </p>
         <p>Como convencion de desarrollo, el sistema adopta naming compatible con <strong>Bootstrap 5.3</strong> para
           utilities y layout, pero mantiene breakpoints propios: <code>sm = 550px</code>, <code>md = 700px</code>,
           <code>lg = 960px</code>, <code>xl = 1200px</code> y <code>xxl = 1400px</code>.
         </p>
+        <div class="table-responsive rounded-3">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Elemento actual</th>
+                <th>Archivo</th>
+                <th>Uso</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Runtime principal</td>
+                <td><code>Chrome/workspace.html</code></td>
+                <td>Carga Bootstrap local, tema, full-tab, workspace CSS, Bootstrap bundle y <code>src/main.js</code>.</td>
+              </tr>
+              <tr>
+                <td>Navbar editable</td>
+                <td><code>Chrome/components/global-navbar.html</code></td>
+                <td>Template HTML con placeholders para marca, usuario, menu global y notices.</td>
+              </tr>
+              <tr>
+                <td>Capa workspace</td>
+                <td><code>Chrome/styles/projecttrack-workspace.css</code></td>
+                <td>Ajusta padding global, navbar, login wide, heroes y compatibilidad con estilos legacy.</td>
+              </tr>
+              <tr>
+                <td>Capa full-tab</td>
+                <td><code>Chrome/styles/projecttrack-fulltab.css</code></td>
+                <td>Define botones pastel/coral, user menu, cards web, hero full-tab y metric cards.</td>
+              </tr>
+              <tr>
+                <td>Guia consultable</td>
+                <td><code>Chrome/docs/projecttrack-ui.html</code></td>
+                <td>Copia interna que se abre desde el menu <strong>UI Guide</strong> de la extension.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <div class="card bg-body-tertiary rounded-2 bg-doc-callout-gradient">
           <div class="card-body">
             <h3 class="card-title">Contrato responsive de ProjectTrack UI</h3>
@@ -1630,7 +1675,7 @@
                     style="width: 84px; min-height: 84px; margin-inline: auto;">
                     <code>.rounded-cus-1</code>
                   </div>
-                  <p class="card-text"><code>10px</code> Ãƒâ€šÃ‚Â· ajuste compacto fuera de la escala base.
+                  <p class="card-text"><code>10px</code> ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· ajuste compacto fuera de la escala base.
                   </p>
                 </div>
                 <div class="d-grid gap-2 min-w-0">
@@ -1639,7 +1684,7 @@
                     style="width: 84px; min-height: 84px; margin-inline: auto;">
                     <code>.rounded-cus-2</code>
                   </div>
-                  <p class="card-text"><code>14px</code> Ãƒâ€šÃ‚Â· uno de los radios mas usados por el app.
+                  <p class="card-text"><code>14px</code> ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· uno de los radios mas usados por el app.
                   </p>
                 </div>
                 <div class="d-grid gap-2 min-w-0">
@@ -1648,7 +1693,7 @@
                     style="width: 84px; min-height: 84px; margin-inline: auto;">
                     <code>.rounded-cus-3</code>
                   </div>
-                  <p class="card-text"><code>18px</code> Ãƒâ€šÃ‚Â· cards y bloques editoriales.</p>
+                  <p class="card-text"><code>18px</code> ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· cards y bloques editoriales.</p>
                 </div>
                 <div class="d-grid gap-2 min-w-0">
                   <div
@@ -1656,7 +1701,7 @@
                     style="width: 84px; min-height: 84px; margin-inline: auto;">
                     <code>.rounded-cus-4</code>
                   </div>
-                  <p class="card-text"><code>20px</code> Ãƒâ€šÃ‚Â· superficies principales y paneles.</p>
+                  <p class="card-text"><code>20px</code> ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· superficies principales y paneles.</p>
                 </div>
                 <div class="d-grid gap-2 min-w-0">
                   <div
@@ -1664,7 +1709,7 @@
                     style="width: 84px; min-height: 84px; margin-inline: auto;">
                     <code>.rounded-cus-5</code>
                   </div>
-                  <p class="card-text"><code>22px</code> Ãƒâ€šÃ‚Â· caso puntual de protagonismo visual.</p>
+                  <p class="card-text"><code>22px</code> ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· caso puntual de protagonismo visual.</p>
                 </div>
                 <div class="d-grid gap-2 min-w-0">
                   <div
@@ -1672,7 +1717,7 @@
                     style="width: 84px; min-height: 84px; margin-inline: auto;">
                     <code>.rounded-cus-6</code>
                   </div>
-                  <p class="card-text"><code>24px</code> Ãƒâ€šÃ‚Â· contenedores amplios y marcos grandes.</p>
+                  <p class="card-text"><code>24px</code> ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· contenedores amplios y marcos grandes.</p>
                 </div>
                 <div class="d-grid gap-2 min-w-0">
                   <div
@@ -1680,7 +1725,7 @@
                     style="width: 84px; min-height: 84px; margin-inline: auto;">
                     <code>.rounded-cus-7</code>
                   </div>
-                  <p class="card-text"><code>28px</code> Ãƒâ€šÃ‚Â· radio extra amplio del shell de docs.</p>
+                  <p class="card-text"><code>28px</code> ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· radio extra amplio del shell de docs.</p>
                 </div>
                 <div class="d-grid gap-2 min-w-0">
                   <div
@@ -1688,7 +1733,7 @@
                     style="width: 84px; min-height: 84px; margin-inline: auto;">
                     <code>.rounded-cus-bottom</code>
                   </div>
-                  <p class="card-text"><code>0 0 16px 16px</code> Ãƒâ€šÃ‚Â· usado en heroes con base recta
+                  <p class="card-text"><code>0 0 16px 16px</code> ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· usado en heroes con base recta
                     arriba.</p>
                 </div>
               </div>
@@ -1962,7 +2007,7 @@
                 <p><code>z-index: auto</code> para panels, formularios, listas y cards del layout normal.</p>
               </article>
               <article class="pt-doc-layer-card pt-doc-layer-card--menu">
-                <strong><code>.pt-avatar-menu</code></strong>
+                <strong><code>.pt-web-user-menu</code></strong>
                 <p><code>--pt-zindex-dropdown: 1000</code> para el dropdown global del NavBar.</p>
               </article>
               <article class="pt-doc-layer-card pt-doc-layer-card--modal">
@@ -1989,7 +2034,7 @@
                   <tr>
                     <td><code>--pt-zindex-dropdown</code></td>
                     <td><code>1000</code></td>
-                    <td>Dropdowns y menus flotantes como <code>.pt-avatar-menu</code>.</td>
+                    <td>Dropdowns y menus flotantes como <code>.pt-web-user-menu</code>.</td>
                   </tr>
                   <tr>
                     <td><code>--pt-zindex-sticky</code></td>
@@ -2046,6 +2091,49 @@
       <!-- Components / layout primitives -->
       <section id="layout" class="card bg-body-tertiary card-body d-grid gap-cus-16 min-w-0">
         <h2>Layout</h2>
+        <article class="card bg-body-tertiary card-body d-grid gap-cus-14 min-w-0">
+          <span class="badge text-bg-secondary rounded-pill">Workspace shell actual</span>
+          <p class="card-text">El shell principal ya no se comporta como panel lateral. <code>workspace.html</code>
+            carga el body full-tab, monta <code>#app</code>, inserta el navbar global y deja que cada pantalla use
+            Bootstrap real para su layout interno.</p>
+
+          <div class="card bg-body-tertiary card-body bg-doc-preview-gradient shadow-none rounded-4 d-grid gap-3">
+            <div class="pt-web-app">
+              <nav class="navbar bg-white border-bottom pt-web-navbar pt-workspace-navbar">
+                <div class="container-fluid px-4 px-xl-5">
+                  <span class="navbar-brand mb-0 d-flex align-items-center gap-3">
+                    <span class="pt-web-brand-mark" aria-hidden="true">
+                      <img src="../assets/projecttrack-icon.svg" alt="">
+                    </span>
+                    <span class="d-grid">
+                      <strong class="pt-web-brand-title">ProjectTrack</strong>
+                      <small class="text-secondary">Bootstrap dashboard</small>
+                    </span>
+                  </span>
+                </div>
+              </nav>
+              <main class="container-fluid px-4 px-xl-5 py-4 py-xl-5">
+                <section class="card pt-web-card border-0">
+                  <div class="card-body">
+                    <p class="text-uppercase small fw-semibold text-secondary mb-2">Workspace content</p>
+                    <h3 class="h5 mb-2">Dashboard, Projects, Login, Profile</h3>
+                    <p class="mb-0 text-secondary">Cada pantalla entra aqui con <code>row</code>,
+                      <code>col-*</code>, <code>card</code>, <code>alert</code>, <code>list-group</code> y tablas
+                      responsive.</p>
+                  </div>
+                </section>
+              </main>
+            </div>
+          </div>
+
+          <pre class="pt-code-block rounded-3">&lt;body class="pt-web-body"&gt;
+  &lt;div id="app" class="pt-web-app"&gt;
+    &lt;nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top pt-web-navbar pt-workspace-navbar"&gt;...&lt;/nav&gt;
+    &lt;main class="container-fluid px-4 px-xl-5 py-4 py-xl-5"&gt;...&lt;/main&gt;
+  &lt;/div&gt;
+&lt;/body&gt;</pre>
+        </article>
+
         <div class="pt-grid-auto-320">
           <article class="card bg-body-tertiary card-body d-grid gap-cus-14 min-w-0">
             <span class="badge text-bg-secondary rounded-pill">.d-grid + gap-* / gap-cus-*</span>
@@ -2197,6 +2285,31 @@
                 <td>Tinte del foco en superficies claras</td>
                 <td><code>rgba(104, 64, 170, 0.34)</code></td>
               </tr>
+              <tr>
+                <td><code>--pt-action-primary</code></td>
+                <td>Accion primaria web/full-tab</td>
+                <td><code>#c46a4a</code></td>
+              </tr>
+              <tr>
+                <td><code>--pt-action-primary-strong</code></td>
+                <td>Hover, texto outline y contraste de accion</td>
+                <td><code>#8f3f2d</code></td>
+              </tr>
+              <tr>
+                <td><code>--pt-action-primary-soft</code></td>
+                <td>Fondo suave para <code>.btn-outline-primary</code></td>
+                <td><code>rgba(196, 106, 74, 0.1)</code></td>
+              </tr>
+              <tr>
+                <td><code>--pt-workspace-page-padding-x</code></td>
+                <td>Padding lateral normal del workspace</td>
+                <td><code>0.75rem</code></td>
+              </tr>
+              <tr>
+                <td><code>--pt-workspace-page-padding-x-xl</code></td>
+                <td>Padding lateral desktop del workspace</td>
+                <td><code>1.5rem</code></td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -2322,9 +2435,11 @@
       <section id="actions" class="card bg-body-tertiary card-body d-grid gap-cus-16 min-w-0">
         <h2>Buttons</h2>
         <p>ProjectTrack maneja dos familias. La base normal es <code>.btn</code> con variantes Bootstrap-first para
-          cualquier area del producto. Cuando una accion vive en el hero, se apoya en la misma base pero agrega
+          cualquier area del producto. En el runtime full-tab, <code>.btn-primary</code> ya no usa el verde historico:
+          se apoya en el acento pastel/coral <code>--pt-action-primary</code> para contrastar mejor con el universo
+          violeta del logo y los heroes. Cuando una accion vive en el hero, se apoya en la misma base pero agrega
           <code>.pt-hero-button</code>, que fuerza una sola forma y una sola superficie visual para toda la cabecera.
-          Las clases <code>pt-*</code> historicas siguen vivas como alias de producto.
+          Las clases <code>pt-*</code> historicas siguen vivas como alias transicionales de producto.
         </p>
 
         <div class="pt-grid-auto-320">
@@ -2350,6 +2465,19 @@
               hero.</p>
 
             <span class="badge text-bg-secondary rounded-pill">Runtime buttons</span>
+
+            <div class="card bg-body-tertiary card-body bg-doc-preview-gradient shadow-none rounded-4 d-grid gap-3">
+              <p class="m-0">El color primario actual del runtime web es pastel/coral. La fuente canonica esta en
+                <code>Chrome/styles/projecttrack-fulltab.css</code>.</p>
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                <button type="button" class="btn btn-primary">Check Release Channel</button>
+                <button type="button" class="btn btn-outline-primary">Back</button>
+                <button type="button" class="btn btn-secondary">Open Release</button>
+              </div>
+              <pre class="pt-code-block rounded-3">&lt;button class="btn btn-primary"&gt;Check Release Channel&lt;/button&gt;
+&lt;button class="btn btn-outline-primary"&gt;Back&lt;/button&gt;
+&lt;button class="btn btn-secondary"&gt;Open Release&lt;/button&gt;</pre>
+            </div>
 
 
             <div class="table-responsive rounded-3">
@@ -3317,14 +3445,101 @@
       <!-- Components / metric cards -->
       <section id="metric-cards" class="card bg-body-tertiary card-body d-grid gap-cus-16 min-w-0">
         <h2>Metric Cards</h2>
-        <p>Estas son las metricas reales del dashboard. La base visual ahora se apoya en
-          <code>.card + .card-body</code>, mientras que <code>.pt-dashboard-metric-card</code> ajusta la densidad y
-          <code>.pt-dashboard-metric-badge</code> resuelve el numero por tono.
+        <p>Estas son las metricas reales del dashboard actual. En <code>workspace.html?view=dashboard</code> se
+          renderizan con <code>.pt-web-metric-card</code> y el grid
+          <code>.row-cols-xl-6</code> para mantener seis indicadores en una sola linea en desktop. La variante
+          historica <code>.pt-dashboard-metric-card</code> se conserva como referencia visual legacy.
         </p>
 
         <div class="pt-grid-auto-320">
           <article class="card bg-body-tertiary card-body d-grid gap-cus-14 min-w-0">
-            <span class="badge text-bg-secondary rounded-pill">Dashboard metrics</span>
+            <span class="badge text-bg-secondary rounded-pill">Current dashboard metrics</span>
+
+            <section class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-6 g-3 g-xl-4"
+              aria-label="Metricas actuales del dashboard">
+              <div class="col">
+                <article class="card h-100 pt-web-card pt-web-metric-card border-0">
+                  <div class="card-body">
+                    <p class="text-uppercase small fw-semibold text-secondary mb-2">Assigned</p>
+                    <div class="d-flex align-items-end justify-content-between gap-3">
+                      <h3 class="display-6 mb-0 fw-bold">1</h3>
+                      <span class="badge rounded-pill text-bg-light border">assigned</span>
+                    </div>
+                  </div>
+                </article>
+              </div>
+              <div class="col">
+                <article class="card h-100 pt-web-card pt-web-metric-card border-0">
+                  <div class="card-body">
+                    <p class="text-uppercase small fw-semibold text-secondary mb-2">Pending</p>
+                    <div class="d-flex align-items-end justify-content-between gap-3">
+                      <h3 class="display-6 mb-0 fw-bold">1</h3>
+                      <span class="badge rounded-pill text-bg-light border">pending</span>
+                    </div>
+                  </div>
+                </article>
+              </div>
+              <div class="col">
+                <article class="card h-100 pt-web-card pt-web-metric-card border-0">
+                  <div class="card-body">
+                    <p class="text-uppercase small fw-semibold text-secondary mb-2">In Progress</p>
+                    <div class="d-flex align-items-end justify-content-between gap-3">
+                      <h3 class="display-6 mb-0 fw-bold">0</h3>
+                      <span class="badge rounded-pill text-bg-light border">in-progress</span>
+                    </div>
+                  </div>
+                </article>
+              </div>
+              <div class="col">
+                <article class="card h-100 pt-web-card pt-web-metric-card border-0">
+                  <div class="card-body">
+                    <p class="text-uppercase small fw-semibold text-secondary mb-2">In QA Review</p>
+                    <div class="d-flex align-items-end justify-content-between gap-3">
+                      <h3 class="display-6 mb-0 fw-bold">0</h3>
+                      <span class="badge rounded-pill text-bg-light border">qa-review</span>
+                    </div>
+                  </div>
+                </article>
+              </div>
+              <div class="col">
+                <article class="card h-100 pt-web-card pt-web-metric-card border-0">
+                  <div class="card-body">
+                    <p class="text-uppercase small fw-semibold text-secondary mb-2">QA Approved</p>
+                    <div class="d-flex align-items-end justify-content-between gap-3">
+                      <h3 class="display-6 mb-0 fw-bold">0</h3>
+                      <span class="badge rounded-pill text-bg-light border">completed</span>
+                    </div>
+                  </div>
+                </article>
+              </div>
+              <div class="col">
+                <article class="card h-100 pt-web-card pt-web-metric-card border-0">
+                  <div class="card-body">
+                    <p class="text-uppercase small fw-semibold text-secondary mb-2">High Priority</p>
+                    <div class="d-flex align-items-end justify-content-between gap-3">
+                      <h3 class="display-6 mb-0 fw-bold">0</h3>
+                      <span class="badge rounded-pill text-bg-light border">high-priority</span>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <pre class="pt-code-block rounded-3">&lt;section class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-6 g-3 g-xl-4"&gt;
+  &lt;div class="col"&gt;
+    &lt;article class="card h-100 pt-web-card pt-web-metric-card border-0"&gt;
+      &lt;div class="card-body"&gt;
+        &lt;p class="text-uppercase small fw-semibold text-secondary mb-2"&gt;Assigned&lt;/p&gt;
+        &lt;div class="d-flex align-items-end justify-content-between gap-3"&gt;
+          &lt;h3 class="display-6 mb-0 fw-bold"&gt;1&lt;/h3&gt;
+          &lt;span class="badge rounded-pill text-bg-light border"&gt;assigned&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/article&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</pre>
+
+            <span class="badge text-bg-secondary rounded-pill">Legacy metric strip</span>
 
             <section class="pt-dashboard-metric-strip pt-grid-auto-150" aria-label="Metricas de estado del dashboard">
               <article class="card bg-body-tertiary pt-dashboard-metric-card">
@@ -3622,7 +3837,7 @@
             <section class="alert alert-warning alert-dismissible">
               <strong>Revision pendiente</strong>
               <p>Hay cambios esperando aprobacion de QA.</p>
-              <button type="button" class="btn-close" aria-label="Cerrar">�</button>
+              <button type="button" class="btn-close" aria-label="Cerrar">×</button>
             </section>
             <section class="alert alert-danger">
               <strong>No se puede guardar.</strong>
@@ -3683,7 +3898,7 @@
                 <div class="modal-content">
                   <div class="modal-header">
                     <h3 class="modal-title">Crear nota</h3>
-                    <button type="button" class="btn-close" aria-label="Cerrar">�</button>
+                    <button type="button" class="btn-close" aria-label="Cerrar">×</button>
                   </div>
                   <div class="modal-body">
                     <p class="card-text">Usa este shell para overlays, confirmaciones y formularios compactos.</p>
@@ -3850,19 +4065,60 @@
       <!-- Components / navbar -->
       <section id="navbar" class="card bg-body-tertiary card-body d-grid gap-cus-16 min-w-0">
         <h2>NavBar</h2>
-        <p>Esta seccion documenta primero la variante propia de ProjectTrack. En la app se monta como
-          <code>&lt;nav class="navbar navbar-expand-sm pt-navbar"&gt;</code>, reutiliza la semantica de Bootstrap para
-          estructura y dropdown, y deja <code>pt-navbar</code> como skin visual del sistema. Mas abajo se incluyen
-          ejemplos neutros de la base Bootstrap-ProjectTrack para casos donde no haga falta el hero visual de
-          ProjectTrack.
+        <p>El navbar actual de ProjectTrack Chrome es un componente global editable. El HTML vive en
+          <code>Chrome/components/global-navbar.html</code> y el runtime lo monta desde
+          <code>Chrome/src/projecttrack-app.js</code> dentro de
+          <code>&lt;nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top pt-web-navbar pt-workspace-navbar"&gt;</code>.
+          Bootstrap controla el dropdown y ProjectTrack agrega la capa visual full-tab.
         </p>
         <article class="card bg-body-tertiary card-body d-grid gap-cus-14 min-w-0">
-          <span class="badge text-bg-secondary rounded-pill">Variante ProjectTrack / preview real</span>
+          <span class="badge text-bg-secondary rounded-pill">Template actual / preview</span>
           <div
             class="card bg-body-tertiary card-body bg-doc-preview-gradient shadow-none rounded-4 pt-doc-header-preview">
-            <p class="card-text px-1">Haz clic en el avatar para abrir el menu y cambia de vista para ver el
-              breadcrumb, el estado activo y el notice comportarse como en la app.</p>
-            <div class="pt-doc-header-runtime" data-pt-doc-header-demo></div>
+            <p class="card-text px-1">Esta es la estructura que se reutiliza en Dashboard, Projects, Project Details,
+              Login, Profile y el resto del workspace.</p>
+            <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top pt-web-navbar pt-workspace-navbar"
+              aria-label="ProjectTrack workspace">
+              <div class="container-fluid px-4 px-xl-5">
+                <button type="button" class="navbar-brand d-flex align-items-center gap-3 mb-0 pt-workspace-brand"
+                  aria-label="Go to Dashboard">
+                  <span class="pt-web-brand-mark" aria-hidden="true">
+                    <img src="../assets/projecttrack-icon.svg" alt="">
+                  </span>
+                  <span class="d-grid">
+                    <strong class="pt-web-brand-title">ProjectTrack</strong>
+                    <small class="text-secondary">Bootstrap dashboard</small>
+                  </span>
+                </button>
+
+                <div class="d-flex align-items-center gap-2 ms-auto pt-workspace-navbar-actions">
+                  <button type="button" class="btn btn-primary">Refresh Data</button>
+
+                  <div class="dropdown">
+                    <button type="button" class="btn pt-web-user-button dropdown-toggle" data-bs-toggle="dropdown"
+                      aria-expanded="false">
+                      <span class="pt-web-user-avatar" aria-hidden="true">J</span>
+                      <span class="pt-web-user-copy">
+                        <span class="pt-web-user-name">Jordan Molina</span>
+                        <span class="pt-web-user-role">Analysis and tracking</span>
+                      </span>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end pt-web-user-menu">
+                      <li><button type="button" class="dropdown-item">Dashboard</button></li>
+                      <li><button type="button" class="dropdown-item">Projects</button></li>
+                      <li><button type="button" class="dropdown-item">Changes</button></li>
+                      <li><button type="button" class="dropdown-item">Profile</button></li>
+                      <li>
+                        <hr class="dropdown-divider">
+                      </li>
+                      <li><button type="button" class="dropdown-item">UI Guide</button></li>
+                      <li><button type="button" class="dropdown-item">Change History</button></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </nav>
           </div>
         </article>
 
@@ -3871,35 +4127,29 @@
             <span class="badge text-bg-secondary rounded-pill">Partes de la variante ProjectTrack</span>
             <div class="pt-doc-header-parts">
               <article class="pt-doc-header-part">
-                <strong><code>.navbar.pt-navbar</code></strong>
-                <p>Contenedor principal. Usa semantica de Bootstrap para el componente y <code>pt-navbar</code> como
-                  skin visual.</p>
+                <strong><code>Chrome/components/global-navbar.html</code></strong>
+                <p>Archivo fuente del template. Es el punto mas comodo para editar marca, acciones visibles y orden del
+                  menu sin tocar JavaScript.</p>
 
-                <strong><code>.container-fluid.pt-navbar-top</code></strong>
-                <p>Layout principal de dos zonas: marca a la izquierda y trigger de navegacion a la derecha.</p>
+                <strong><code>.pt-workspace-navbar</code></strong>
+                <p>Capa del navbar full-tab. Mantiene fondo blanco, borde inferior, posicion sticky y prioridad visual
+                  por encima del contenido.</p>
 
-                <strong><code>button.navbar-brand.pt-navbar-copy.pt-navbar-brand-button</code></strong>
-                <p>Bloque de marca que agrupa isotipo, titulo y breadcrumb. En el runtime real, al hacer clic vuelve a
-                  <code>Inicio / Dashboard</code>.
+                <strong><code>.pt-workspace-brand</code> + <code>{{BRAND_MARK}}</code></strong>
+                <p>Marca izquierda con icono, titulo y subtitulo alineados horizontalmente. El click navega a
+                  Dashboard.</p>
+
+                <strong><code>.pt-workspace-navbar-actions</code></strong>
+                <p>Zona derecha para acciones globales. Hoy contiene <code>Refresh Data</code> y el dropdown de usuario.
                 </p>
 
-                <strong><code>.pt-navbar-brand-row</code> + <code>.pt-brand-mark</code></strong>
-                <p>Fila que alinea el isotipo con el titulo y usa sombra para levantar la marca sobre el gradiente.</p>
+                <strong><code>.pt-web-user-button</code> + <code>.pt-web-user-menu</code></strong>
+                <p>Dropdown Bootstrap real con avatar, nombre, rol y accesos a Dashboard, Projects, Changes, Profile,
+                  UI Guide y Change History.</p>
 
-                <strong><code>.breadcrumb</code> + <code>.breadcrumb-item</code></strong>
-                <p>Muestra la ruta contextual del usuario con semantica Bootstrap y deja el ultimo item como estado
-                  activo dentro del NavBar.</p>
-
-                <strong><code>.dropdown.pt-avatar-area</code> + <code>.pt-avatar-card</code></strong>
-                <p>Trigger del menu global. En el runtime real abre o cierra el dropdown segun <code>navMenuOpen</code>.
-                </p>
-
-                <strong><code>.dropdown-menu.pt-avatar-menu</code> +
-                  <code>.dropdown-item.pt-avatar-menu-item</code></strong>
-                <p>Menu principal con accesos a Dashboard, Proyectos, Cambios y Perfil.</p>
-
-                <strong><code>.pt-inline-notice-toast</code></strong>
-                <p>Aviso temporal inyectado bajo el NavBar para feedback global de login, sync y guardado remoto.</p>
+                <strong><code>{{NOTICE}}</code></strong>
+                <p>Placeholder donde <code>renderNotice()</code> inserta alertas globales de refresh, login, guardado o
+                  errores recuperables.</p>
               </article>
             </div>
 
@@ -3915,43 +4165,42 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td><code>navBarInfo.title</code></td>
-                    <td><code>getNavBarInfo(state)</code></td>
-                    <td>Define el contexto actual del view, aunque el NavBar hoy fija el titulo visible como
-                      <code>ProjectTrack</code>.
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><code>navBarInfo.breadcrumb</code></td>
-                    <td><code>getNavBarInfo(state)</code></td>
-                    <td>Se transforma en un <code>.breadcrumb</code> para ubicar la ruta actual del usuario.</td>
-                  </tr>
-                  <tr>
-                    <td><code>renderProjectTrackBrand(52)</code></td>
-                    <td><code>projecttrack-brand.js</code></td>
-                    <td>Renderiza el icono de marca con tamano actual de 52px dentro del NavBar.</td>
-                  </tr>
-                  <tr>
-                    <td><code>tabItems</code></td>
+                    <td><code>loadGlobalNavbarTemplate()</code></td>
                     <td><code>projecttrack-app.js</code></td>
-                    <td>Fuente de los items del menu global: Dashboard, Proyectos, Cambios y Perfil.</td>
+                    <td>Carga <code>components/global-navbar.html</code> una vez y lo reutiliza en cada render.</td>
                   </tr>
                   <tr>
-                    <td><code>state.navMenuOpen</code></td>
-                    <td>estado UI</td>
-                    <td>Controla si el dropdown del menu global se muestra o permanece oculto.</td>
+                    <td><code>{{MENU_ITEMS}}</code></td>
+                    <td><code>tabItems</code></td>
+                    <td>Construye los accesos del menu global y marca activo el view actual.</td>
+                  </tr>
+                  <tr>
+                    <td><code>{{USER_NAME}}</code>, <code>{{USER_ROLE}}</code>,
+                      <code>{{USER_INITIAL}}</code></td>
+                    <td><code>state.data</code> y sesion backend</td>
+                    <td>Pueblan el boton de usuario sin duplicar markup en cada pantalla.</td>
+                  </tr>
+                  <tr>
+                    <td><code>data-action="refresh-workspace"</code></td>
+                    <td>evento global</td>
+                    <td>Ejecuta la recarga de datos del workspace y muestra feedback en <code>{{NOTICE}}</code>.</td>
+                  </tr>
+                  <tr>
+                    <td><code>data-action="open-ui-guide"</code></td>
+                    <td><code>getProjectTrackUiGuideUrl()</code></td>
+                    <td>Abre <code>Chrome/docs/projecttrack-ui.html</code> como pagina consultable dentro de la
+                      extension.</td>
                   </tr>
                   <tr>
                     <td><code>renderNotice()</code></td>
                     <td>estado UI</td>
-                    <td>Inserta un aviso <code>info</code> o <code>success</code> debajo del NavBar cuando existe
-                      <code>state.notice</code>.
-                    </td>
+                    <td>Inserta avisos globales bajo el navbar cuando existe <code>state.notice</code>.</td>
                   </tr>
                   <tr>
-                    <td><code>state.currentView === "login"</code></td>
+                    <td><code>syncWorkspaceUrl(state)</code></td>
                     <td>estado UI</td>
-                    <td>Oculta todo el NavBar en la pantalla de login.</td>
+                    <td>Mantiene la URL con <code>?view=...</code>, <code>projectId</code>, <code>changeId</code> y
+                      <code>mode</code> segun la pantalla activa.</td>
                   </tr>
                 </tbody>
               </table>
@@ -4008,6 +4257,109 @@
           </article>
         </div>
 
+      </section>
+
+      <!-- Components / release channel -->
+      <section id="release-channel" class="card bg-body-tertiary card-body d-grid gap-cus-16 min-w-0">
+        <h2>Release Channel</h2>
+        <p>La pantalla <code>Profile</code> incluye el bloque <strong>Extension Updates</strong>. Ese bloque compara la
+          version instalada de Chrome contra el canal activo guardado en Supabase y deja GitHub Releases como origen del
+          zip descargable.</p>
+
+        <div class="card bg-body-tertiary card-body bg-doc-preview-gradient shadow-none rounded-4 d-grid gap-3">
+          <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+            <div>
+              <h3 class="h5 mb-1">Extension Updates</h3>
+              <p class="text-body-secondary mb-0">Check the Supabase release channel. GitHub Releases stores the
+                downloadable zip.</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <button type="button" class="btn btn-primary">Check Release Channel</button>
+              <button type="button" class="btn btn-outline-secondary" disabled>Open Release</button>
+            </div>
+          </div>
+
+          <div class="alert alert-success mb-0" role="status">
+            <strong>Release channel is current</strong>
+            <p class="mb-0">Supabase release channel currently points to version 0.1.1. Installed Chrome version is
+              0.1.1.</p>
+          </div>
+
+          <div class="row row-cols-1 row-cols-lg-3 g-3">
+            <article class="col">
+              <div class="card bg-body-tertiary shadow-none h-100">
+                <div class="card-body">
+                  <p class="card-subtitle">Installed Version</p>
+                  <strong>0.1.1</strong>
+                </div>
+              </div>
+            </article>
+            <article class="col">
+              <div class="card bg-body-tertiary shadow-none h-100">
+                <div class="card-body">
+                  <p class="card-subtitle">Supabase Release Channel</p>
+                  <strong>0.1.1</strong>
+                </div>
+              </div>
+            </article>
+            <article class="col">
+              <div class="card bg-body-tertiary shadow-none h-100">
+                <div class="card-body">
+                  <p class="card-subtitle">Release Source</p>
+                  <strong>Supabase app_releases</strong>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="table-responsive rounded-3">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Elemento</th>
+                <th>Origen actual</th>
+                <th>Uso</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>Installed Version</code></td>
+                <td><code>chrome.runtime.getManifest().version</code></td>
+                <td>Lee la version instalada realmente en Chrome. Si se cambia <code>manifest.json</code>, hay que
+                  recargar la extension en <code>chrome://extensions</code>.</td>
+              </tr>
+              <tr>
+                <td><code>Supabase Release Channel</code></td>
+                <td>tabla <code>app_releases</code></td>
+                <td>Version activa que el workspace considera disponible para descarga.</td>
+              </tr>
+              <tr>
+                <td><code>Check Release Channel</code></td>
+                <td><code>checkChromeReleaseUpdate()</code></td>
+                <td>Consulta Supabase, compara versiones semver y habilita <code>Open Release</code> cuando hay una
+                  version mayor.</td>
+              </tr>
+              <tr>
+                <td><code>Open Release</code></td>
+                <td><code>openChromeReleaseDownload()</code></td>
+                <td>Abre el URL de GitHub Release guardado en el canal activo.</td>
+              </tr>
+              <tr>
+                <td>Release automation</td>
+                <td><code>.github/workflows/chrome-release.yml</code></td>
+                <td>Publica assets en GitHub y puede actualizar Supabase si existen los secrets
+                  <code>SUPABASE_URL</code> y <code>SUPABASE_SERVICE_ROLE_KEY</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <pre class="pt-code-block rounded-3">Profile / Extension Updates
+  Installed Version          chrome.runtime.getManifest().version
+  Supabase Release Channel   app_releases.active = true
+  Package                    ProjectTrack-Chrome.zip
+  Download                   GitHub Releases asset URL</pre>
       </section>
 
       <!-- Typography / text colors -->
@@ -4466,8 +4818,8 @@
             </div>
 
 
-            <pre class="pt-code-block rounded-3">&lt;nav class="pt-navbar"&gt;
-  &lt;h1&gt;ProjectTrack&lt;/h1&gt;
+            <pre class="pt-code-block rounded-3">&lt;nav class="navbar navbar-expand-lg pt-workspace-navbar"&gt;
+  &lt;strong class="pt-web-brand-title"&gt;ProjectTrack&lt;/strong&gt;
 &lt;/nav&gt;
 
 &lt;section class="pt-project-detail-copy"&gt;
@@ -4480,294 +4832,7 @@
 
   </div>
 
-  <!-- Interactive preview script: NavBar demo -->
-  <script>
-    (() => {
-      const demoNode = document.querySelector("[data-pt-doc-header-demo]");
-      if (!demoNode) {
-        return;
-      }
-
-      const avatarIcon = `
-        <span class="pt-avatar-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" focusable="false">
-            <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-3.86 0-7 2.24-7 5v1h14v-1c0-2.76-3.14-5-7-5Z" />
-          </svg>
-        </span>
-      `;
-
-      const demoViews = {
-        dashboard: {
-          label: "Dashboard",
-          breadcrumb: "Inicio / Dashboard",
-          notice: {
-            tone: "success",
-            title: "Dashboard listo",
-            message: "Metricas, actividad reciente y widgets cargados correctamente."
-          },
-          metrics: [
-            { label: "Cambios activos", value: "12", tone: "assigned", caption: "Pipeline del dia" },
-            { label: "Pendientes", value: "4", tone: "pending", caption: "Esperando revision" },
-            { label: "Completados", value: "28", tone: "completed", caption: "Ultimos 7 dias" }
-          ],
-          rows: [
-            { title: "Portal QA", pill: "QA", pillClass: "status-qa", description: "Ambiente listo para pruebas integrales." },
-            { title: "CRM Rollout", pill: "Alta", pillClass: "priority-high", description: "Hay 3 tareas bloqueando el cierre semanal." }
-          ],
-          sideTitle: "Atajos del dashboard",
-          sideText: "Desde aqui se monitorean metricas globales y tarjetas de seguimiento rapido.",
-          chips: ["Resumen ejecutivo", "Widgets activos", "Sesion autenticada"]
-        },
-        projects: {
-          label: "Proyectos",
-          breadcrumb: "Inicio / Proyectos / Detalle",
-          notice: {
-            tone: "info",
-            title: "Contexto de proyecto",
-            message: "Vista enfocada en el detalle del proyecto y sus cambios relacionados."
-          },
-          metrics: [
-            { label: "Proyectos activos", value: "9", tone: "assigned", caption: "En seguimiento" },
-            { label: "Con riesgo", value: "2", tone: "critical", caption: "Requieren atencion" },
-            { label: "Cerrados", value: "17", tone: "completed", caption: "Historico reciente" }
-          ],
-          rows: [
-            { title: "ProjectTrack Chrome", pill: "En desarrollo", pillClass: "status-progress", description: "Sistema visual y extension unificada en iteracion." },
-            { title: "OneDrive Sync", pill: "Pendiente", pillClass: "status-pending", description: "Esperando confirmacion funcional del flujo local." }
-          ],
-          sideTitle: "Resumen del proyecto",
-          sideText: "El NavBar mantiene la marca fija y usa el breadcrumb para ubicar la rama actual del workspace.",
-          chips: ["Detalle abierto", "9 proyectos", "Sync remoto"]
-        },
-        changes: {
-          label: "Cambios",
-          breadcrumb: "Inicio / Proyectos / Detalle / Cambios / Detalle",
-          notice: {
-            tone: "info",
-            title: "Cambio activo",
-            message: "El flujo de cambios mantiene ambiente, prioridad y notas visibles desde el NavBar."
-          },
-          metrics: [
-            { label: "Abiertos", value: "6", tone: "assigned", caption: "Cambios en progreso" },
-            { label: "QA", value: "3", tone: "pending", caption: "Esperando aprobacion" },
-            { label: "Done", value: "11", tone: "completed", caption: "Liberados esta quincena" }
-          ],
-          rows: [
-            { title: "Login macOS", pill: "QA", pillClass: "status-qa", description: "Validando freeze reportado despues de autenticacion." },
-            { title: "ProjectTrack UI", pill: "Alta", pillClass: "priority-high", description: "Consolidando tokens y documentacion." }
-          ],
-          sideTitle: "Contexto del cambio",
-          sideText: "Los cambios usan pills, enlaces, notas y progreso por ambiente dentro del mismo lenguaje visual.",
-          chips: ["Detalle de cambio", "Notas activas", "Entorno QA"]
-        },
-        profile: {
-          label: "Perfil",
-          breadcrumb: "Inicio / Perfil",
-          notice: {
-            tone: "success",
-            title: "Perfil listo",
-            message: "Preferencias, backend y sesion disponibles para configuracion."
-          },
-          metrics: [
-            { label: "Sesion", value: "Activa", tone: "completed", caption: "Backend autenticado" },
-            { label: "Backend", value: "OK", tone: "assigned", caption: "Config almacenada" },
-            { label: "Avisos", value: "1", tone: "pending", caption: "Mensaje informativo" }
-          ],
-          rows: [
-            { title: "Nombre visible", pill: "Editable", pillClass: "neutral", description: "Se sincroniza con el estado local de perfil." },
-            { title: "Configuracion backend", pill: "Lista", pillClass: "status-done", description: "Proyecto y anon key guardados en storage." }
-          ],
-          sideTitle: "Preferencias activas",
-          sideText: "El menu global sigue disponible y el notice comunica acciones exitosas o informativas.",
-          chips: ["Perfil", "Backend", "Sesion remota"]
-        }
-      };
-
-      const navItems = Object.keys(demoViews);
-      const state = {
-        currentView: "projects",
-        navMenuOpen: false,
-        notice: { ...demoViews.projects.notice }
-      };
-
-      function escapeHtml(value) {
-        return String(value)
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;")
-          .replaceAll('"', "&quot;")
-          .replaceAll("'", "&#39;");
-      }
-
-      function renderBreadcrumbTrail(label) {
-        const segments = String(label || "")
-          .split("/")
-          .map((segment) => escapeHtml(segment.trim()))
-          .filter(Boolean);
-
-        if (!segments.length) {
-          return "";
-        }
-
-        return `
-          <nav aria-label="Breadcrumb contextual">
-            <ol class="breadcrumb">
-              ${segments.map((segment, index) => `
-                <li class="breadcrumb-item${index === segments.length - 1 ? " active" : ""}"${index === segments.length - 1 ? ' aria-current="page"' : ""}>${segment}</li>
-              `).join("")}
-            </ol>
-          </nav>
-        `;
-      }
-
-      function renderNotice() {
-        if (!state.notice?.message) {
-          return "";
-        }
-
-        const toneClass = state.notice.tone === "success"
-          ? "pt-inline-notice-card--success"
-          : "pt-inline-notice-card--info";
-
-        return `
-          <section class="pt-inline-notice-card pt-inline-notice-toast ${toneClass}">
-            <div class="pt-inline-notice-head">
-              <strong>${escapeHtml(state.notice.title || "Aviso")}</strong>
-              <button type="button" class="pt-inline-notice-close" data-demo-action="dismiss-notice" aria-label="Cerrar aviso">X</button>
-            </div>
-            <p>${escapeHtml(state.notice.message)}</p>
-          </section>
-        `;
-      }
-
-      function renderBody(view) {
-        const metrics = view.metrics.map((item) => `
-          <article class="card bg-body-tertiary pt-dashboard-metric-card">
-            <div class="card-body">
-              <p class="card-subtitle">${escapeHtml(item.label)}</p>
-              <span class="badge rounded-pill pt-dashboard-metric-badge tone-${escapeHtml(item.tone)}">${escapeHtml(item.value)}</span>
-              <p class="card-text">${escapeHtml(item.caption)}</p>
-            </div>
-          </article>
-        `).join("");
-
-        const rows = view.rows.map((item) => `
-          <article class="pt-row-card d-grid gap-2 min-w-0">
-            <div class="pt-doc-header-runtime-meta">
-              <strong>${escapeHtml(item.title)}</strong>
-              <span class="pt-pill ${escapeHtml(item.pillClass)}">${escapeHtml(item.pill)}</span>
-            </div>
-            <div class="d-grid gap-2 min-w-0">
-              <p class="card-text">${escapeHtml(item.description)}</p>
-            </div>
-          </article>
-        `).join("");
-
-        const chips = view.chips.map((item) => `<span class="pt-mini-chip">${escapeHtml(item)}</span>`).join("");
-
-        return `
-          <div class="pt-doc-header-runtime-stage">
-            <div class="pt-dashboard-metric-strip pt-grid-auto-150">
-              ${metrics}
-            </div>
-            <div class="pt-grid-sidebar">
-              <section class="pt-screen-card d-grid gap-cus-14 min-w-0">
-                <h3 class="pt-section-title">${escapeHtml(view.sideTitle)}</h3>
-                <p class="card-text">${escapeHtml(view.sideText)}</p>
-                <div class="pt-doc-header-runtime-list">
-                  ${rows}
-                </div>
-              
-              
-                <h3 class="pt-section-title">Estado del preview</h3>
-                <p class="card-text">Este bloque simula el viewport vivo del app para que el NavBar se vea funcionando y no solo maquetado.</p>
-                <div class="pt-inline-list">
-                  ${chips}
-                </div>
-             </section>
-            </div>
-          </div>
-        `;
-      }
-
-      function renderDemo() {
-        const currentView = demoViews[state.currentView];
-        demoNode.innerHTML = `
-          <nav class="navbar navbar-expand-sm pt-navbar" aria-label="Navegacion principal de ProjectTrack">
-            <div class="container-fluid pt-navbar-top">
-              <button type="button" class="navbar-brand pt-navbar-copy pt-navbar-brand-button" data-demo-view="dashboard" aria-label="Ir a Inicio / Dashboard">
-                <div class="pt-navbar-brand-row">
-                  <span class="pt-brand-mark" aria-hidden="true" style="width:52px;height:52px;">
-                    <img src="../assets/projecttrack-icon.svg" alt="">
-                  </span>
-                  <h1>ProjectTrack</h1>
-                </div>
-                ${renderBreadcrumbTrail(currentView.breadcrumb)}
-              </button>
-              <div class="dropdown pt-avatar-area">
-                <button type="button" class="pt-avatar-card pt-avatar-button" data-demo-action="toggle-nav-menu" aria-label="Abrir menu global" aria-expanded="${state.navMenuOpen ? "true" : "false"}">
-                  ${avatarIcon}
-                </button>
-                ${state.navMenuOpen ? `
-                  <div class="dropdown-menu dropdown-menu-end show pt-avatar-menu">
-                    ${navItems.map((id) => `
-                      <button type="button" class="dropdown-item pt-avatar-menu-item ${id === state.currentView ? "active" : ""}" data-demo-view="${id}">
-                        ${escapeHtml(demoViews[id].label)}
-                      </button>
-                    `).join("")}
-                  </div>
-                ` : ""}
-              </div>
-            </div>
-            ${renderNotice()}
-          </nav>
-          ${renderBody(currentView)}
-        `;
-      }
-
-      demoNode.addEventListener("click", (event) => {
-        const toggleButton = event.target.closest("[data-demo-action='toggle-nav-menu']");
-        if (toggleButton) {
-          state.navMenuOpen = !state.navMenuOpen;
-          renderDemo();
-          return;
-        }
-
-        const dismissButton = event.target.closest("[data-demo-action='dismiss-notice']");
-        if (dismissButton) {
-          state.notice = null;
-          renderDemo();
-          return;
-        }
-
-        const navButton = event.target.closest("[data-demo-view]");
-        if (navButton) {
-          const nextView = navButton.getAttribute("data-demo-view");
-          if (nextView && demoViews[nextView]) {
-            state.currentView = nextView;
-            state.notice = { ...demoViews[nextView].notice };
-            state.navMenuOpen = false;
-            renderDemo();
-          }
-          return;
-        }
-
-        if (state.navMenuOpen && !event.target.closest(".pt-avatar-area")) {
-          state.navMenuOpen = false;
-          renderDemo();
-        }
-      });
-
-      document.addEventListener("click", (event) => {
-        if (state.navMenuOpen && !demoNode.contains(event.target)) {
-          state.navMenuOpen = false;
-          renderDemo();
-        }
-      });
-
-      renderDemo();
-    })();
-  </script>
+  <script src="../vendor/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

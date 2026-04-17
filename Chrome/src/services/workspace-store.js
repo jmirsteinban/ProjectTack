@@ -100,7 +100,7 @@ function createLockedWorkspace(seedData, session = null) {
     taskFeatureStatus: {
       available: true,
       missingRelations: [],
-      migrationFile: "Android/sql/change_tasks_excel_import_20260331.sql"
+      migrationFile: "sql/change_tasks_excel_import_20260331.sql"
     },
     dashboardHero: {
       ...base.dashboardHero,

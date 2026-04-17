@@ -10,6 +10,7 @@ import {
   translateStatus,
 } from "../services/ui-copy.js";
 import { escapeAttribute, escapeHtml } from "../services/html.js";
+import { renderHeroCard } from "../components/hero-card.js";
 
 function normalizeIdentity(value) {
   return (value ?? "")
@@ -205,20 +206,13 @@ export function renderDashboardScreen(data) {
 
   return `
     <section class="d-grid gap-4 gap-xl-5 min-w-0">
-      <section class="card border-0 pt-web-hero">
-        <div class="card-body p-4 p-xl-5">
-          <div class="row g-4 align-items-center">
-            <div class="col-12 col-xl-8">
-              <span class="badge rounded-pill bg-light text-dark border mb-3">Home / Dashboard</span>
-              <h1 class="display-5 fw-bold mb-3">Hello, ${escapeHtml(data.user?.name || "ProjectTrack User")}</h1>
-              <p class="lead mb-0">You have <strong>${escapeHtml(String(openTodoCount))}</strong> open tasks to move forward today.</p>
-            </div>
-            <div class="col-12 col-xl-4 d-flex justify-content-xl-end">
-              <button type="button" class="btn btn-primary pt-hero-button" data-action="go-to-projects">Go to Projects</button>
-            </div>
-          </div>
-        </div>
-      </section>
+      ${renderHeroCard({
+        title: `Hello, ${data.user?.name || "ProjectTrack User"}`,
+        titleClass: "display-5 fw-bold mb-3",
+        descriptionHtml: `<p class="lead mb-0">You have <strong>${escapeHtml(String(openTodoCount))}</strong> open tasks to move forward today.</p>`,
+        mainClass: "col-12 col-xl-8",
+        actionsHtml: `<button type="button" class="btn btn-light" data-action="go-to-projects">Go to Projects</button>`
+      })}
 
       <section class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-6 g-3 g-xl-4">${metrics}</section>
 

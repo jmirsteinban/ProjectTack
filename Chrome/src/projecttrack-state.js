@@ -50,7 +50,6 @@ export function createProjectTrackState(options = {}) {
     },
     notice: null,
     confirmDialog: null,
-    navMenuOpen: false,
     viewHistory: [],
     currentView: initialView,
     projectDetailReturnView: "projects",

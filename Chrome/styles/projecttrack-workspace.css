@@ -41,6 +41,8 @@
   background: transparent;
   color: var(--pt-color-text-primary);
   text-align: left;
+  min-width: 0;
+  max-width: min(56rem, 100%);
 }
 
 .pt-workspace-brand:hover,
@@ -48,11 +50,50 @@
   color: var(--pt-color-brand-strong);
 }
 
-.pt-workspace-brand .pt-brand-mark {
+.pt-workspace-brand-mark-button,
+.pt-workspace-brand-title-button {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.pt-workspace-brand-mark-button {
+  line-height: 0;
+}
+
+.pt-workspace-brand-mark-button:hover,
+.pt-workspace-brand-mark-button:focus-visible,
+.pt-workspace-brand-title-button:hover,
+.pt-workspace-brand-title-button:focus-visible {
+  color: var(--pt-color-brand-strong);
+}
+
+.pt-workspace-brand-mark-button:focus-visible,
+.pt-workspace-brand-title-button:focus-visible {
+  outline: 0;
+  box-shadow: var(--pt-focus-ring-shadow);
+}
+
+.pt-workspace-brand-mark-button .pt-brand-mark {
   width: 34px;
   height: 34px;
   border-radius: 8px;
   box-shadow: 0 8px 18px rgba(45, 24, 88, 0.18);
+}
+
+.pt-workspace-breadcrumb-text {
+  display: block;
+  max-width: min(48rem, 72vw);
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  user-select: text;
+  cursor: text;
 }
 
 .pt-workspace-navbar .breadcrumb {
@@ -75,7 +116,7 @@
   justify-items: center;
 }
 
-.pt-workspace-view--login .pt-login-card {
+.pt-workspace-view--login > .card {
   width: min(100%, 720px);
   margin-inline: auto;
 }
@@ -144,14 +185,6 @@
 
 .pt-project-title {
   display: block;
-}
-
-.pt-login-status-slot {
-  min-height: 0;
-}
-
-.pt-login-submit-button {
-  min-width: 8.5rem;
 }
 
 .pt-web-app .dropdown-menu .dropdown-item.active,

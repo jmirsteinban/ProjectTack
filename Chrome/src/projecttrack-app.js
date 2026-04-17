@@ -205,6 +205,49 @@ function resolveSelectedChangeProject(state) {
   return (state.data?.projects ?? []).find((item) => item.name === change.project) ?? null;
 }
 
+function resolveSelectedProject(state) {
+  return (state.data?.projects ?? []).find((item) => item.id === state.selectedProjectId) ?? null;
+}
+
+function buildWorkspaceBreadcrumbLabel(state) {
+  const selectedProject = resolveSelectedProject(state);
+  const selectedChange = resolveSelectedChange(state);
+  const selectedChangeProject = resolveSelectedChangeProject(state);
+  const projectLabel = selectedProject?.name || selectedChangeProject?.name || selectedChange?.project || "Project";
+  const changeLabel = selectedChange?.title || "Change";
+
+  switch (state.currentView) {
+    case "dashboard":
+      return "Workspace / Dashboard";
+    case "projects":
+      return "Workspace / Projects";
+    case "project-detail":
+      return `Workspace / Projects / Details / ${projectLabel}`;
+    case "project-editor":
+      return state.projectEditorMode === "create"
+        ? "Workspace / Projects / New"
+        : `Workspace / Projects / Details / ${projectLabel} / Edit`;
+    case "changes":
+      return selectedProject
+        ? `Workspace / Projects / Details / ${selectedProject.name} / Changes`
+        : "Workspace / Changes";
+    case "change-detail":
+      return `Workspace / Projects / Details / ${projectLabel} / Changes / Details / ${changeLabel}`;
+    case "change-editor":
+      return state.changeEditorMode === "create"
+        ? `Workspace / Projects / Details / ${projectLabel} / Changes / New`
+        : `Workspace / Projects / Details / ${projectLabel} / Changes / Details / ${changeLabel} / Edit`;
+    case "change-history":
+      return "Workspace / Change History";
+    case "login":
+      return "Workspace / Login";
+    case "profile":
+      return "Workspace / Profile";
+    default:
+      return "Workspace";
+  }
+}
+
 function resolveSelectedChangeTasks(state) {
   const change = resolveSelectedChange(state);
   if (!change) {
@@ -300,7 +343,6 @@ function forceLoginScreen(state, message = "") {
   clearChangeEditorState(state);
   closeChangeHeaderMenu(state);
   clearNoteComposerState(state);
-  state.navMenuOpen = false;
   if (message) {
     state.authMessage = message;
   }
@@ -396,6 +438,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     const userName = state.data?.user?.name || state.backendSession?.user?.email || "ProjectTrack User";
     const userRole = state.data?.user?.role || (hasAuthenticatedSession(state) ? "Workspace member" : "Workspace locked");
     const userInitial = String(userName).trim().charAt(0).toUpperCase() || "P";
+    const breadcrumbLabel = buildWorkspaceBreadcrumbLabel(state);
     const menuItems = tabItems.map(([id, label]) => {
       const isBase = id === state.currentView;
       const isProjectBranch = id === "projects" && ["project-detail", "project-editor"].includes(state.currentView);
@@ -408,18 +451,24 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
       "{{USER_INITIAL}}": escapeHtml(userInitial),
       "{{USER_NAME}}": escapeHtml(userName),
       "{{USER_ROLE}}": escapeHtml(userRole),
+      "{{BREADCRUMB_LABEL}}": escapeHtml(breadcrumbLabel),
       "{{MENU_ITEMS}}": menuItems,
+      "{{CHANGE_HISTORY_ACTIVE}}": state.currentView === "change-history" ? "active" : "",
       "{{NOTICE}}": renderNotice()
     };
     const template = globalNavbarTemplate || `
       <div class="container-fluid px-4 px-xl-5">
-        <button type="button" class="navbar-brand d-flex align-items-center gap-3 mb-0 pt-workspace-brand" data-action="navigate-main" data-view-id="dashboard" aria-label="Go to Dashboard">
-          {{BRAND_MARK}}
-          <span class="d-grid">
-            <strong class="pt-web-brand-title">ProjectTrack</strong>
-            <small class="text-secondary">Bootstrap dashboard</small>
+        <div class="navbar-brand d-flex align-items-center gap-3 mb-0 pt-workspace-brand">
+          <button type="button" class="pt-workspace-brand-mark-button" data-action="navigate-main" data-view-id="dashboard" aria-label="Go to Dashboard">
+            {{BRAND_MARK}}
+          </button>
+          <span class="d-grid min-w-0">
+            <button type="button" class="pt-workspace-brand-title-button" data-action="navigate-main" data-view-id="dashboard">
+              <strong class="pt-web-brand-title">ProjectTrack</strong>
+            </button>
+            <small class="text-secondary pt-workspace-breadcrumb-text" title="{{BREADCRUMB_LABEL}}">{{BREADCRUMB_LABEL}}</small>
           </span>
-        </button>
+        </div>
         <div class="d-flex align-items-center gap-2 ms-auto pt-workspace-navbar-actions">
           <button type="button" class="btn btn-outline-primary" data-action="navigate-main" data-view-id="dashboard">Open Classic Workspace</button>
           <button type="button" class="btn btn-primary" data-action="refresh-workspace">Refresh Data</button>
@@ -438,6 +487,9 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
             </button>
             <ul class="dropdown-menu dropdown-menu-end pt-web-user-menu">
               {{MENU_ITEMS}}
+              <li><hr class="dropdown-divider"></li>
+              <li><button type="button" class="dropdown-item" data-action="open-ui-guide">UI Guide</button></li>
+              <li><button type="button" class="dropdown-item {{CHANGE_HISTORY_ACTIVE}}" data-action="navigate-main" data-view-id="change-history">Change History</button></li>
             </ul>
           </div>
         </div>
@@ -454,6 +506,15 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
         `<li><hr class="dropdown-divider"></li>
         <li><button type="button" class="dropdown-item" data-action="open-ui-guide">UI Guide</button></li>`
       );
+    }
+    if (!navbar.querySelector("[data-view-id='change-history']")) {
+      const uiGuideItem = navbar.querySelector("[data-action='open-ui-guide']")?.closest("li");
+      const changeHistoryItem = `<li><button type="button" class="dropdown-item ${state.currentView === "change-history" ? "active" : ""}" data-action="navigate-main" data-view-id="change-history">Change History</button></li>`;
+      if (uiGuideItem) {
+        uiGuideItem.insertAdjacentHTML("afterend", changeHistoryItem);
+      } else {
+        navbar.querySelector(".pt-web-user-menu")?.insertAdjacentHTML("beforeend", changeHistoryItem);
+      }
     }
   }
 
@@ -593,7 +654,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     const taskFeatureStatus = state.data?.taskFeatureStatus ?? {
       available: true,
       missingRelations: [],
-      migrationFile: "Android/sql/change_tasks_excel_import_20260331.sql",
+      migrationFile: "sql/change_tasks_excel_import_20260331.sql",
     };
     const tasksFeatureAvailable = taskFeatureStatus.available !== false;
     const linkedTasksClass = changeTasks.length > 4
@@ -689,7 +750,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
   }
 
   function ensureAuthenticatedView(targetView = state.currentView, noticeMessage = "") {
-    if (targetView === "profile" || targetView === "login" || hasAuthenticatedSession(state)) {
+    if (targetView === "profile" || targetView === "login" || targetView === "change-history" || hasAuthenticatedSession(state)) {
       return true;
     }
 
@@ -909,7 +970,6 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
         }
         navigateMain(state, node.dataset.viewId);
         clearNotice();
-        state.navMenuOpen = false;
         render();
       });
     });
@@ -1028,7 +1088,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
       state.taskImportMode = "import";
       if (state.data?.taskFeatureStatus?.available === false) {
         setNotice(
-          `Apply ${state.data.taskFeatureStatus.migrationFile || "Android/sql/change_tasks_excel_import_20260331.sql"} in Supabase before ${taskImportMode === "replace" ? "replacing" : "importing"} tasks.`,
+          `Apply ${state.data.taskFeatureStatus.migrationFile || "sql/change_tasks_excel_import_20260331.sql"} in Supabase before ${taskImportMode === "replace" ? "replacing" : "importing"} tasks.`,
           "info",
           "Tasks Migration Required",
         );
@@ -1360,7 +1420,6 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
       }
       state.currentView = "projects";
       state.selectedProjectId = null;
-      state.navMenuOpen = false;
       render();
     });
     bindSimpleAction("open-project-create", () => {
@@ -1755,7 +1814,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     bindSimpleAction("open-task-import", () => {
       if (state.data?.taskFeatureStatus?.available === false) {
         setNotice(
-          `Apply ${state.data.taskFeatureStatus.migrationFile || "Android/sql/change_tasks_excel_import_20260331.sql"} in Supabase before importing tasks.`,
+          `Apply ${state.data.taskFeatureStatus.migrationFile || "sql/change_tasks_excel_import_20260331.sql"} in Supabase before importing tasks.`,
           "info",
           "Tasks Migration Required",
         );
@@ -1774,7 +1833,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     bindSimpleAction("open-task-replace", () => {
       if (state.data?.taskFeatureStatus?.available === false) {
         setNotice(
-          `Apply ${state.data.taskFeatureStatus.migrationFile || "Android/sql/change_tasks_excel_import_20260331.sql"} in Supabase before replacing tasks.`,
+          `Apply ${state.data.taskFeatureStatus.migrationFile || "sql/change_tasks_excel_import_20260331.sql"} in Supabase before replacing tasks.`,
           "info",
           "Tasks Migration Required",
         );

@@ -4,7 +4,7 @@ Actualizado al: 2026-04-17
 Proposito: Lista operativa de hallazgos y pendientes activos del proyecto
 Guia IA: Leer este archivo antes de analizar, proponer cambios o documentar el proyecto
 Documento canonico de estado: `docs/DOCUMENTACION_CENTRAL_PROJECTTRACK.md`
-Guia viva UI: `docs/chrome/projecttrack-ui.html`
+Guia viva UI: `Chrome/docs/projecttrack-ui.html`
 Guia deployment Chrome: `docs/chrome/deployment-github-releases.md`
 Guia agentes IA: `docs/AGENTES_IA_PROJECTTRACK.md`
 Log feedback agentes IA: `docs/AGENTES_IA_FEEDBACK_LOG.md`
@@ -20,7 +20,7 @@ Log feedback agentes IA: `docs/AGENTES_IA_FEEDBACK_LOG.md`
 - Guia deployment Chrome privado: `docs/chrome/deployment-github-releases.md`
 - Guia agentes IA: `docs/AGENTES_IA_PROJECTTRACK.md`
 - Log feedback agentes IA: `docs/AGENTES_IA_FEEDBACK_LOG.md`
-- Migracion metadata releases Chrome: `Android/sql/app_releases_chrome_20260416.sql`
+- Migracion metadata releases Chrome: `sql/app_releases_chrome_20260416.sql`
 - Runtime Chrome activo: `Chrome/workspace.html`
 - Referencia visual temporal Chrome: `Chrome/dashboard.html`
 - Popup Chrome activo: `Chrome/popup.html`
@@ -43,7 +43,7 @@ Log feedback agentes IA: `docs/AGENTES_IA_FEEDBACK_LOG.md`
 
 - Runtime Chrome unico activo y sin sufijos `live` / `v2`
 - Navbar global con breadcrumb semantico
-- La marca `ProjectTrack` vuelve a `Home / Dashboard`
+- La marca `ProjectTrack` vuelve a `Workspace / Dashboard`
 - `Dashboard` ya refinado manualmente en `Work Queue` y `Latest Notes Mentioning You`
 - `change-detail.js` ya recibio una ronda manual de reordenamiento visual
 - `change-detail.js` ahora permite editar `status` y `priority` inline desde pills dropdown en el header
@@ -56,7 +56,7 @@ Log feedback agentes IA: `docs/AGENTES_IA_FEEDBACK_LOG.md`
   - editar `status` inline
   - vincular notas con tareas desde el modal de notas
 - `Tasks` ya permite exportar por rango usando `From TSKID / To TSKID`
-- La persistencia nueva depende de `Android/sql/change_tasks_excel_import_20260331.sql`
+- La persistencia nueva depende de `sql/change_tasks_excel_import_20260331.sql`
 - El patron actual de `pt-screen-hero` ya quedo homologado en las pantallas principales usando `row` + `col-*` en lugar del shell viejo por `pt-screen-hero-layout`
 - La shell neutra recomendada para superficies nuevas ahora es `card bg-body-tertiary`
 - `.bg-body-tertiary` ya queda alineado con el fondo real de `.card` mediante `--pt-card-bg`
@@ -85,7 +85,7 @@ Log feedback agentes IA: `docs/AGENTES_IA_FEEDBACK_LOG.md`
 - La distribucion privada de Chrome ya usa GitHub Releases para guardar los `.zip` y Supabase `public.app_releases` para publicar la ultima version disponible
 - La extension consulta actualizaciones desde `Profile / Extension Updates` usando la sesion autenticada de Supabase
 - El release privado inicial `v0.1.0` ya existe como punto base del canal Chrome
-- La migracion `Android/sql/app_releases_chrome_20260416.sql` ya fue aplicada y `Profile / Extension Updates` fue validado con version local `0.1.0` al dia
+- La migracion `sql/app_releases_chrome_20260416.sql` ya fue aplicada y `Profile / Extension Updates` fue validado con version local `0.1.0` al dia
 - Chrome no puede auto-reemplazar una extension `Load unpacked`; la descarga, descompresion y `Reload` siguen siendo manuales
 - `workspace.html` ya inicia el corte Bootstrap full-tab cargando Bootstrap local, `projecttrack-theme.css`, `projecttrack-fulltab.css` y `projecttrack-workspace.css`
 - `popup.html` abre ahora `workspace.html` como experiencia principal
@@ -103,17 +103,17 @@ Log feedback agentes IA: `docs/AGENTES_IA_FEEDBACK_LOG.md`
 
 ## Mapa rapido de pantallas
 
-- `Home / Dashboard`: `Chrome/src/screens/dashboard.js`
-- `Home / Projects`: `Chrome/src/screens/projects.js`
-- `Home / Projects / New`: `Chrome/src/screens/project-editor.js`
-- `Home / Projects / Details`: `Chrome/src/screens/project-detail.js`
-- `Home / Projects / Details / Edit`: `Chrome/src/screens/project-editor.js`
-- `Home / Projects / Details / Changes`: `Chrome/src/screens/changes.js`
-- `Home / Projects / Details / Changes / Details`: `Chrome/src/screens/change-detail.js`
-- `Home / Projects / Details / Changes / New`: `Chrome/src/screens/change-editor.js`
-- `Home / Projects / Details / Changes / Edit`: `Chrome/src/screens/change-editor.js`
-- `Home / Login`: `Chrome/src/screens/login.js`
-- `Home / Profile`: `Chrome/src/screens/profile.js`
+- `Workspace / Dashboard`: `Chrome/src/screens/dashboard.js`
+- `Workspace / Projects`: `Chrome/src/screens/projects.js`
+- `Workspace / Projects / New`: `Chrome/src/screens/project-editor.js`
+- `Workspace / Projects / Details`: `Chrome/src/screens/project-detail.js`
+- `Workspace / Projects / Details / Edit`: `Chrome/src/screens/project-editor.js`
+- `Workspace / Projects / Details / Changes`: `Chrome/src/screens/changes.js`
+- `Workspace / Projects / Details / Changes / Details`: `Chrome/src/screens/change-detail.js`
+- `Workspace / Projects / Details / Changes / New`: `Chrome/src/screens/change-editor.js`
+- `Workspace / Projects / Details / Changes / Edit`: `Chrome/src/screens/change-editor.js`
+- `Workspace / Login`: `Chrome/src/screens/login.js`
+- `Workspace / Profile`: `Chrome/src/screens/profile.js`
 - Navbar global / breadcrumb / marca: `Chrome/src/projecttrack-app.js`
 
 ## Hallazgos activos
@@ -137,7 +137,7 @@ Log feedback agentes IA: `docs/AGENTES_IA_FEEDBACK_LOG.md`
 4. Validar visualmente `Home / Login`: no autenticado, loading, error, wide desktop
 5. Continuar conversion Bootstrap-first en `Home / Projects / Details / Changes / Details`, `Changes`, editores y `Profile`
 6. Revisar `Home / Profile`
-7. Aplicar en Supabase la migracion `Android/sql/change_tasks_excel_import_20260331.sql`
+7. Aplicar en Supabase la migracion `sql/change_tasks_excel_import_20260331.sql`
 8. Disenar la siguiente fase de `Tasks`: burndown chart por proyecto/cambio
 9. Cerrar documentacion funcional restante en ingles
 

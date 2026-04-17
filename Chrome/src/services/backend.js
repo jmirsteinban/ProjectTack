@@ -380,11 +380,11 @@ function taskFeatureUnavailableError(relationName, reason = "missing") {
     : "the task tables";
   if (reason === "forbidden") {
     return new Error(
-      `ProjectTrack Tasks is blocked by Supabase permissions on ${target}. Re-run Android/sql/change_tasks_excel_import_20260331.sql so grants and RLS policies are applied for authenticated users.`,
+      `ProjectTrack Tasks is blocked by Supabase permissions on ${target}. Re-run sql/change_tasks_excel_import_20260331.sql so grants and RLS policies are applied for authenticated users.`,
     );
   }
   return new Error(
-    `ProjectTrack Tasks is not available because ${target} is missing. Apply Android/sql/change_tasks_excel_import_20260331.sql in Supabase and retry.`,
+    `ProjectTrack Tasks is not available because ${target} is missing. Apply sql/change_tasks_excel_import_20260331.sql in Supabase and retry.`,
   );
 }
 
@@ -1023,7 +1023,7 @@ export async function fetchRemoteWorkspaceData(config, currentData) {
       available: taskFeatureMissingRelations.length === 0 && taskFeaturePermissionDeniedRelations.length === 0,
       missingRelations: taskFeatureMissingRelations,
       permissionDeniedRelations: taskFeaturePermissionDeniedRelations,
-      migrationFile: "Android/sql/change_tasks_excel_import_20260331.sql",
+      migrationFile: "sql/change_tasks_excel_import_20260331.sql",
     },
     mentionedNotes: hydratedNotes
   };

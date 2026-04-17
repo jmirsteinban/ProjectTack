@@ -2,7 +2,7 @@ export const projectTrackMockData = {
   taskFeatureStatus: {
     available: true,
     missingRelations: [],
-    migrationFile: "Android/sql/change_tasks_excel_import_20260331.sql"
+    migrationFile: "sql/change_tasks_excel_import_20260331.sql"
   },
   user: {
     name: "Demo User",

@@ -1,4 +1,5 @@
 import { getVisibleChanges, getVisibleProjects } from "../services/workspace-selectors.js";
+import { renderHeroCard } from "../components/hero-card.js";
 
 function backendLabel(backendStatus) {
   if (!backendStatus) return "Local state";
@@ -43,8 +44,8 @@ function summaryCard(label, value) {
     <div class="col-12 col-sm-6 col-xl-4">
       <article class="card bg-light border-0 h-100">
         <div class="card-body">
-          <p class="text-secondary small mb-1">${label}</p>
-          <strong>${value}</strong>
+          <p class="text-secondary small mb-1">${escapeHtml(label)}</p>
+          <strong>${escapeHtml(value)}</strong>
         </div>
       </article>
     </div>
@@ -58,6 +59,10 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function escapeAttribute(value) {
+  return escapeHtml(value).replace(/`/g, "&#096;");
 }
 
 function releaseStatusTone(status) {
@@ -99,32 +104,21 @@ export function renderProfileScreen(state, data) {
   const disabledAttr = isSubmitting ? "disabled" : "";
   const signInLabel = isSubmitting ? "Connecting..." : "Sign In";
   return `
-    <section class="pt-screen-hero">
-      <div class="row g-3">
-        <div class="col-12 col-lg">
-          <div class="pt-change-detail-topline">
-            <span>Workspace / Profile</span>
-          </div>
-          <div class="pt-change-detail-copy">
-            <h3>Profile</h3>
-          </div>
-          <div class="pt-change-detail-meta">
-            <span class="pt-mini-chip">${sessionLabel(state.backendSession)}</span>
-            <span class="pt-mini-chip">${backendLabel(state.backendStatus)}</span>
-            <span class="pt-mini-chip">${credentialsLabel(state.savedCredentials)}</span>
-          </div>
-        </div>
-        <div class="col-12 col-lg-auto d-flex justify-content-lg-end align-items-start gap-2 flex-wrap">
-          <button type="button" class="btn btn-outline-primary pt-back-button pt-back-button--hero pt-hero-button" data-action="navigate-main" data-view-id="dashboard">Back</button>
-        </div>
-      </div>
-    </section>
+    ${renderHeroCard({
+      title: "Profile",
+      meta: [
+        sessionLabel(state.backendSession),
+        backendLabel(state.backendStatus),
+        credentialsLabel(state.savedCredentials)
+      ],
+      actionsHtml: `<button type="button" class="btn btn-outline-light" data-action="navigate-main" data-view-id="dashboard">Back</button>`
+    })}
 
     <section class="card bg-body-tertiary">
       <div class="card-body d-grid gap-3">
         <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
           <div>
-            <h3 class="pt-section-title mb-1">Preferences</h3>
+            <h3 class="h5 fw-semibold mb-1">Preferences</h3>
             <p class="text-secondary mb-0">Personal settings for the active workspace session.</p>
           </div>
           <button type="button" class="btn btn-primary" data-action="save-profile-name">Save Name</button>
@@ -136,7 +130,7 @@ export function renderProfileScreen(state, data) {
               id="profile-display-name"
               class="form-control"
               type="text"
-              value="${data.user.name}"
+              value="${escapeAttribute(data.user.name)}"
               data-field="profile-display-name"
             >
           </div>
@@ -150,7 +144,7 @@ export function renderProfileScreen(state, data) {
     <section class="card bg-body-tertiary">
       <div class="card-body d-grid gap-3">
         <div>
-          <h3 class="pt-section-title mb-1">Account</h3>
+          <h3 class="h5 fw-semibold mb-1">Account</h3>
           <p class="text-secondary mb-0">Authenticated user identity and current access state.</p>
         </div>
         <div class="row g-3">
@@ -167,7 +161,7 @@ export function renderProfileScreen(state, data) {
       <div class="card-body d-grid gap-3">
         <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
           <div>
-            <h3 class="pt-section-title mb-1">Extension Updates</h3>
+            <h3 class="h5 fw-semibold mb-1">Extension Updates</h3>
             <p class="text-secondary mb-0">Check the Supabase release channel. GitHub Releases stores the downloadable zip.</p>
           </div>
           <div class="d-flex gap-2 flex-wrap">
@@ -180,12 +174,12 @@ export function renderProfileScreen(state, data) {
           <p class="mb-0">${escapeHtml(state.releaseUpdate?.message || "Use Check Release Channel to compare the installed extension with Supabase metadata.")}</p>
         </section>
         <div class="row g-3">
-          ${summaryCard("Installed Version", escapeHtml(state.releaseUpdate?.currentVersion || "Unknown"))}
-          ${summaryCard("Supabase Release Channel", escapeHtml(state.releaseUpdate?.latestVersion || "Not checked"))}
+          ${summaryCard("Installed Version", state.releaseUpdate?.currentVersion || "Unknown")}
+          ${summaryCard("Supabase Release Channel", state.releaseUpdate?.latestVersion || "Not checked")}
           ${summaryCard("Release Source", "Supabase app_releases")}
-          ${summaryCard("Package", escapeHtml(state.releaseUpdate?.assetName || "ProjectTrack-Chrome.zip"))}
-          ${summaryCard("Published", escapeHtml(formatDate(state.releaseUpdate?.publishedAt)))}
-          ${summaryCard("Last Check", escapeHtml(formatDate(state.releaseUpdate?.checkedAt)))}
+          ${summaryCard("Package", state.releaseUpdate?.assetName || "ProjectTrack-Chrome.zip")}
+          ${summaryCard("Published", formatDate(state.releaseUpdate?.publishedAt))}
+          ${summaryCard("Last Check", formatDate(state.releaseUpdate?.checkedAt))}
         </div>
         <p class="form-text mb-0">Chrome cannot replace this unpacked extension by itself. The release check reads Supabase metadata, then opens the GitHub release for download. After downloading, unzip the package over the local Chrome folder and reload the extension from <code>chrome://extensions</code>.</p>
       </div>
@@ -194,7 +188,7 @@ export function renderProfileScreen(state, data) {
     <section class="card bg-body-tertiary">
       <div class="card-body d-grid gap-3">
         <div>
-          <h3 class="pt-section-title mb-1">Workspace</h3>
+          <h3 class="h5 fw-semibold mb-1">Workspace</h3>
           <p class="text-secondary mb-0">Visible data and current workspace context.</p>
         </div>
         <div class="row g-3">
@@ -210,7 +204,7 @@ export function renderProfileScreen(state, data) {
     <section class="card bg-body-tertiary">
       <div class="card-body d-grid gap-3">
         <div>
-          <h3 class="pt-section-title mb-1">Session</h3>
+          <h3 class="h5 fw-semibold mb-1">Session</h3>
           <p class="text-secondary mb-0">Authentication for the remote workspace.</p>
         </div>
         <div class="row g-3">
@@ -220,7 +214,7 @@ export function renderProfileScreen(state, data) {
               id="auth-email"
               class="form-control"
               type="email"
-              value="${state.backendSession?.user?.email || state.savedCredentials?.email || data.user.email || ""}"
+              value="${escapeAttribute(state.backendSession?.user?.email || state.savedCredentials?.email || data.user.email || "")}"
               placeholder="user@company.com"
               data-field="auth-email"
               ${disabledAttr}
@@ -242,7 +236,7 @@ export function renderProfileScreen(state, data) {
             <div class="col-12">
               <section class="alert alert-info mb-0">
                 <strong>Processing access</strong>
-                <p class="mb-0">${state.authPendingStep}</p>
+                <p class="mb-0">${escapeHtml(state.authPendingStep)}</p>
               </section>
             </div>
           ` : ""}
@@ -250,7 +244,7 @@ export function renderProfileScreen(state, data) {
             <button type="button" class="btn btn-primary" data-action="sign-in-backend" ${disabledAttr} aria-busy="${isSubmitting ? "true" : "false"}">${signInLabel}</button>
             <button type="button" class="btn btn-secondary" data-action="sign-out-backend" ${disabledAttr}>Sign Out</button>
           </div>
-          ${state.authMessage ? `<div class="col-12"><section class="alert alert-danger mb-0"><strong>Authentication Required</strong><p class="mb-0">${state.authMessage}</p></section></div>` : ""}
+          ${state.authMessage ? `<div class="col-12"><section class="alert alert-danger mb-0"><strong>Authentication Required</strong><p class="mb-0">${escapeHtml(state.authMessage)}</p></section></div>` : ""}
           <div class="col-12">
             <p class="form-text mb-0">When the login is valid, credentials are stored for automatic re-login while you do not sign out manually.</p>
           </div>
@@ -261,7 +255,7 @@ export function renderProfileScreen(state, data) {
     <section class="card bg-body-tertiary">
       <div class="card-body d-grid gap-3">
         <div>
-          <h3 class="pt-section-title mb-1">Backend</h3>
+          <h3 class="h5 fw-semibold mb-1">Backend</h3>
           <p class="text-secondary mb-0">Supabase connection used by the extension.</p>
         </div>
         <div class="row g-3">
@@ -271,7 +265,7 @@ export function renderProfileScreen(state, data) {
               id="backend-url"
               class="form-control"
               type="text"
-              value="${state.backendConfig?.url ?? ""}"
+              value="${escapeAttribute(state.backendConfig?.url ?? "")}"
               placeholder="https://your-project.supabase.co"
               data-field="backend-url"
               ${disabledAttr}
@@ -283,7 +277,7 @@ export function renderProfileScreen(state, data) {
               id="backend-publishable-key"
               class="form-control"
               type="password"
-              value="${state.backendConfig?.publishableKey ?? ""}"
+              value="${escapeAttribute(state.backendConfig?.publishableKey ?? "")}"
               placeholder="sb_publishable_..."
               data-field="backend-publishable-key"
               ${disabledAttr}
@@ -293,7 +287,7 @@ export function renderProfileScreen(state, data) {
             <button type="button" class="btn btn-primary" data-action="save-backend-config" ${disabledAttr}>Save Configuration</button>
             <button type="button" class="btn btn-secondary" data-action="clear-backend-config" ${disabledAttr}>Clear</button>
           </div>
-          ${state.backendConfigMessage ? `<div class="col-12"><section class="alert alert-${configMessageTone(state.backendConfigMessage)} mb-0"><strong>Backend</strong><p class="mb-0">${state.backendConfigMessage}</p></section></div>` : ""}
+          ${state.backendConfigMessage ? `<div class="col-12"><section class="alert alert-${configMessageTone(state.backendConfigMessage)} mb-0"><strong>Backend</strong><p class="mb-0">${escapeHtml(state.backendConfigMessage)}</p></section></div>` : ""}
           <div class="col-12">
             <p class="form-text mb-0">The configuration is stored in chrome.storage. Without a valid session, the extension does not show workspace data.</p>
           </div>
@@ -309,7 +303,7 @@ export function renderProfileScreen(state, data) {
 
     <section class="card bg-body-tertiary">
       <div class="card-body">
-        <h3 class="pt-section-title mb-2">Access Notice</h3>
+        <h3 class="h5 fw-semibold mb-2">Access Notice</h3>
         <p class="mb-0">The extension no longer uses silent local fallback. If the session expires or you sign out manually, the screen stays locked on login until authentication is restored.</p>
       </div>
     </section>

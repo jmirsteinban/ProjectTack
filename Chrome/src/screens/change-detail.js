@@ -1,4 +1,4 @@
-﻿import { renderEnvironmentProgress } from "../components/environment-progress.js";
+import { renderEnvironmentProgress } from "../components/environment-progress.js";
 import {
   CHANGE_PRIORITY_OPTIONS,
   CHANGE_STATUS_OPTIONS,
@@ -204,7 +204,7 @@ export function renderChangeDetailScreen(state, data) {
   const taskFeatureStatus = data.taskFeatureStatus ?? {
     available: true,
     missingRelations: [],
-    migrationFile: "Android/sql/change_tasks_excel_import_20260331.sql",
+    migrationFile: "sql/change_tasks_excel_import_20260331.sql",
   };
   const tasksFeatureAvailable = taskFeatureStatus.available !== false;
   const siblingChanges = visibleChanges.filter(

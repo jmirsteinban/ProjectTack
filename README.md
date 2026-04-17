@@ -37,7 +37,7 @@ ProjectTack/
 - `docs/ToDo.md`: lista corta de hallazgos, pendientes y contexto operativo.
 - `docs/AGENTES_IA_PROJECTTRACK.md`: playbook para usar agentes IA con roles, prompts y feedback preciso.
 - `docs/AGENTES_IA_FEEDBACK_LOG.md`: log de fallas, aciertos y mejoras para ciclos con agentes.
-- `docs/chrome/projecttrack-ui.html`: guia viva del sistema UI de la extension Chrome.
+- `Chrome/docs/projecttrack-ui.html`: guia viva del sistema UI de la extension Chrome.
 - `docs/chrome/deployment-github-releases.md`: guia de empaquetado y actualizacion privada de la extension Chrome.
 
 ## Chrome Extension

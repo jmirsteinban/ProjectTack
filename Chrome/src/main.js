@@ -7,6 +7,7 @@ const VALID_INITIAL_VIEWS = [
   "project-editor",
   "changes",
   "change-detail",
+  "change-history",
   "change-editor",
   "profile",
   "login"

@@ -53,7 +53,7 @@ Si los secrets no existen, el release de GitHub se publica igual y el workflow d
 Aplicar una vez:
 
 ```sql
--- Android/sql/app_releases_chrome_20260416.sql
+-- sql/app_releases_chrome_20260416.sql
 ```
 
 Ese script crea `public.app_releases`, habilita RLS, permite lectura a usuarios `authenticated` e inserta la version inicial `0.1.0`.
@@ -120,7 +120,7 @@ El workflow `.github/workflows/chrome-release.yml` valida que el tag coincida co
 
 Prueba base con la version actual `0.1.0`:
 
-1. Aplicar `Android/sql/app_releases_chrome_20260416.sql` en Supabase.
+1. Aplicar `sql/app_releases_chrome_20260416.sql` en Supabase.
 2. Abrir la extension e iniciar sesion.
 3. Ir a `Profile / Extension Updates`.
 4. Confirmar que el estado indique que la version instalada esta al dia.

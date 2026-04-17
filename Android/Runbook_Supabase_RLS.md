@@ -420,7 +420,7 @@ Incluye:
 - Trigger de guardado para bloquear updates de `status` no autorizados.
 
 Script recomendado (idempotente):
-- `Android/sql/project_notes_status_business_rule_20260310.sql`
+- `sql/project_notes_status_business_rule_20260310.sql`
 
 Ejecuta el contenido completo del script en SQL Editor.
 
@@ -469,7 +469,7 @@ Objetivo:
   - Nota => solo Nota.
 
 Script recomendado (idempotente):
-- `Android/sql/logical_delete_hierarchy_20260310.sql`
+- `sql/logical_delete_hierarchy_20260310.sql`
 
 Este script agrega en `projects`, `changes`, `project_notes`:
 - `is_deleted boolean`
@@ -872,7 +872,7 @@ Importante:
 Regla de negocio temporal vigente (2026-03-11):
 - De momento, todos los usuarios autenticados pueden editar proyectos.
 - Policy usada: `projects_update_authenticated_all`.
-- Script de referencia: `Android/sql/projects_update_authenticated_all_20260311.sql`.
+- Script de referencia: `sql/projects_update_authenticated_all_20260311.sql`.
 
 Ejecuta este bloque si quieres activar modo equipo:
 
@@ -1242,8 +1242,8 @@ where schemaname='public' and tablename='projects'
 order by policyname;
 ```
 2. Aplica la migracion segun tu modo:
-   - Modo estricto (owner/asignado): `Android/sql/projects_update_user_scope_20260311.sql`.
-   - Modo equipo (todos autenticados): `Android/sql/projects_update_authenticated_all_20260311.sql`.
+   - Modo estricto (owner/asignado): `sql/projects_update_user_scope_20260311.sql`.
+   - Modo equipo (todos autenticados): `sql/projects_update_authenticated_all_20260311.sql`.
 3. Cierra sesion y vuelve a iniciar en app.
 4. Verifica que `SUPABASE_URL` en app sea el mismo proyecto donde corriste SQL.
 
