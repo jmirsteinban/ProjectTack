@@ -12,6 +12,9 @@ permissions:
 jobs:
   package-chrome:
     runs-on: windows-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
     steps:
       - name: Checkout
@@ -40,3 +43,53 @@ jobs:
             dist/chrome/ProjectTrack-Chrome.zip
             dist/chrome/ProjectTrack-Chrome-v*.zip
             dist/chrome/projecttrack-chrome-release.json
+
+      - name: Update Supabase release metadata
+        if: startsWith(github.ref, 'refs/tags/') && env.SUPABASE_URL != '' && env.SUPABASE_SERVICE_ROLE_KEY != ''
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $manifest = Get-Content -Raw -LiteralPath "Chrome/manifest.json" | ConvertFrom-Json
+          $version = [string]$manifest.version
+          $releaseUrl = "https://github.com/$env:RELEASE_REPOSITORY/releases/tag/$env:RELEASE_TAG"
+          $supabaseUrl = $env:SUPABASE_URL.TrimEnd("/")
+          $headers = @{
+            apikey = $env:SUPABASE_SERVICE_ROLE_KEY
+            Authorization = "Bearer $env:SUPABASE_SERVICE_ROLE_KEY"
+            "Content-Type" = "application/json"
+          }
+
+          $deactivateBody = @{ active = $false } | ConvertTo-Json
+          Invoke-RestMethod `
+            -Method Patch `
+            -Uri "$supabaseUrl/rest/v1/app_releases?app_name=eq.projecttrack-chrome&version=neq.$version" `
+            -Headers $headers `
+            -Body $deactivateBody | Out-Null
+
+          $releaseBody = @{
+            app_name = "projecttrack-chrome"
+            version = $version
+            release_id = $env:RELEASE_TAG
+            release_name = "ProjectTrack Chrome $version"
+            release_url = $releaseUrl
+            download_url = $releaseUrl
+            asset_name = "ProjectTrack-Chrome.zip"
+            active = $true
+            published_at = (Get-Date).ToUniversalTime().ToString("o")
+          } | ConvertTo-Json
+
+          Invoke-RestMethod `
+            -Method Post `
+            -Uri "$supabaseUrl/rest/v1/app_releases?on_conflict=app_name,version" `
+            -Headers ($headers + @{ Prefer = "resolution=merge-duplicates" }) `
+            -Body $releaseBody | Out-Null
+
+      - name: Supabase release metadata skipped
+        if: startsWith(github.ref, 'refs/tags/') && (env.SUPABASE_URL == '' || env.SUPABASE_SERVICE_ROLE_KEY == '')
+        shell: pwsh
+        run: |
+          Write-Warning "Supabase release metadata was not updated because SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is not configured."

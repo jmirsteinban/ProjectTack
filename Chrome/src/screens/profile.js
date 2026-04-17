@@ -71,7 +71,7 @@ function releaseStatusTone(status) {
 
 function releaseStatusTitle(status) {
   if (status === "available") return "New version available";
-  if (status === "current") return "ProjectTrack is current";
+  if (status === "current") return "Release channel is current";
   if (status === "setup-required") return "Release table setup required";
   if (status === "auth-required") return "Sign in required";
   if (status === "checking") return "Checking for updates";
@@ -168,25 +168,26 @@ export function renderProfileScreen(state, data) {
         <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
           <div>
             <h3 class="pt-section-title mb-1">Extension Updates</h3>
-            <p class="text-secondary mb-0">Supabase tracks the latest private Chrome package and GitHub Releases stores the zip.</p>
+            <p class="text-secondary mb-0">Check the Supabase release channel. GitHub Releases stores the downloadable zip.</p>
           </div>
           <div class="d-flex gap-2 flex-wrap">
-            <button type="button" class="btn btn-primary" data-action="check-extension-update" ${state.releaseUpdate?.status === "checking" ? "disabled" : ""}>Check Now</button>
+            <button type="button" class="btn btn-primary" data-action="check-extension-update" ${state.releaseUpdate?.status === "checking" ? "disabled" : ""}>Check Release Channel</button>
             <button type="button" class="btn btn-secondary" data-action="open-extension-release" ${state.releaseUpdate?.releaseUrl || state.releaseUpdate?.downloadUrl ? "" : "disabled"}>Open Release</button>
           </div>
         </div>
         <section class="alert alert-${releaseStatusTone(state.releaseUpdate?.status)} mb-0">
           <strong>${releaseStatusTitle(state.releaseUpdate?.status)}</strong>
-          <p class="mb-0">${escapeHtml(state.releaseUpdate?.message || "Use Check Now to look for a newer package.")}</p>
+          <p class="mb-0">${escapeHtml(state.releaseUpdate?.message || "Use Check Release Channel to compare the installed extension with Supabase metadata.")}</p>
         </section>
         <div class="row g-3">
           ${summaryCard("Installed Version", escapeHtml(state.releaseUpdate?.currentVersion || "Unknown"))}
-          ${summaryCard("Latest Release", escapeHtml(state.releaseUpdate?.latestVersion || "Not checked"))}
+          ${summaryCard("Supabase Release Channel", escapeHtml(state.releaseUpdate?.latestVersion || "Not checked"))}
+          ${summaryCard("Release Source", "Supabase app_releases")}
           ${summaryCard("Package", escapeHtml(state.releaseUpdate?.assetName || "ProjectTrack-Chrome.zip"))}
           ${summaryCard("Published", escapeHtml(formatDate(state.releaseUpdate?.publishedAt)))}
           ${summaryCard("Last Check", escapeHtml(formatDate(state.releaseUpdate?.checkedAt)))}
         </div>
-        <p class="form-text mb-0">Chrome cannot replace this unpacked extension by itself. After downloading, unzip the package over the local Chrome folder and reload the extension from <code>chrome://extensions</code>.</p>
+        <p class="form-text mb-0">Chrome cannot replace this unpacked extension by itself. The release check reads Supabase metadata, then opens the GitHub release for download. After downloading, unzip the package over the local Chrome folder and reload the extension from <code>chrome://extensions</code>.</p>
       </div>
     </section>
 

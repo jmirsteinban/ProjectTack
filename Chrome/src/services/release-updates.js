@@ -171,8 +171,8 @@ export async function checkChromeReleaseUpdate(options = {}) {
     publishedAt: release.publishedAt,
     checkedAt,
     message: isNewer
-      ? `Version ${release.latestVersion} is available.`
-      : `ProjectTrack Chrome is already on version ${currentVersion}.`,
+      ? `Supabase release channel has version ${release.latestVersion} available.`
+      : `Supabase release channel currently points to version ${release.latestVersion}. Installed Chrome version is ${currentVersion}.`,
   };
 }
 

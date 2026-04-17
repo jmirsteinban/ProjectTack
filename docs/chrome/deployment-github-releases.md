@@ -7,7 +7,7 @@ Este flujo reemplaza OneDrive como punto de entrega manual para la extension Chr
 1. Se empaqueta la carpeta `Chrome/` como `ProjectTrack-Chrome.zip`.
 2. Se genera `projecttrack-chrome-release.json` con version, fecha y hash.
 3. Un release por tag `vX.Y.Z` puede subir esos assets a GitHub Releases.
-4. La tabla `public.app_releases` en Supabase registra cual es la ultima version privada.
+4. El workflow puede actualizar la tabla `public.app_releases` en Supabase si los secrets del repo estan configurados.
 5. La extension consulta Supabase al abrir y avisa si hay una version nueva.
 
 ## Que sigue siendo manual
@@ -31,6 +31,23 @@ Si el repositorio sigue privado, la extension no debe guardar un token de GitHub
 
 Este flujo no agrega tokens ni secretos de GitHub dentro de la extension.
 
+## Secrets requeridos para automatizar Supabase
+
+Configurar estos secrets en GitHub Actions del repositorio:
+
+- `SUPABASE_URL`: URL del proyecto Supabase, por ejemplo `https://xxxx.supabase.co`.
+- `SUPABASE_SERVICE_ROLE_KEY`: service role key del proyecto Supabase.
+
+El service role key solo vive en GitHub Actions. No se empaqueta dentro de la extension Chrome.
+
+Cuando se empuja un tag `vX.Y.Z`, el workflow:
+
+1. Publica los assets en GitHub Releases.
+2. Desactiva versiones anteriores de `projecttrack-chrome` en `public.app_releases`.
+3. Inserta o actualiza la version del tag como `active = true`.
+
+Si los secrets no existen, el release de GitHub se publica igual y el workflow deja un warning indicando que Supabase no fue actualizado.
+
 ## Activar metadata en Supabase
 
 Aplicar una vez:
@@ -41,7 +58,7 @@ Aplicar una vez:
 
 Ese script crea `public.app_releases`, habilita RLS, permite lectura a usuarios `authenticated` e inserta la version inicial `0.1.0`.
 
-Para publicar una version nueva, agregar o actualizar una fila:
+Si los secrets de GitHub Actions no estan configurados, para publicar una version nueva todavia se puede agregar o actualizar una fila manualmente:
 
 ```sql
 insert into public.app_releases (
