@@ -1,31 +1,63 @@
 import { renderProjectTrackBrand } from "../components/projecttrack-brand.js";
+import { escapeAttribute, escapeHtml } from "../services/html.js";
 
-export function renderLoginScreen(state, data) {
+function authMessagePresentation(message) {
+  const normalized = String(message ?? "").toLowerCase();
+  const isDanger = [
+    "must complete",
+    "could not",
+    "failed",
+    "invalid",
+    "expired",
+    "error",
+    "unable",
+  ].some((token) => normalized.includes(token));
+
+  if (isDanger) {
+    return {
+      className: "alert-danger border-danger-subtle bg-danger-subtle text-danger-emphasis",
+      heading: "Authentication failed",
+      role: "alert",
+    };
+  }
+
+  return {
+    className: "alert-info border-info-subtle bg-info-subtle text-info-emphasis",
+    heading: "Sign in required",
+    role: "status",
+  };
+}
+
+export function renderLoginScreen(state, data = {}) {
   const isSubmitting = Boolean(state.authIsSubmitting);
   const submitLabel = isSubmitting ? "Connecting..." : "Sign In";
   const disabledAttr = isSubmitting ? "disabled" : "";
+  const savedEmail = state.backendSession?.user?.email || state.savedCredentials?.email || data.user?.email || "";
+  const authMessage = state.authMessage || "";
+  const authMessageState = authMessagePresentation(authMessage);
 
   return `
-    <section class="card bg-body-tertiary pt-login-card">
-      <section class="pt-screen-hero pt-screen-hero--login pt-login-card-hero">
-        <div class="row g-3">
-          <div class="col-12">
-            <h3 class="pt-section-title pt-login-title">
-              <span class="pt-login-title-icon">${renderProjectTrackBrand(32)}</span>
-              <span>Sign In</span>
-            </h3>
-            <p class="pt-login-breadcrumb mb-0">Home / Login</p>
+    <section class="card border-0 shadow-sm pt-login-card">
+      <div class="card-body p-0">
+        <section class="pt-web-hero pt-login-card-hero">
+          <div class="p-4 p-xl-5">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              ${renderProjectTrackBrand(34)}
+              <span class="badge rounded-pill bg-white text-dark border">Home / Login</span>
+            </div>
+            <h1 class="display-6 fw-bold mb-2">Sign In</h1>
+            <p class="lead mb-0">Access your remote ProjectTrack workspace and continue syncing active project work.</p>
           </div>
-        </div>
-      </section>
-      <div class="card-body pt-profile-form d-grid gap-3">
+        </section>
+      </div>
+      <div class="card-body pt-profile-form d-grid gap-3 p-4">
         <div class="d-grid gap-2 min-w-0">
           <label class="form-label" for="auth-email">Email</label>
           <input
             id="auth-email"
             class="form-control"
             type="email"
-            value="${state.backendSession?.user?.email || state.savedCredentials?.email || data.user.email || ""}"
+            value="${escapeAttribute(savedEmail)}"
             placeholder="user@company.com"
             data-field="auth-email"
             ${disabledAttr}
@@ -43,16 +75,18 @@ export function renderLoginScreen(state, data) {
             ${disabledAttr}
           >
         </div>
-        ${state.authPendingStep ? `
-          <section class="alert alert-info mb-0">
+        <div class="pt-login-status-slot d-grid gap-2">
+          ${state.authPendingStep ? `
+          <section class="alert alert-info border-info-subtle bg-info-subtle text-info-emphasis mb-0" role="status">
             <strong>Processing access</strong>
-            <p class="mb-0">${state.authPendingStep}</p>
+            <p class="mb-0">${escapeHtml(state.authPendingStep)}</p>
           </section>
         ` : ""}
-        <div class="pt-project-editor-actions">
-          <button type="button" class="btn btn-primary pt-login-submit-button" data-action="sign-in-backend" ${disabledAttr} aria-busy="${isSubmitting ? "true" : "false"}">${submitLabel}</button>
+          ${authMessage ? `<section class="alert ${authMessageState.className} mb-0" role="${authMessageState.role}"><strong>${authMessageState.heading}</strong><p class="mb-0">${escapeHtml(authMessage)}</p></section>` : ""}
         </div>
-        ${state.authMessage ? `<section class="alert alert-danger mb-0"><strong>Authentication Required</strong><p class="mb-0">${state.authMessage}</p></section>` : ""}
+        <div class="d-flex flex-wrap gap-2">
+          <button type="button" class="btn btn-primary pt-login-submit-button" data-action="sign-in-backend" ${disabledAttr} aria-busy="${isSubmitting ? "true" : "false"}">${escapeHtml(submitLabel)}</button>
+        </div>
       </div>
     </section>
   `;

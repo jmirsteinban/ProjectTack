@@ -1,6 +1,6 @@
 ﻿# Documentacion Central - ProjectTrack
 
-Actualizado al: 2026-04-16
+Actualizado al: 2026-04-17
 Estado general: En progreso
 Alcance actual: Android + Extension Chrome
 
@@ -12,6 +12,8 @@ Concentrar en un solo archivo el estado funcional, tecnico y operativo de Projec
 
 - La documentacion central ahora vive en `docs/`.
 - `docs/ToDo.md` es la lista operativa de hallazgos, pendientes y guia breve de analisis para IA.
+- `docs/AGENTES_IA_PROJECTTRACK.md` define roles, prompts, ownership y feedback para trabajo con agentes IA.
+- `docs/AGENTES_IA_FEEDBACK_LOG.md` registra fallas, aciertos y mejoras de ciclos con agentes IA.
 - Los documentos historicos o especificos de Chrome viven en `docs/chrome/`.
 
 ## Resumen ejecutivo
@@ -42,6 +44,23 @@ Concentrar en un solo archivo el estado funcional, tecnico y operativo de Projec
 
 ## Bitacora reciente
 
+### 2026-04-17
+
+- Se aplico el primer corte Bootstrap full-tab en `workspace.html` como entrada principal del runtime Chrome.
+- `Chrome/src/popup.js` ahora abre `workspace.html`; `dashboard.html` queda como referencia visual/pagina separada durante la transicion.
+- `workspace.html` ahora carga Bootstrap local, `projecttrack-theme.css`, `projecttrack-fulltab.css` y `projecttrack-workspace.css`.
+- `projecttrack.css` queda temporalmente como capa legacy cargada antes de Bootstrap para conservar estilos `pt-*` aun usados por pantallas grandes.
+- `Chrome/src/main.js` dejo de montar el viewport escalado tipo panel lateral y ahora monta la app en una shell full-tab.
+- `Chrome/src/projecttrack-app.js` usa una navbar full-tab basada en Bootstrap real y estados de loading con `spinner-border`, `card` y `container-fluid`.
+- `Dashboard`, `Projects`, `Project Details` y `Login` recibieron la primera migracion Bootstrap full-tab.
+- Se incorporaron fixes derivados del QA estatico:
+  - foco/caret estable en busquedas de `Projects` y `Changes`
+  - guard contra bubbling entre cambios recientes y cards de proyecto
+  - escape HTML/atributos en `Project Details` y `Login`
+  - estado unavailable real cuando `selectedProjectId` ya no existe
+  - mensajes de login con tono informativo vs error real
+- Queda pendiente QA visual real en Chrome a 360px, 550px, 960px y desktop wide.
+
 ### 2026-04-16
 
 - Se definio el nuevo canal privado de entrega para la extension Chrome sin OneDrive como punto principal.
@@ -57,6 +76,8 @@ Concentrar en un solo archivo el estado funcional, tecnico y operativo de Projec
 - La guia operativa del flujo queda en `docs/chrome/deployment-github-releases.md`.
 - Se confirmo en Supabase el canal `public.app_releases` y `Profile / Extension Updates` valida la version local `0.1.0` como al dia.
 - Se oculto temporalmente el side panel retirando `sidePanel` / `side_panel` del manifest y removiendo la accion `SidePanel` del popup.
+- Se agrego el playbook de agentes IA para acelerar QA/desarrollo con roles claros, `Task Brief`, IDs trazables, scorecard y feedback obligatorio.
+- Se agrego el log de feedback de agentes IA y se registro el primer ciclo de revision documental con un explorer de solo lectura.
 
 ### 2026-04-01
 
@@ -454,13 +475,14 @@ Concentrar en un solo archivo el estado funcional, tecnico y operativo de Projec
 ### Runtime activo
 
 - `Chrome/popup.html` es la entrada visible desde el icono de la extension
-- `Chrome/dashboard.html` abre la experiencia full-tab principal
-- `Chrome/workspace.html` conserva la app completa de transicion
+- `Chrome/workspace.html` abre la experiencia full-tab principal
+- `Chrome/dashboard.html` queda como pagina Bootstrap-first de referencia durante la transicion
 - `Chrome/sidepanel.html` permanece en el repo, pero esta oculto temporalmente en el manifest y el popup
-- `Chrome/src/main.js` inicializa viewport y monta la app viva
+- `Chrome/src/main.js` monta la app viva sin escalado tipo panel lateral
 - `Chrome/src/projecttrack-app.js` controla navbar global, overlays, acciones y estado principal
 - `Chrome/src/projecttrack-router.js` resuelve la vista activa
-- `Chrome/styles/projecttrack.css` concentra tokens, capa Bootstrap-ProjectTrack y skin propia de ProjectTrack
+- `Chrome/styles/projecttrack-workspace.css` define la capa full-tab del workspace
+- `Chrome/styles/projecttrack.css` queda como capa legacy transicional para estilos `pt-*`
 - `docs/chrome/projecttrack-ui.html` documenta la capa UI y sirve como referencia viva
 
 ### Vistas activas del runtime

@@ -1,11 +1,13 @@
 # ToDo - ProjectTrack
 
-Actualizado al: 2026-04-16
+Actualizado al: 2026-04-17
 Proposito: Lista operativa de hallazgos y pendientes activos del proyecto
 Guia IA: Leer este archivo antes de analizar, proponer cambios o documentar el proyecto
 Documento canonico de estado: `docs/DOCUMENTACION_CENTRAL_PROJECTTRACK.md`
 Guia viva UI: `docs/chrome/projecttrack-ui.html`
 Guia deployment Chrome: `docs/chrome/deployment-github-releases.md`
+Guia agentes IA: `docs/AGENTES_IA_PROJECTTRACK.md`
+Log feedback agentes IA: `docs/AGENTES_IA_FEEDBACK_LOG.md`
 
 ## Contexto clave
 
@@ -16,8 +18,11 @@ Guia deployment Chrome: `docs/chrome/deployment-github-releases.md`
 - Ruta documentacion general: `docs/`
 - Ruta documentacion Chrome: `docs/chrome/`
 - Guia deployment Chrome privado: `docs/chrome/deployment-github-releases.md`
+- Guia agentes IA: `docs/AGENTES_IA_PROJECTTRACK.md`
+- Log feedback agentes IA: `docs/AGENTES_IA_FEEDBACK_LOG.md`
 - Migracion metadata releases Chrome: `Android/sql/app_releases_chrome_20260416.sql`
-- Runtime Chrome activo: `Chrome/dashboard.html` / `Chrome/workspace.html`
+- Runtime Chrome activo: `Chrome/workspace.html`
+- Referencia visual temporal Chrome: `Chrome/dashboard.html`
 - Popup Chrome activo: `Chrome/popup.html`
 - Side panel Chrome: oculto temporalmente hasta nuevo aviso
 - Entrypoint Chrome: `Chrome/src/main.js`
@@ -61,8 +66,8 @@ Guia deployment Chrome: `docs/chrome/deployment-github-releases.md`
   - runtime: `btn` + variante Bootstrap (`btn-primary`, `btn-secondary`, `btn-outline-*`, etc.)
 - La extension prioriza ahora la experiencia full-tab:
   - `popup.html`: menu de entrada visible
-  - `workspace.html`: app actual con `projecttrack.css`
-  - `dashboard.html`: primera pagina full-tab Bootstrap-first
+  - `workspace.html`: runtime principal Bootstrap full-tab
+  - `dashboard.html`: pagina Bootstrap-first de referencia durante la transicion
 - El side panel queda oculto temporalmente: sin permiso `sidePanel`, sin `side_panel` en manifest y sin boton `SidePanel` en el popup
 - Bootstrap local real ya queda vendorizado en `Chrome/vendor/bootstrap`
 - Branding compartido para la nueva capa web ya vive tambien en `Chrome/styles/projecttrack-theme.css`
@@ -82,6 +87,19 @@ Guia deployment Chrome: `docs/chrome/deployment-github-releases.md`
 - El release privado inicial `v0.1.0` ya existe como punto base del canal Chrome
 - La migracion `Android/sql/app_releases_chrome_20260416.sql` ya fue aplicada y `Profile / Extension Updates` fue validado con version local `0.1.0` al dia
 - Chrome no puede auto-reemplazar una extension `Load unpacked`; la descarga, descompresion y `Reload` siguen siendo manuales
+- `workspace.html` ya inicia el corte Bootstrap full-tab cargando Bootstrap local, `projecttrack-theme.css`, `projecttrack-fulltab.css` y `projecttrack-workspace.css`
+- `popup.html` abre ahora `workspace.html` como experiencia principal
+- `projecttrack.css` queda como capa legacy transicional cargada antes de Bootstrap para conservar estilos `pt-*` sin dominar `.btn`, `.card`, `.row` ni `.navbar`
+- La shell principal de `workspace.html` ya usa navbar/contenedor Bootstrap full-tab y elimina el escalado tipo panel lateral
+- `Dashboard`, `Projects`, `Project Details` y `Login` recibieron el primer corte Bootstrap full-tab
+- Fixes incluidos en el corte:
+  - `Projects`: buscador conserva foco/caret despues de render
+  - `Projects`: click en cambios recientes ya no burbujea al proyecto padre
+  - `Projects`: search/filter usa input group Bootstrap estable
+  - `Project Details` y `Login`: se escapan datos visibles/atributos principales
+  - `Project Details`: ya no cae al primer proyecto si `selectedProjectId` no existe
+  - `Login`: estados informativos y errores reales usan tonos distintos
+  - `Login`: boton/status y card wide quedan mas estables
 
 ## Mapa rapido de pantallas
 
@@ -100,23 +118,24 @@ Guia deployment Chrome: `docs/chrome/deployment-github-releases.md`
 
 ## Hallazgos activos
 
-- `projects.js`: falta validar visualmente la nueva shell Bootstrap-first y afinar detalles de cambios recientes
+- `projects.js`: falta QA visual real en Chrome despues del corte Bootstrap full-tab
 - `project-editor.js`: falta validar visualmente la nueva shell Bootstrap-first y ajustar densidad fina del formulario
-- `project-detail.js`: falta validar visualmente la nueva shell Bootstrap-first y afinar lectura final de cards/enlaces
+- `project-detail.js`: falta QA visual real en Chrome despues del corte Bootstrap full-tab, especialmente URLs largas y seleccion stale
 - `changes.js`: falta validar visualmente la nueva shell Bootstrap-first y pulido equivalente al nivel ya aplicado en `change-detail.js`
 - `change-editor.js`: falta validar visualmente la nueva shell Bootstrap-first y ajustar controles restantes
-- `login.js`: falta validar visualmente la nueva shell Bootstrap-first, estados de carga y errores reales
+- `login.js`: falta QA visual real en Chrome para estados no autenticado, loading, error y wide desktop
 - `profile.js`: falta validar visualmente la nueva shell Bootstrap-first y densidad final de backend/session
+- `workspace.html`: falta QA visual real a 360px, 550px, 960px y desktop wide
 - `Tasks`: falta futura pantalla o widget de `burndown chart` apoyado en `change_task_events`
 - Documentacion funcional: falta seguir migrando a ingles donde aplique y decidir que contenido historico permanece en espanol
 
 ## Pendientes priorizados
 
-1. Continuar `QA visual por pantalla` en la experiencia full-tab real
-2. Validar visualmente `Home / Projects`
-3. Validar visualmente `Home / Projects / Details`
-4. Continuar conversion `Bootstrap-first` en `Home / Projects / Details / Changes / Details` y `Home / Dashboard`
-5. Validar visualmente `Home / Login`
+1. Ejecutar QA visual real de `workspace.html` Bootstrap full-tab en 360px, 550px, 960px y desktop wide
+2. Validar funcionalmente `Home / Projects`: search focus, filtro, click proyecto y click cambio reciente
+3. Validar visualmente `Home / Projects / Details`: URLs largas, textos largos y proyecto stale
+4. Validar visualmente `Home / Login`: no autenticado, loading, error, wide desktop
+5. Continuar conversion Bootstrap-first en `Home / Projects / Details / Changes / Details`, `Changes`, editores y `Profile`
 6. Revisar `Home / Profile`
 7. Aplicar en Supabase la migracion `Android/sql/change_tasks_excel_import_20260331.sql`
 8. Disenar la siguiente fase de `Tasks`: burndown chart por proyecto/cambio
@@ -125,6 +144,7 @@ Guia deployment Chrome: `docs/chrome/deployment-github-releases.md`
 ## Reglas para IA
 
 - Tomar este archivo como lista principal de hallazgos y pendientes antes de iniciar analisis
+- Para trabajo con agentes, seguir `docs/AGENTES_IA_PROJECTTRACK.md` y registrar fallas/mejoras en `docs/AGENTES_IA_FEEDBACK_LOG.md`
 - Guardar aqui solo contexto operativo corto y reusable
 - Mover contexto narrativo, historico o explicativo amplio a `docs/DOCUMENTACION_CENTRAL_PROJECTTRACK.md`
 - Si aparece un hallazgo nuevo del runtime o del UI, agregarlo aqui primero si afecta trabajo pendiente

@@ -10,6 +10,7 @@ import {
   translatePriority,
   translateStatus,
 } from "../services/ui-copy.js";
+import { escapeAttribute, escapeHtml } from "../services/html.js";
 
 function normalizeText(value) {
   return value
@@ -62,15 +63,15 @@ export function renderProjectsScreen(state, data) {
           ${projectChanges
             .map(
               (change) => `
-        <article class="list-group-item list-group-item-action pt-project-list-group-item pt-clickable-card" data-change-id="${change.id}">
+        <article class="list-group-item list-group-item-action pt-project-list-group-item pt-clickable-card" data-change-id="${escapeAttribute(change.id)}" role="button" tabindex="0">
           <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
-            <strong>${change.title}</strong>
+            <strong>${escapeHtml(change.title)}</strong>
             <div class="d-flex gap-2 flex-wrap">
-              <span class="pt-pill ${statusClass(change.status)}">${translateStatus(change.status)}</span>
-              <span class="pt-pill ${priorityClass(change.priority)}">${translatePriority(change.priority)}</span>
+              <span class="pt-pill ${statusClass(change.status)}">${escapeHtml(translateStatus(change.status))}</span>
+              <span class="pt-pill ${priorityClass(change.priority)}">${escapeHtml(translatePriority(change.priority))}</span>
             </div>
           </div>
-          <p class="pt-project-list-group-caption">${change.description || "No description"}</p>
+          <p class="pt-project-list-group-caption">${escapeHtml(change.description || "No description")}</p>
         </article>
       `,
             )
@@ -80,16 +81,16 @@ export function renderProjectsScreen(state, data) {
           : `<p class="pt-project-empty">No recent changes</p>`;
 
       return `
-      <article class="card bg-body-tertiary rounded-3 pt-project-card" data-project-id="${project.id}">
+      <article class="card bg-body-tertiary rounded-3 pt-project-card" data-project-id="${escapeAttribute(project.id)}" role="button" tabindex="0">
         <div class="card-header d-flex justify-content-between align-items-start gap-3 flex-wrap">
-          <strong class="pt-project-title">${project.name}</strong>
+          <strong class="pt-project-title">${escapeHtml(project.name)}</strong>
           <div class="pt-project-date-row">
             <span>Created:</span>
-            <span class="pt-project-date-badge">${project.startDate}</span>
+            <span class="pt-project-date-badge">${escapeHtml(project.startDate || "Not defined")}</span>
           </div>
         </div>
         <div class="card-body pt-card-body--project">
-          <p class="pt-card-text">${project.description}</p>
+          <p class="pt-card-text">${escapeHtml(project.description || "No description")}</p>
           <div class="pt-project-fieldset">
             <span class="pt-project-fieldset-label">CHANGES</span>
             <div class="pt-project-fieldset-body">${changeRows}</div>
@@ -108,15 +109,14 @@ export function renderProjectsScreen(state, data) {
           <p class="mb-0">Centralize workspace tracking and jump quickly into each project's recent changes.</p>
         </div>
         <div class="col-12 col-lg">
-          <div class="d-flex align-items-center gap-2 flex-wrap">
-            <span class="pt-project-search-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" focusable="false">
-                <path
-                  d="M10.5 4a6.5 6.5 0 1 0 4.03 11.6l4.43 4.43 1.41-1.41-4.43-4.43A6.5 6.5 0 0 0 10.5 4Zm0 2a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Z" />
-              </svg>
-            </span>
-            <input class="form-control" type="text" value="${state.projectSearchQuery}" placeholder="Search projects..." data-input="project-search">
-            <button type="button" class="btn btn-secondary pt-project-filter-button" data-action="cycle-project-filter">${state.projectActivityFilter}</button>
+          <div class="d-flex align-items-stretch gap-2 flex-wrap">
+            <div class="input-group flex-grow-1 min-w-0 pt-project-search">
+              <span class="input-group-text" aria-hidden="true">
+                <span class="material-symbols-outlined">search</span>
+              </span>
+              <input class="form-control" type="text" value="${escapeAttribute(state.projectSearchQuery)}" placeholder="Search projects..." data-input="project-search" aria-label="Search projects">
+            </div>
+            <button type="button" class="btn btn-secondary pt-project-filter-button" data-action="cycle-project-filter">${escapeHtml(state.projectActivityFilter)}</button>
           </div>
         </div>
         <div class="col-12 col-lg-auto d-flex justify-content-lg-end align-items-start gap-2 flex-wrap">

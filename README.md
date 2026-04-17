@@ -35,12 +35,14 @@ ProjectTack/
 
 - `docs/DOCUMENTACION_CENTRAL_PROJECTTRACK.md`: estado funcional, tecnico y operativo del proyecto.
 - `docs/ToDo.md`: lista corta de hallazgos, pendientes y contexto operativo.
+- `docs/AGENTES_IA_PROJECTTRACK.md`: playbook para usar agentes IA con roles, prompts y feedback preciso.
+- `docs/AGENTES_IA_FEEDBACK_LOG.md`: log de fallas, aciertos y mejoras para ciclos con agentes.
 - `docs/chrome/projecttrack-ui.html`: guia viva del sistema UI de la extension Chrome.
 - `docs/chrome/deployment-github-releases.md`: guia de empaquetado y actualizacion privada de la extension Chrome.
 
 ## Chrome Extension
 
-La extension usa Manifest V3. La entrada visible actual es `Chrome/popup.html`, que abre la experiencia principal en `Chrome/dashboard.html`.
+La extension usa Manifest V3. La entrada visible actual es `Chrome/popup.html`, que abre la experiencia principal full-tab en `Chrome/workspace.html`.
 
 El side panel queda oculto temporalmente hasta nuevo aviso. `Chrome/sidepanel.html` permanece en el repo, pero no esta publicado en `manifest.json` ni aparece como accion del popup.
 
@@ -49,7 +51,9 @@ Puntos importantes:
 - `Chrome/src/main.js`: entrypoint del runtime.
 - `Chrome/src/projecttrack-app.js`: app shell, wiring de acciones y estado principal.
 - `Chrome/src/projecttrack-router.js`: router de pantallas.
-- `Chrome/styles/projecttrack.css`: estilos globales y design system Bootstrap-ProjectTrack.
+- `Chrome/workspace.html`: runtime principal full-tab con Bootstrap local.
+- `Chrome/styles/projecttrack-workspace.css`: capa Bootstrap full-tab del workspace.
+- `Chrome/styles/projecttrack.css`: capa legacy transicional para estilos `pt-*` aun usados por pantallas grandes.
 
 Para probar la extension localmente:
 
@@ -114,5 +118,6 @@ Resumen corto:
 
 - Revisa primero `docs/DOCUMENTACION_CENTRAL_PROJECTTRACK.md`.
 - Revisa luego `docs/ToDo.md` antes de empezar cambios.
+- Si usas agentes IA, sigue `docs/AGENTES_IA_PROJECTTRACK.md` y registra mejoras en `docs/AGENTES_IA_FEEDBACK_LOG.md`.
 - En Chrome, prioriza clases y patrones Bootstrap-ProjectTrack antes de crear clases custom nuevas.
 - Evita subir caches, builds o archivos locales sensibles; el `.gitignore` raiz ya cubre la mayoria de esos casos.

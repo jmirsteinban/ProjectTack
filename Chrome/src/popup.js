@@ -13,7 +13,7 @@ function renderPopup() {
         </div>
 
         <div class="pt-popup-actions">
-          <button type="button" class="pt-popup-action" data-action="open-dashboard">
+          <button type="button" class="pt-popup-action" data-action="open-workspace">
             <span class="pt-popup-action-label">ProjectTrack</span>
           </button>
         </div>
@@ -21,8 +21,8 @@ function renderPopup() {
     </main>
   `;
 
-  root.querySelector("[data-action='open-dashboard']")?.addEventListener("click", async () => {
-    const url = chrome.runtime.getURL("dashboard.html");
+  root.querySelector("[data-action='open-workspace']")?.addEventListener("click", async () => {
+    const url = chrome.runtime.getURL("workspace.html");
     const existingTabs = await chrome.tabs.query({});
     const existingTab = existingTabs.find((tab) => tab.url === url);
 

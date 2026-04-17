@@ -6,15 +6,19 @@
 }
 
 .pt-web-app {
+  --pt-action-primary: #c46a4a;
+  --pt-action-primary-strong: #8f3f2d;
+  --pt-action-primary-soft: rgba(196, 106, 74, 0.1);
+  --pt-action-primary-border: rgba(196, 106, 74, 0.24);
   --bs-body-bg: transparent;
   --bs-body-color: var(--pt-color-text-primary);
   --bs-border-color: rgba(29, 42, 35, 0.12);
   --bs-border-radius: 1rem;
   --bs-border-radius-xl: 1.5rem;
-  --bs-primary: var(--pt-color-brand-primary);
-  --bs-primary-rgb: 32, 77, 56;
-  --bs-link-color: var(--pt-color-brand-primary);
-  --bs-link-hover-color: var(--pt-color-brand-strong);
+  --bs-primary: var(--pt-action-primary);
+  --bs-primary-rgb: 180, 83, 9;
+  --bs-link-color: var(--pt-action-primary);
+  --bs-link-hover-color: var(--pt-action-primary-strong);
 }
 
 .pt-web-navbar {
@@ -185,21 +189,22 @@
 }
 
 .pt-web-app .btn-primary {
-  background: linear-gradient(180deg, #285f45 0%, var(--pt-color-brand-primary) 100%);
-  border-color: rgba(21, 52, 38, 0.24);
+  background: linear-gradient(180deg, #df8a6f 0%, var(--pt-action-primary) 100%);
+  border-color: var(--pt-action-primary);
+  box-shadow: 0 12px 22px rgba(196, 106, 74, 0.18);
 }
 
 .pt-web-app .btn-outline-primary {
-  color: var(--pt-color-brand-strong);
-  border-color: rgba(32, 77, 56, 0.16);
-  background: rgba(32, 77, 56, 0.04);
+  color: var(--pt-action-primary-strong);
+  border-color: var(--pt-action-primary-border);
+  background: var(--pt-action-primary-soft);
 }
 
 .pt-web-app .btn-outline-primary:hover,
 .pt-web-app .btn-outline-primary:focus-visible {
-  color: var(--pt-color-brand-strong);
-  background: rgba(32, 77, 56, 0.1);
-  border-color: rgba(32, 77, 56, 0.22);
+  color: var(--pt-action-primary-strong);
+  background: rgba(196, 106, 74, 0.16);
+  border-color: rgba(196, 106, 74, 0.34);
 }
 
 .pt-web-app .alert,

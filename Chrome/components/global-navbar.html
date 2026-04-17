@@ -1,0 +1,36 @@
+<div class="container-fluid px-4 px-xl-5">
+  <button type="button" class="navbar-brand d-flex align-items-center gap-3 mb-0 pt-workspace-brand"
+    data-action="navigate-main" data-view-id="dashboard" aria-label="Go to Dashboard">
+    {{BRAND_MARK}}
+    <span class="d-grid">
+      <strong class="pt-web-brand-title">ProjectTrack</strong>
+      <small class="text-secondary">Bootstrap dashboard</small>
+    </span>
+  </button>
+
+  <div class="d-flex align-items-center gap-2 ms-auto pt-workspace-navbar-actions">
+
+    <button type="button" class="btn btn-primary" data-action="refresh-workspace">
+      Refresh Data
+    </button>
+
+    <div class="dropdown">
+      <button type="button" class="btn pt-web-user-button dropdown-toggle" data-bs-toggle="dropdown"
+        aria-expanded="false">
+        <span class="pt-web-user-avatar" aria-hidden="true">{{USER_INITIAL}}</span>
+        <span class="pt-web-user-copy">
+          <span class="pt-web-user-name">{{USER_NAME}}</span>
+          <span class="pt-web-user-role">{{USER_ROLE}}</span>
+        </span>
+      </button>
+
+      <ul class="dropdown-menu dropdown-menu-end pt-web-user-menu">
+        {{MENU_ITEMS}}
+        <li><hr class="dropdown-divider"></li>
+        <li><button type="button" class="dropdown-item" data-action="open-ui-guide">UI Guide</button></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+{{NOTICE}}

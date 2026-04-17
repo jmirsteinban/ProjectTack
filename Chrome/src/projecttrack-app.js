@@ -45,6 +45,9 @@ import {
 } from "./services/ui-copy.js";
 import { getVisibleProjects, getVisibleTasksForChange } from "./services/workspace-selectors.js";
 import { renderProjectTrackBrand } from "./components/projecttrack-brand.js";
+import { escapeAttribute, escapeHtml } from "./services/html.js";
+
+const PROJECTTRACK_UI_GUIDE_URL = "file:///C:/Users/jordan.molina/Astellas%20Pharma%20Inc/Oviedo,%20Guillermo%5BNon-Employee%5D%20-%20ASTELLAS/TOOLS/ProjectTack/docs/chrome/projecttrack-ui.html";
 
 function setAuthSubmissionState(state, isSubmitting, pendingStep = "") {
   state.authIsSubmitting = isSubmitting;
@@ -73,73 +76,18 @@ async function measureAsync(label, operation) {
   }
 }
 
-function getNavBarInfo(state) {
-  if (state.currentView === "dashboard") {
-    return { title: "Home", breadcrumb: "Home / Dashboard" };
-  }
-
-  if (state.currentView === "projects") {
-    return { title: "Projects", breadcrumb: "Home / Projects" };
-  }
-
-  if (state.currentView === "project-editor" && state.projectEditorMode === "create") {
-    return { title: "New Project", breadcrumb: "Home / Projects / New" };
-  }
-
-  if (state.currentView === "project-editor" && state.projectEditorMode === "edit") {
-    return { title: "Edit Project", breadcrumb: "Home / Projects / Details / Edit" };
-  }
-
-  if (state.currentView === "login") {
-    return { title: "Login", breadcrumb: "Home / Login" };
-  }
-
-  if (state.currentView === "profile") {
-    return { title: "Profile", breadcrumb: "Home / Profile" };
-  }
-
-  if (state.currentView === "project-detail") {
-    return { title: "Project Details", breadcrumb: "Home / Projects / Details" };
-  }
-
-  if (state.currentView === "changes") {
-    return { title: "Project Changes", breadcrumb: "Home / Projects / Details / Changes" };
-  }
-
-  if (state.currentView === "change-detail") {
-    return { title: "Change Details", breadcrumb: "Home / Projects / Details / Changes / Details" };
-  }
-
-  if (state.currentView === "change-editor" && state.changeEditorMode === "create") {
-    return { title: "New Change", breadcrumb: "Home / Projects / Details / Changes / New" };
-  }
-
-  if (state.currentView === "change-editor" && state.changeEditorMode === "edit") {
-    return { title: "Edit Change", breadcrumb: "Home / Projects / Details / Changes / Edit" };
-  }
-
-  return { title: "ProjectTrack", breadcrumb: "Home" };
-}
-
-function renderBreadcrumbTrail(label) {
-  const segments = String(label || "")
-    .split("/")
-    .map((item) => item.trim())
-    .filter(Boolean);
-
-  if (!segments.length) {
+async function loadGlobalNavbarTemplate() {
+  try {
+    const templateUrl = new URL("../components/global-navbar.html", import.meta.url);
+    const response = await fetch(templateUrl);
+    if (!response.ok) {
+      throw new Error(`Template request failed with ${response.status}`);
+    }
+    return await response.text();
+  } catch (error) {
+    console.warn("[ProjectTrack] Could not load global navbar template.", error);
     return "";
   }
-
-  return `
-    <nav aria-label="Breadcrumb">
-      <ol class="breadcrumb">
-        ${segments.map((segment, index) => `
-          <li class="breadcrumb-item${index === segments.length - 1 ? " active" : ""}"${index === segments.length - 1 ? ' aria-current="page"' : ""}>${segment}</li>
-        `).join("")}
-      </ol>
-    </nav>
-  `;
 }
 
 function navigateMain(state, viewId) {
@@ -155,6 +103,37 @@ function navigateMain(state, viewId) {
   clearNoteComposerState(state);
   state.backendConfigMessage = "";
   state.authMessage = "";
+}
+
+function syncWorkspaceUrl(state) {
+  if (typeof window === "undefined" || !window.history?.replaceState) {
+    return;
+  }
+
+  const params = new URLSearchParams();
+  params.set("view", state.currentView || "dashboard");
+
+  if (state.selectedProjectId && ["project-detail", "project-editor"].includes(state.currentView)) {
+    params.set("projectId", state.selectedProjectId);
+  }
+
+  if (state.selectedChangeId && ["change-detail", "change-editor"].includes(state.currentView)) {
+    params.set("changeId", state.selectedChangeId);
+  }
+
+  if (state.currentView === "project-editor") {
+    params.set("mode", state.projectEditorMode || "edit");
+  }
+
+  if (state.currentView === "change-editor") {
+    params.set("mode", state.changeEditorMode || "edit");
+  }
+
+  const nextUrl = `${window.location.pathname}?${params.toString()}`;
+  const currentUrl = `${window.location.pathname}${window.location.search}`;
+  if (nextUrl !== currentUrl) {
+    window.history.replaceState({}, "", nextUrl);
+  }
 }
 
 function hasAuthenticatedSession(state) {
@@ -378,6 +357,7 @@ async function reloadWorkspaceState(state, reason = "workspace.reload") {
 
 export async function mountProjectTrackApp(rootNode, options = {}) {
   const state = createProjectTrackState(options);
+  const globalNavbarTemplate = await loadGlobalNavbarTemplate();
   state.releaseUpdate = {
     ...createIdleReleaseUpdateState(),
     ...(state.releaseUpdate ?? {})
@@ -386,13 +366,13 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
   let noticeFadeTimeoutId = null;
   let promptedReleaseId = "";
   const appNode = document.createElement("div");
-  appNode.className = "pt-app";
+  appNode.className = "pt-app pt-workspace-shell";
 
   const navbar = document.createElement("nav");
-  navbar.className = "navbar navbar-expand-sm pt-navbar";
+  navbar.className = "navbar navbar-expand-lg bg-white border-bottom sticky-top pt-web-navbar pt-workspace-navbar";
   navbar.setAttribute("aria-label", "ProjectTrack main navigation");
   const viewNode = document.createElement("section");
-  viewNode.className = "pt-view";
+  viewNode.className = "pt-view pt-workspace-view container-fluid px-4 px-xl-5 py-4 py-xl-5";
   const overlayNode = document.createElement("div");
   overlayNode.className = "pt-overlay-layer";
 
@@ -404,46 +384,62 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
   ];
 
   function renderNavBar() {
-    if (state.currentView === "login") {
-      navbar.hidden = true;
-      navbar.innerHTML = "";
-      return;
-    }
-
     navbar.hidden = false;
-    const navBarInfo = getNavBarInfo(state);
-    navbar.innerHTML = `
-      <div class="container-fluid pt-navbar-top">
-        <button type="button" class="navbar-brand pt-navbar-copy pt-navbar-brand-button" data-action="navigate-main" data-view-id="dashboard" aria-label="Go to Home / Dashboard">
-          <div class="pt-navbar-brand-row">
-            ${renderProjectTrackBrand(52)}
-            <h1>ProjectTrack</h1>
-          </div>
-          ${renderBreadcrumbTrail(navBarInfo.breadcrumb)}
+    const userName = state.data?.user?.name || state.backendSession?.user?.email || "ProjectTrack User";
+    const userRole = state.data?.user?.role || (hasAuthenticatedSession(state) ? "Workspace member" : "Workspace locked");
+    const userInitial = String(userName).trim().charAt(0).toUpperCase() || "P";
+    const menuItems = tabItems.map(([id, label]) => {
+      const isBase = id === state.currentView;
+      const isProjectBranch = id === "projects" && ["project-detail", "project-editor"].includes(state.currentView);
+      const isChangeBranch = id === "changes" && ["change-detail", "change-editor"].includes(state.currentView);
+      const isActive = isBase || isProjectBranch || isChangeBranch;
+      return `<li><button type="button" class="dropdown-item ${isActive ? "active" : ""}" data-action="navigate-main" data-view-id="${escapeAttribute(id)}">${escapeHtml(label)}</button></li>`;
+    }).join("");
+    const replacements = {
+      "{{BRAND_MARK}}": renderProjectTrackBrand(34),
+      "{{USER_INITIAL}}": escapeHtml(userInitial),
+      "{{USER_NAME}}": escapeHtml(userName),
+      "{{USER_ROLE}}": escapeHtml(userRole),
+      "{{MENU_ITEMS}}": menuItems,
+      "{{NOTICE}}": renderNotice()
+    };
+    const template = globalNavbarTemplate || `
+      <div class="container-fluid px-4 px-xl-5">
+        <button type="button" class="navbar-brand d-flex align-items-center gap-3 mb-0 pt-workspace-brand" data-action="navigate-main" data-view-id="dashboard" aria-label="Go to Dashboard">
+          {{BRAND_MARK}}
+          <span class="d-grid">
+            <strong class="pt-web-brand-title">ProjectTrack</strong>
+            <small class="text-secondary">Bootstrap dashboard</small>
+          </span>
         </button>
-        <div class="dropdown pt-avatar-area">
-          <button type="button" class="pt-avatar-card pt-avatar-button" data-action="toggle-nav-menu" aria-expanded="${state.navMenuOpen ? "true" : "false"}" aria-label="Open main menu">
-            <span class="pt-avatar-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" focusable="false">
-                <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-3.86 0-7 2.24-7 5v1h14v-1c0-2.76-3.14-5-7-5Z" />
-              </svg>
-            </span>
-          </button>
-          ${state.navMenuOpen ? `
-            <div class="dropdown-menu dropdown-menu-end show pt-avatar-menu">
-              ${tabItems.map(([id, label]) => {
-                const isBase = id === state.currentView;
-                const isProjectBranch = id === "projects" && ["project-detail", "project-editor"].includes(state.currentView);
-                const isChangeBranch = id === "changes" && ["change-detail", "change-editor"].includes(state.currentView);
-                const isActive = isBase || isProjectBranch || isChangeBranch;
-                return `<button type="button" class="dropdown-item pt-avatar-menu-item ${isActive ? "active" : ""}" data-action="navigate-main" data-view-id="${id}">${label}</button>`;
-              }).join("")}
-            </div>
-          ` : ""}
+        <div class="d-flex align-items-center gap-2 ms-auto pt-workspace-navbar-actions">
+          <button type="button" class="btn btn-outline-primary" data-action="navigate-main" data-view-id="dashboard">Open Classic Workspace</button>
+          <button type="button" class="btn btn-primary" data-action="refresh-workspace">Refresh Data</button>
+          <div class="dropdown">
+            <button
+              type="button"
+              class="btn pt-web-user-button dropdown-toggle"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <span class="pt-web-user-avatar" aria-hidden="true">{{USER_INITIAL}}</span>
+              <span class="pt-web-user-copy">
+                <span class="pt-web-user-name">{{USER_NAME}}</span>
+                <span class="pt-web-user-role">{{USER_ROLE}}</span>
+              </span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end pt-web-user-menu">
+              {{MENU_ITEMS}}
+            </ul>
+          </div>
         </div>
       </div>
-      ${renderNotice()}
+      {{NOTICE}}
     `;
+    navbar.innerHTML = Object.entries(replacements).reduce(
+      (html, [placeholder, value]) => html.split(placeholder).join(value),
+      template
+    );
   }
 
   function renderNotice() {
@@ -455,9 +451,9 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     const closingClass = state.notice.closing ? "pt-inline-notice-card--closing" : "";
     return `
       <section class="alert alert-dismissible pt-inline-notice-toast ${toneClass} ${closingClass}" role="status" aria-live="polite">
-        <strong class="alert-heading">${state.notice.title || "Notice"}</strong>
-        <p>${state.notice.message}</p>
-        <button type="button" class="btn-close" data-action="dismiss-notice" aria-label="Close notice">X</button>
+        <strong class="alert-heading">${escapeHtml(state.notice.title || "Notice")}</strong>
+        <p>${escapeHtml(state.notice.message)}</p>
+        <button type="button" class="btn-close" data-action="dismiss-notice" aria-label="Close notice"></button>
       </section>
     `;
   }
@@ -782,19 +778,25 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     if (state.currentView !== "change-detail") {
       closeChangeHeaderMenu(state);
     }
+    syncWorkspaceUrl(state);
     if (!state.isReady) {
-      viewNode.className = "pt-view";
+      viewNode.className = "pt-view pt-workspace-view container-fluid px-4 px-xl-5 py-5";
       viewNode.innerHTML = `
-        <section class="pt-empty-state-card pt-empty-state-card--loading">
-          <strong>Loading ProjectTrack</strong>
-          <p>Preparing session, credentials and remote data load.</p>
+        <section class="card border-0 shadow-sm">
+          <div class="card-body p-4 p-xl-5 text-center">
+            <div class="spinner-border text-success mb-3" role="status" aria-hidden="true"></div>
+            <h1 class="h4 mb-2">Loading ProjectTrack</h1>
+            <p class="mb-0 text-secondary">Preparing session, credentials and remote data load.</p>
+          </div>
         </section>
       `;
       overlayNode.innerHTML = "";
       return;
     }
 
-    viewNode.className = state.currentView === "login" ? "pt-view pt-view--login" : "pt-view";
+    viewNode.className = state.currentView === "login"
+      ? "pt-view pt-view--login pt-workspace-view pt-workspace-view--login container-fluid px-4 px-xl-5 py-4 py-xl-5"
+      : "pt-view pt-workspace-view container-fluid px-4 px-xl-5 py-4 py-xl-5";
     renderNavBar();
     viewNode.innerHTML = renderProjectTrackView(state, state.data);
     overlayNode.innerHTML = "";
@@ -884,11 +886,6 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
   }
 
   function wireActions() {
-    navbar.querySelector("[data-action='toggle-nav-menu']")?.addEventListener("click", () => {
-      state.navMenuOpen = !state.navMenuOpen;
-      render();
-    });
-
     navbar.querySelectorAll("[data-action='navigate-main']").forEach((node) => {
       node.addEventListener("click", () => {
         if (!ensureAuthenticatedView(node.dataset.viewId, "Sign in to open that screen.")) {
@@ -900,6 +897,25 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
         state.navMenuOpen = false;
         render();
       });
+    });
+
+    navbar.querySelector("[data-action='refresh-workspace']")?.addEventListener("click", async () => {
+      try {
+        await reloadWorkspaceState(state, "workspace.reload.navbar");
+        setNotice("Workspace data was refreshed.", "success", "Data Refreshed");
+      } catch (error) {
+        console.error("[ProjectTrack] Could not refresh workspace data.", error);
+        setNotice("Workspace data could not be refreshed.", "danger", "Refresh Failed");
+      }
+      render();
+    });
+
+    navbar.querySelector("[data-action='open-ui-guide']")?.addEventListener("click", async () => {
+      if (typeof chrome !== "undefined" && chrome.tabs?.create) {
+        await chrome.tabs.create({ url: PROJECTTRACK_UI_GUIDE_URL });
+        return;
+      }
+      window.open(PROJECTTRACK_UI_GUIDE_URL, "_blank", "noopener,noreferrer");
     });
 
     navbar.querySelector("[data-action='dismiss-notice']")?.addEventListener("click", () => {
@@ -942,13 +958,31 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     });
 
     viewNode.querySelector("[data-input='project-search']")?.addEventListener("input", (event) => {
+      const selectionStart = event.target.selectionStart;
+      const selectionEnd = event.target.selectionEnd;
       state.projectSearchQuery = event.target.value;
       render();
+      const nextInput = viewNode.querySelector("[data-input='project-search']");
+      if (nextInput) {
+        nextInput.focus({ preventScroll: true });
+        if (selectionStart != null && selectionEnd != null) {
+          nextInput.setSelectionRange(selectionStart, selectionEnd);
+        }
+      }
     });
 
     viewNode.querySelector("[data-input='change-search']")?.addEventListener("input", (event) => {
+      const selectionStart = event.target.selectionStart;
+      const selectionEnd = event.target.selectionEnd;
       state.changeSearchQuery = event.target.value;
       render();
+      const nextInput = viewNode.querySelector("[data-input='change-search']");
+      if (nextInput) {
+        nextInput.focus({ preventScroll: true });
+        if (selectionStart != null && selectionEnd != null) {
+          nextInput.setSelectionRange(selectionStart, selectionEnd);
+        }
+      }
     });
 
     viewNode.querySelectorAll("[data-action='copy-link-value']").forEach((node) => {
@@ -1198,7 +1232,10 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     });
 
     viewNode.querySelectorAll("[data-project-id]").forEach((node) => {
-      node.addEventListener("click", () => {
+      node.addEventListener("click", (event) => {
+        if (event.target.closest("[data-change-id]")) {
+          return;
+        }
         if (!ensureAuthenticatedView("project-detail", "Sign in to view projects.")) {
           render();
           return;
@@ -1209,10 +1246,21 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
         state.currentView = "project-detail";
         render();
       });
+      node.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") {
+          return;
+        }
+        if (event.target.closest("[data-change-id]")) {
+          return;
+        }
+        event.preventDefault();
+        node.click();
+      });
     });
 
     viewNode.querySelectorAll("[data-change-id]").forEach((node) => {
-      node.addEventListener("click", () => {
+      node.addEventListener("click", (event) => {
+        event.stopPropagation();
         if (!ensureAuthenticatedView("change-detail", "Sign in to view changes.")) {
           render();
           return;
@@ -1222,6 +1270,13 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
         state.selectedChangeId = node.dataset.changeId;
         state.currentView = "change-detail";
         render();
+      });
+      node.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") {
+          return;
+        }
+        event.preventDefault();
+        node.click();
       });
     });
 

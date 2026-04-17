@@ -9,6 +9,7 @@ import {
   translatePriority,
   translateStatus,
 } from "../services/ui-copy.js";
+import { escapeAttribute, escapeHtml } from "../services/html.js";
 
 function normalizeIdentity(value) {
   return (value ?? "")
@@ -76,9 +77,9 @@ function buildDashboardMetrics(data, activeAssignedChanges) {
 
 function renderDashboardEmptyState(title, description) {
   return `
-    <div class="pt-empty-state-card pt-dashboard-empty-state">
-      <strong>${title}</strong>
-      <p>${description}</p>
+    <div class="list-group-item py-4 text-secondary">
+      <strong>${escapeHtml(title)}</strong>
+      <p class="mb-0">${escapeHtml(description)}</p>
     </div>
   `;
 }
@@ -93,12 +94,17 @@ export function renderDashboardScreen(data) {
   const metrics = buildDashboardMetrics(data, activeAssignedChanges)
     .map(
       (metric) => `
-    <article class="card bg-body-tertiary pt-dashboard-metric-card">
-      <div class="card-body">
-        <p class="card-subtitle">${metric.title}</p>
-        <span class="badge rounded-pill pt-dashboard-metric-badge tone-${metric.tone}">${metric.value}</span>
-      </div>
-    </article>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <article class="card h-100 pt-web-card pt-web-metric-card border-0">
+        <div class="card-body">
+          <p class="text-uppercase small fw-semibold text-secondary mb-2">${escapeHtml(metric.title)}</p>
+          <div class="d-flex align-items-end justify-content-between gap-3">
+            <h3 class="display-6 mb-0 fw-bold">${escapeHtml(metric.value)}</h3>
+            <span class="badge rounded-pill text-bg-light border">${escapeHtml(metric.tone || "summary")}</span>
+          </div>
+        </div>
+      </article>
+    </div>
   `,
     )
     .join("");
@@ -127,32 +133,20 @@ export function renderDashboardScreen(data) {
     .slice(0, 8)
     .map(
       (item) => `
-      <article class="card bg-body-tertiary pt-dashboard-list-card pt-clickable-card rounded-3" data-change-id="${item.id}">
-          <div class="card-body">
-
-              <div class="row">
-
-                  <div class="col">
-
-                      <p class="pt-dashboard-list-caption text-step--2">${item.project}</p>
-                      <p class="text-step-0 text-info-emphasis"><strong>${item.title}</strong></p>
-                      <span class="bg-dark-subtle text-step--3 mt-n1">${item.id}</span>
-                  </div>
-                  <div class="col-2 d-flex justify-content-end align-items-start">
-                      <div class="d-flex flex-wrap gap-1 justify-content-end">
-                          <span class="pt-pill ${priorityClass(item.priority)}">${translatePriority(item.priority)}</span>
-                          <span class="pt-pill ${statusClass(item.status)}">${translateStatus(item.status)}</span>
-                          <span class="pt-pill bg-doc-callout-gradient">${item.environment}</span>
-
-
-                      </div>
-
-                  </div>
-              </div>
-              <div class="row">
-                  <p class="pt-dashboard-list-meta">${item.description || "No description available."}</p>
-              </div>
+      <article class="list-group-item list-group-item-action py-3 pt-clickable-card" data-change-id="${escapeAttribute(item.id)}" role="button" tabindex="0">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+          <div class="min-w-0">
+            <h3 class="h6 mb-1">${escapeHtml(item.title)}</h3>
+            <p class="mb-0 text-secondary small">${escapeHtml(item.project)}</p>
           </div>
+          <div class="d-flex flex-wrap gap-2 justify-content-end">
+            <span class="badge rounded-pill pt-pill ${priorityClass(item.priority)}">${escapeHtml(translatePriority(item.priority))}</span>
+            <span class="badge rounded-pill pt-pill ${statusClass(item.status)}">${escapeHtml(translateStatus(item.status))}</span>
+            <span class="badge rounded-pill bg-light text-dark border">${escapeHtml(item.environment)}</span>
+          </div>
+        </div>
+        <p class="mb-2 small">${escapeHtml(item.description || "No description available.")}</p>
+        <span class="badge rounded-pill text-bg-light border">${escapeHtml(item.id)}</span>
       </article>
     `,
     )
@@ -171,8 +165,8 @@ export function renderDashboardScreen(data) {
         (change) => change.id === note.changeId || change.title === note.change,
       );
       const navigationAttr = relatedChange
-        ? `data-change-id="${relatedChange.id}"`
-        : `data-project-id="${data.projects.find((project) => project.id === note.projectId || project.name === note.project)?.id ?? ""}"`;
+        ? `data-change-id="${escapeAttribute(relatedChange.id)}"`
+        : `data-project-id="${escapeAttribute(data.projects.find((project) => project.id === note.projectId || project.name === note.project)?.id ?? "")}"`;
       const noteMeta = relatedChange
         ? `${relatedChange.id} - ${relatedChange.environment} environment`
         : "Linked note";
@@ -181,27 +175,23 @@ export function renderDashboardScreen(data) {
           ? note.change
           : `${note.change} - ${noteMeta}`;
       const noteEnvironmentPill = relatedChange
-        ? `<span class="pt-pill bg-doc-callout-gradient">${relatedChange.environment}</span>`
+        ? `<span class="badge rounded-pill bg-light text-dark border">${escapeHtml(relatedChange.environment)}</span>`
         : "";
 
       return `
-      <article class="card bg-body-tertiary pt-dashboard-list-card pt-dashboard-list-card--note pt-clickable-card rounded-3" ${navigationAttr}>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-8">
-              <span class="bg-dark-subtle text-step--2">${note.id}</span>
-              <p class="pt-dashboard-list-caption text-step--2 mt-2">${note.project}</p>
-              <p class="pt-dashboard-list-title text-step-0 text-info-emphasis"><strong>${note.text}</strong></p>
-            </div>
-            <div class="col-3 text-center">
-              <span class="pt-pill ${statusClass(note.status)}">${translateStatus(note.status)}</span>
-              ${noteEnvironmentPill}
-            </div>
+      <article class="list-group-item list-group-item-action py-3 pt-clickable-card" ${navigationAttr} role="button" tabindex="0">
+        <div class="d-flex flex-wrap justify-content-between gap-2 mb-2">
+          <div class="min-w-0">
+            <span class="badge rounded-pill text-bg-light border">${escapeHtml(note.id)}</span>
+            <p class="mb-1 mt-2 text-secondary small">${escapeHtml(note.project)}</p>
+            <p class="mb-0 fw-semibold">${escapeHtml(note.text)}</p>
           </div>
-          <div class="row">
-            <p class="pt-dashboard-list-meta">${noteDetail}</p>
+          <div class="d-flex flex-wrap gap-2 align-content-start">
+            <span class="badge rounded-pill pt-pill ${statusClass(note.status)}">${escapeHtml(translateStatus(note.status))}</span>
+            ${noteEnvironmentPill}
           </div>
         </div>
+        <p class="mb-0 small text-secondary">${escapeHtml(noteDetail)}</p>
       </article>
     `;
     })
@@ -214,44 +204,55 @@ export function renderDashboardScreen(data) {
     );
 
   return `
-    <section class="pt-dashboard-layout d-grid gap-cus-14 min-w-0">
-      <section class="pt-dashboard-hero-card">
-        <div class="pt-dashboard-hero-copy">
-          <h3>Hello, ${data.user.name}</h3>
-          <p>You have ${openTodoCount} open tasks to move forward today.</p>
+    <section class="d-grid gap-4 gap-xl-5 min-w-0">
+      <section class="card border-0 pt-web-hero">
+        <div class="card-body p-4 p-xl-5">
+          <div class="row g-4 align-items-center">
+            <div class="col-12 col-xl-8">
+              <span class="badge rounded-pill bg-light text-dark border mb-3">Home / Dashboard</span>
+              <h1 class="display-5 fw-bold mb-3">Hello, ${escapeHtml(data.user?.name || "ProjectTrack User")}</h1>
+              <p class="lead mb-0">You have <strong>${escapeHtml(String(openTodoCount))}</strong> open tasks to move forward today.</p>
+            </div>
+            <div class="col-12 col-xl-4 d-flex justify-content-xl-end">
+              <button type="button" class="btn btn-primary pt-hero-button" data-action="go-to-projects">Go to Projects</button>
+            </div>
+          </div>
         </div>
-        <button type="button" class="btn pt-dashboard-hero-button pt-hero-button" data-action="go-to-projects">Go to Projects</button>
       </section>
 
-      <section class="pt-dashboard-metric-strip pt-grid-auto-150">${metrics}</section>
+      <section class="row g-3 g-xl-4">${metrics}</section>
 
-      <section class="row g-3">
+      <section class="row g-4">
 
-          <div class="col-6">
-              <article class="card bg-body-tertiary rounded-3">
-                  <div class="card-header pt-card-header--dark">
+          <div class="col-12 col-xxl-6">
+              <article class="card border-0 shadow-sm h-100">
+                  <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex flex-wrap justify-content-between align-items-start gap-2">
                       <div class="pt-dashboard-panel-copy">
-                          <h4 class="card-title">${workQueuePanel.title}</h4>
-                          <p class="card-text">${workQueuePanel.subtitle}</p>
+                          <h2 class="h4 mb-1">${escapeHtml(workQueuePanel.title)}</h2>
+                          <p class="text-secondary mb-0">${escapeHtml(workQueuePanel.subtitle)}</p>
                       </div>
-                      <span class="pt-dashboard-count-chip">${workQueueCountLabel}</span>
+                      <span class="badge rounded-pill text-bg-light border">${escapeHtml(workQueueCountLabel)}</span>
                   </div>
 
-                  <div class="card-body pt-dashboard-panel-body bg-light">${openChangesMarkup}</div>
+                  <div class="card-body pt-3 px-4 pb-4">
+                    <div class="list-group list-group-flush pt-web-list-group">${openChangesMarkup}</div>
+                  </div>
               </article>
           </div>
 
-          <div class="col-6">
-              <article class="card bg-body-tertiary rounded-3">
-                  <div class="card-header pt-card-header--dark">
+          <div class="col-12 col-xxl-6">
+              <article class="card border-0 shadow-sm h-100">
+                  <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex flex-wrap justify-content-between align-items-start gap-2">
                       <div class="pt-dashboard-panel-copy">
-                          <h4 class="card-title">${notesPanel.title}</h4>
-                          <p class="card-text">${notesPanel.subtitle}</p>
+                          <h2 class="h4 mb-1">${escapeHtml(notesPanel.title)}</h2>
+                          <p class="text-secondary mb-0">${escapeHtml(notesPanel.subtitle)}</p>
                       </div>
-                      <span class="pt-dashboard-count-chip">${notesCountLabel}</span>
+                      <span class="badge rounded-pill text-bg-light border">${escapeHtml(notesCountLabel)}</span>
                   </div>
 
-                  <div class="card-body pt-dashboard-panel-body bg-light">${mentionedNotesMarkup}</div>
+                  <div class="card-body pt-3 px-4 pb-4">
+                    <div class="list-group list-group-flush pt-web-list-group">${mentionedNotesMarkup}</div>
+                  </div>
               </article>
           </div>
           

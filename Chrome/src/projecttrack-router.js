@@ -29,6 +29,6 @@ export function renderProjectTrackView(state, data) {
     case "profile":
       return renderProfileScreen(state, data);
     default:
-      return `<section class="pt-screen-card"><p>Vista no disponible.</p></section>`;
+      return `<section class="card bg-body-tertiary"><div class="card-body"><strong>View unavailable.</strong><p class="mb-0">The requested ProjectTrack view is not available.</p></div></section>`;
   }
 }

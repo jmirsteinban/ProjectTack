@@ -2,6 +2,8 @@ export function createProjectTrackState(options = {}) {
   const initialView = typeof options.initialView === "string" && options.initialView.trim()
     ? options.initialView.trim()
     : "dashboard";
+  const initialProjectEditorMode = options.initialProjectEditorMode === "create" ? "create" : "edit";
+  const initialChangeEditorMode = options.initialChangeEditorMode === "create" ? "create" : "edit";
 
   return {
     isReady: false,
@@ -55,10 +57,10 @@ export function createProjectTrackState(options = {}) {
     changeDetailReturnView: "changes",
     projectEditorReturnView: "project-detail",
     changeEditorReturnView: "change-detail",
-    selectedChangeId: null,
-    selectedProjectId: null,
-    projectEditorMode: "edit",
-    changeEditorMode: "edit",
+    selectedChangeId: options.initialSelectedChangeId || null,
+    selectedProjectId: options.initialSelectedProjectId || null,
+    projectEditorMode: initialProjectEditorMode,
+    changeEditorMode: initialChangeEditorMode,
     projectFormError: "",
     changeFormError: "",
     changeFieldErrors: {},

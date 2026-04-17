@@ -1,58 +1,50 @@
 import { mountProjectTrackApp } from "./projecttrack-app.js";
 
-const PROJECTTRACK_MIN_VIEWPORT = 360;
-const PROJECTTRACK_OPTIMAL_VIEWPORT = 550;
-
-function syncProjectTrackViewport(contentNode) {
-  const viewportWidth = Math.max(contentNode.clientWidth || PROJECTTRACK_MIN_VIEWPORT, PROJECTTRACK_MIN_VIEWPORT);
-  const scale = viewportWidth < PROJECTTRACK_OPTIMAL_VIEWPORT
-    ? viewportWidth / PROJECTTRACK_OPTIMAL_VIEWPORT
-    : 1;
-
-  contentNode.style.setProperty("--projecttrack-min-viewport", `${PROJECTTRACK_MIN_VIEWPORT}px`);
-  contentNode.style.setProperty("--projecttrack-optimal-viewport", `${PROJECTTRACK_OPTIMAL_VIEWPORT}px`);
-  contentNode.style.setProperty("--projecttrack-viewport-width", `${viewportWidth}px`);
-  contentNode.style.setProperty("--projecttrack-viewport-scale", scale.toFixed(4));
-  contentNode.dataset.viewportMode = scale < 1 ? "scaled" : "fluid";
-}
+const VALID_INITIAL_VIEWS = [
+  "dashboard",
+  "projects",
+  "project-detail",
+  "project-editor",
+  "changes",
+  "change-detail",
+  "change-editor",
+  "profile",
+  "login"
+];
 
 async function mountProjectTrackExtension(rootNode) {
   const searchParams = new URLSearchParams(window.location.search);
   const requestedView = searchParams.get("view");
-  const initialView = ["dashboard", "projects", "changes", "profile", "login"].includes(requestedView)
+  const initialView = VALID_INITIAL_VIEWS.includes(requestedView)
     ? requestedView
     : "dashboard";
 
   const host = document.createElement("div");
-  host.className = "projecttrack-root";
+  host.className = "pt-web-app pt-workspace-app";
 
   const content = document.createElement("section");
-  content.className = "projecttrack-root__viewport";
+  content.className = "pt-workspace-mount";
 
   host.appendChild(content);
   rootNode.replaceChildren(host);
 
-  syncProjectTrackViewport(content);
-
-  if (typeof ResizeObserver === "function") {
-    const resizeObserver = new ResizeObserver(() => syncProjectTrackViewport(content));
-    resizeObserver.observe(content);
-  } else {
-    window.addEventListener("resize", () => syncProjectTrackViewport(content));
-  }
-
   try {
-    await mountProjectTrackApp(content, { initialView });
+    await mountProjectTrackApp(content, {
+      initialView,
+      initialSelectedProjectId: searchParams.get("projectId"),
+      initialSelectedChangeId: searchParams.get("changeId"),
+      initialProjectEditorMode: searchParams.get("mode"),
+      initialChangeEditorMode: searchParams.get("mode")
+    });
   } catch (error) {
     console.error("[ProjectTrack] Could not mount the extension.", error);
     content.innerHTML = `
-      <div class="pt-view">
-        <article class="pt-screen-card d-grid gap-cus-10 min-w-0">
-          <span class="pt-eyebrow" style="color: var(--pt-color-danger-solid);">Startup Error</span>
-          <h2 style="margin: 0;">ProjectTrack could not start.</h2>
-          <p style="margin: 0;">Review the extension console for more details.</p>
-        </article>
-      </div>
+      <main class="container-fluid px-4 px-xl-5 py-5">
+        <section class="alert alert-danger border border-danger-subtle bg-danger-subtle text-danger-emphasis">
+          <h1 class="h4 mb-2">ProjectTrack could not start.</h1>
+          <p class="mb-0">Review the extension console for more details.</p>
+        </section>
+      </main>
     `;
   }
 }

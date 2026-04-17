@@ -6,6 +6,7 @@ import {
   translateStatus
 } from "../services/ui-copy.js";
 import { getVisibleChangesForProject, getVisibleProjects } from "../services/workspace-selectors.js";
+import { escapeAttribute, escapeHtml, isHttpUrl } from "../services/html.js";
 
 function environmentCardClass(environment) {
   if (environment === "QA") return "status-progress";
@@ -35,7 +36,7 @@ function encodeCopyValue(value) {
 }
 
 function isOpenableLink(value) {
-  return /^https?:\/\//i.test(value ?? "");
+  return isHttpUrl(value);
 }
 
 function renderLinkValue(value) {
@@ -48,8 +49,8 @@ function renderLinkValue(value) {
   }
 
   const valueMarkup = isOpenableLink(value)
-    ? `<a class="pt-change-link-value pt-change-link-value--link" href="${value}" target="_blank" rel="noopener noreferrer" title="${value}">${value}</a>`
-    : `<span class="pt-change-link-value" title="${value}">${value}</span>`;
+    ? `<a class="pt-change-link-value pt-change-link-value--link" href="${escapeAttribute(value)}" target="_blank" rel="noopener noreferrer" title="${escapeAttribute(value)}">${escapeHtml(value)}</a>`
+    : `<span class="pt-change-link-value" title="${escapeAttribute(value)}">${escapeHtml(value)}</span>`;
 
   return `
     <span class="pt-change-link-content">
@@ -71,7 +72,7 @@ function buildEnvironmentRows(urls) {
 
   return entries.map(([label, value]) => `
     <div class="pt-change-link-row">
-      <span class="pt-change-link-label">${label}:</span>
+      <span class="pt-change-link-label">${escapeHtml(label)}:</span>
       ${renderLinkValue(value)}
     </div>
   `).join("");
@@ -85,23 +86,23 @@ function projectStatusLabel(changes) {
 
 export function renderProjectDetailScreen(state, data) {
   const visibleProjects = getVisibleProjects(data);
-  const project = visibleProjects.find((item) => item.id === state.selectedProjectId) ?? visibleProjects[0];
+  const project = visibleProjects.find((item) => item.id === state.selectedProjectId);
   if (!project) {
     return `<section class="card bg-body-tertiary"><div class="card-body"><strong>Project unavailable</strong><p class="mb-0">This project is no longer available or was logically deleted.</p></div></section>`;
   }
   const relatedChanges = getVisibleChangesForProject(data, project.name);
   const status = projectStatusLabel(relatedChanges);
   const recentChanges = relatedChanges.map((change) => `
-    <article class="list-group-item list-group-item-action pt-project-list-group-item pt-clickable-card" data-change-id="${change.id}">
+    <article class="list-group-item list-group-item-action pt-project-list-group-item pt-clickable-card" data-change-id="${escapeAttribute(change.id)}" role="button" tabindex="0">
       <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
-        <strong class="pt-project-detail-change-title">${change.title}</strong>
+        <strong class="pt-project-detail-change-title">${escapeHtml(change.title)}</strong>
         <div class="d-flex gap-2 flex-wrap">
-          <span class="pt-pill neutral">${change.id}</span>
-          <span class="pt-pill ${statusClass(change.status)}">${translateStatus(change.status)}</span>
-          <span class="pt-pill ${priorityClass(change.priority)}">${translatePriority(change.priority)}</span>
+          <span class="pt-pill neutral">${escapeHtml(change.id)}</span>
+          <span class="pt-pill ${statusClass(change.status)}">${escapeHtml(translateStatus(change.status))}</span>
+          <span class="pt-pill ${priorityClass(change.priority)}">${escapeHtml(translatePriority(change.priority))}</span>
         </div>
       </div>
-      <p class="pt-project-list-group-caption">${change.description || "No description"}</p>
+      <p class="pt-project-list-group-caption">${escapeHtml(change.description || "No description")}</p>
     </article>
   `).join("");
 
@@ -113,11 +114,11 @@ export function renderProjectDetailScreen(state, data) {
             <span>Project</span>
           </div>
           <div class="pt-project-detail-copy">
-            <h3>${project.name}</h3>
-            <p>${project.description || "Review the status, environments and related changes for this project."}</p>
+            <h3>${escapeHtml(project.name)}</h3>
+            <p>${escapeHtml(project.description || "Review the status, environments and related changes for this project.")}</p>
           </div>
           <div class="pt-change-detail-meta">
-            <span class="pt-mini-chip">Start: ${project.startDate || "Not defined"}</span>
+            <span class="pt-mini-chip">Start: ${escapeHtml(project.startDate || "Not defined")}</span>
           </div>
         </div>
         <div class="col-12 col-lg-auto d-flex justify-content-lg-end align-items-start gap-2 flex-wrap">
@@ -134,12 +135,12 @@ export function renderProjectDetailScreen(state, data) {
         <div>
           <h3 class="pt-section-title mb-1">Project Details</h3>
           <div class="pt-change-detail-meta">
-            <span class="pt-mini-chip">Status: ${status}</span>
+            <span class="pt-mini-chip">Status: ${escapeHtml(status)}</span>
           </div>
         </div>
         <div class="d-flex gap-2 flex-wrap">
-          <span class="pt-mini-chip">${project.id}</span>
-          <span class="pt-mini-chip">Related Changes: ${relatedChanges.length}</span>
+          <span class="pt-mini-chip">${escapeHtml(project.id)}</span>
+          <span class="pt-mini-chip">Related Changes: ${escapeHtml(String(relatedChanges.length))}</span>
         </div>
         <div class="row g-3">
           <div class="col-12 col-md-5">
@@ -160,15 +161,15 @@ export function renderProjectDetailScreen(state, data) {
             <div class="d-grid gap-2">
               <div class="pt-change-summary-row">
                 <span class="pt-change-summary-label">Project:</span>
-                <span class="pt-change-summary-value">${project.name}</span>
+                <span class="pt-change-summary-value">${escapeHtml(project.name)}</span>
               </div>
               <div class="pt-change-summary-row">
                 <span class="pt-change-summary-label">Details:</span>
-                <span class="pt-change-summary-value">${project.description || "No description"}</span>
+                <span class="pt-change-summary-value">${escapeHtml(project.description || "No description")}</span>
               </div>
               <div class="pt-change-summary-row">
                 <span class="pt-change-summary-label">Created:</span>
-                <span class="pt-change-summary-value">${project.createdAt || project.startDate || "Not defined"}</span>
+                <span class="pt-change-summary-value">${escapeHtml(project.createdAt || project.startDate || "Not defined")}</span>
               </div>
             </div>
           </div>
