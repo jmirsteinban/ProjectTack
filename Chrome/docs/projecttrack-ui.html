@@ -5,11 +5,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ProjectTrack UI - CSS Docs</title>
-  <link rel="stylesheet" href="../styles/projecttrack.css">
   <link rel="stylesheet" href="../vendor/bootstrap/bootstrap.min.css">
-  <link rel="stylesheet" href="../styles/projecttrack-theme.css">
-  <link rel="stylesheet" href="../styles/projecttrack-fulltab.css">
-  <link rel="stylesheet" href="../styles/projecttrack-workspace.css">
+  <link rel="stylesheet" href="../styles/projecttrack.css">
 </head>
 
 <body class="pt-doc-body">
@@ -147,7 +144,7 @@
               <tr>
                 <td>Runtime principal</td>
                 <td><code>Chrome/workspace.html</code></td>
-                <td>Carga Bootstrap local, tema, full-tab, workspace CSS, Bootstrap bundle y <code>src/main.js</code>.</td>
+                <td>Carga Bootstrap local, <code>projecttrack.css</code>, Bootstrap bundle y <code>src/main.js</code>.</td>
               </tr>
               <tr>
                 <td>Navbar editable</td>
@@ -155,14 +152,9 @@
                 <td>Template HTML con placeholders para marca, usuario, menu global y notices.</td>
               </tr>
               <tr>
-                <td>Capa workspace</td>
-                <td><code>Chrome/styles/projecttrack-workspace.css</code></td>
-                <td>Ajusta padding global, navbar, login wide, heroes y compatibilidad con estilos legacy.</td>
-              </tr>
-              <tr>
-                <td>Capa full-tab</td>
-                <td><code>Chrome/styles/projecttrack-fulltab.css</code></td>
-                <td>Define botones pastel/coral, user menu, cards web, hero full-tab y metric cards.</td>
+                <td>Capa ProjectTrack</td>
+                <td><code>Chrome/styles/projecttrack.css</code></td>
+                <td>Define tokens, marca, full-tab skin, workspace layout, componentes de dominio y helpers documentales.</td>
               </tr>
               <tr>
                 <td>Guia consultable</td>
@@ -231,7 +223,8 @@
             </tbody>
           </table>
         </div>
-        <pre class="pt-code-block rounded-3">&lt;link rel="stylesheet" href="styles/projecttrack.css"&gt;</pre>
+        <pre class="pt-code-block rounded-3">&lt;link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css"&gt;
+&lt;link rel="stylesheet" href="styles/projecttrack.css"&gt;</pre>
       </section>
 
       <!-- Foundations / color palette -->
@@ -1047,11 +1040,10 @@
         <div class="card bg-body-tertiary rounded-2 bg-doc-callout-gradient">
           <div class="card-body">
             <h3 class="card-title">Criterio de layout</h3>
-            <p class="card-text"><code>.row</code> + <code>.col-*</code> es la API publica recomendada de
-              <code>Bootstrap-ProjectTrack</code> para documentacion, nuevas pantallas y refactors de layout simples.
-              <code>.pt-row</code> + <code>.pt-col-*</code> se conserva para composiciones internas existentes o casos
-              que dependen de su implementacion basada en CSS Grid. No mezcles ambas estrategias dentro del mismo
-              bloque.
+            <p class="card-text"><code>.row</code> + <code>.col-*</code> es la API de layout recomendada de
+              <code>Bootstrap-ProjectTrack</code> para documentacion, pantallas nuevas y refactors de layout.
+              Usa Bootstrap para composicion estructural y reserva <code>pt-*</code> para marca, tokens y componentes
+              de dominio.
             </p>
           </div>
         </div>
@@ -1490,7 +1482,7 @@
                     class="card bg-body-tertiary card-body d-flex align-items-center justify-content-center text-center shadow-none border-0 bg-white shadow-sm">
                     <code>.border-0</code>
                   </div>
-                  <p class="card-text">Elimina cualquier borde heredado o aplicado previamente.</p>
+                  <p class="card-text">Elimina cualquier borde aplicado previamente.</p>
                 </div>
               </div>
 
@@ -1827,7 +1819,7 @@
                     class="card bg-body-tertiary card-body d-flex align-items-center justify-content-center text-center shadow-none rounded-4 bg-white">
                     <code>.shadow-none</code>
                   </div>
-                  <p class="card-text">Sin profundidad; util para neutralizar una superficie heredada.</p>
+                  <p class="card-text">Sin profundidad; util para una superficie plana.</p>
                 </div>
                 <div class="d-grid gap-2 min-w-0">
                   <div
@@ -2102,7 +2094,7 @@
               <nav class="navbar bg-white border-bottom pt-web-navbar pt-workspace-navbar">
                 <div class="container-fluid px-4 px-xl-5">
                   <span class="navbar-brand mb-0 d-flex align-items-center gap-3">
-                    <span class="pt-web-brand-mark" aria-hidden="true">
+                    <span class="pt-brand-mark" aria-hidden="true" style="width:34px;height:34px;">
                       <img src="../assets/projecttrack-icon.svg" alt="">
                     </span>
                     <span class="d-grid">
@@ -2213,12 +2205,12 @@
             <span class="badge text-bg-secondary rounded-pill">Flex + field group</span>
             <div class="card bg-body-tertiary card-body bg-doc-preview-gradient shadow-none rounded-4">
               <div class="d-flex flex-wrap gap-cus-10">
-                <button type="button" class="pt-profile-save-button">Guardar</button>
+                <button type="button" class="btn btn-primary">Guardar</button>
                 <button type="button" class="pt-editor-secondary-button">Cancelar</button>
               </div>
               <div class="d-grid gap-cus-8">
-                <label class="pt-profile-label">Campo</label>
-                <input class="pt-profile-input" type="text" value="Ejemplo">
+                <label class="form-label">Campo</label>
+                <input class="form-control" type="text" value="Ejemplo">
               </div>
             </div>
           </article>
@@ -2366,13 +2358,13 @@
             <span class="badge text-bg-secondary rounded-pill">Focus ring del sistema</span>
             <div class="card bg-body-tertiary card-body bg-doc-preview-gradient shadow-none rounded-4">
               <div class="d-flex flex-wrap gap-cus-10">
-                <button type="button" class="pt-profile-save-button pt-doc-force-focus">Primaria</button>
+                <button type="button" class="btn btn-primary pt-doc-force-focus">Primaria</button>
                 <button type="button" class="pt-editor-secondary-button pt-doc-force-focus">Secundaria</button>
               </div>
 
               <div class="d-grid gap-cus-8">
-                <label class="pt-profile-label">Input con foco visible</label>
-                <input class="pt-profile-input pt-doc-force-focus" type="text"
+                <label class="form-label">Input con foco visible</label>
+                <input class="form-control pt-doc-force-focus" type="text"
                   value="El foco se ve igual en controles clave del sistema.">
               </div>
 
@@ -2434,41 +2426,34 @@
       <!-- Components / buttons and actions -->
       <section id="actions" class="card bg-body-tertiary card-body d-grid gap-cus-16 min-w-0">
         <h2>Buttons</h2>
-        <p>ProjectTrack maneja dos familias. La base normal es <code>.btn</code> con variantes Bootstrap-first para
-          cualquier area del producto. En el runtime full-tab, <code>.btn-primary</code> ya no usa el verde historico:
-          se apoya en el acento pastel/coral <code>--pt-action-primary</code> para contrastar mejor con el universo
-          violeta del logo y los heroes. Cuando una accion vive en el hero, se apoya en la misma base pero agrega
-          <code>.pt-hero-button</code>, que fuerza una sola forma y una sola superficie visual para toda la cabecera.
-          Las clases <code>pt-*</code> historicas siguen vivas como alias transicionales de producto.
+        <p>ProjectTrack usa <code>.btn</code> con variantes Bootstrap-first para acciones del runtime. En el full-tab,
+          <code>.btn-primary</code> usa el acento pastel/coral <code>--pt-action-primary</code> para contrastar con el
+          universo violeta del logo y los heroes. En heroes se usan botones Bootstrap claros, normalmente
+          <code>.btn-light</code> y <code>.btn-outline-light</code>.
         </p>
 
         <div class="pt-grid-auto-320">
           <article class="card bg-body-tertiary card-body d-grid min-w-0">
-            <span class="badge text-bg-secondary rounded-pill">Hero buttons</span>
+            <span class="badge text-bg-secondary rounded-pill">Hero actions</span>
             <div class="card bg-body-tertiary card-body bg-hero-gradient text-white shadow-none rounded-4 d-grid gap-3">
-              <p class="m-0">En heroes, el color no comunica jerarquia. Todas las acciones comparten la misma
-                superficie y la misma silueta.</p>
+              <p class="m-0">En heroes, las acciones deben mantener contraste alto sobre el gradiente.</p>
               <div class="d-flex flex-wrap gap-2 align-items-center">
-                <button type="button" class="btn btn-secondary pt-hero-button">View Project</button>
-                <button type="button" class="btn btn-primary pt-hero-button">Edit Project</button>
-                <button type="button" class="btn btn-danger pt-hero-button">Delete</button>
-                <button type="button" class="btn btn-outline-primary pt-hero-button">Back</button>
+                <button type="button" class="btn btn-light">Create Project</button>
+                <button type="button" class="btn btn-outline-light">Back</button>
               </div>
             </div>
 
-            <pre class="pt-code-block rounded-3">&lt;button class="btn btn-primary pt-hero-button"&gt;Save Project&lt;/button&gt;
-&lt;button class="btn btn-outline-primary pt-hero-button"&gt;Cancel&lt;/button&gt;
-&lt;button class="btn btn-danger pt-hero-button"&gt;Delete&lt;/button&gt;</pre>
+            <pre class="pt-code-block rounded-3">&lt;button class="btn btn-light"&gt;Create Project&lt;/button&gt;
+&lt;button class="btn btn-outline-light"&gt;Back&lt;/button&gt;</pre>
 
-            <p class="card-text">Usalo solo en CTAs de cabecera, heroes y entradas principales como el dashboard hero.
-              Inputs, filtros y botones de formulario siguen perteneciendo a la familia runtime aunque esten cerca del
+            <p class="card-text">Inputs, filtros y botones de formulario usan la familia runtime aunque esten cerca del
               hero.</p>
 
             <span class="badge text-bg-secondary rounded-pill">Runtime buttons</span>
 
             <div class="card bg-body-tertiary card-body bg-doc-preview-gradient shadow-none rounded-4 d-grid gap-3">
               <p class="m-0">El color primario actual del runtime web es pastel/coral. La fuente canonica esta en
-                <code>Chrome/styles/projecttrack-fulltab.css</code>.</p>
+                <code>Chrome/styles/projecttrack.css</code>.</p>
               <div class="d-flex flex-wrap gap-2 align-items-center">
                 <button type="button" class="btn btn-primary">Check Release Channel</button>
                 <button type="button" class="btn btn-outline-primary">Back</button>
@@ -2802,39 +2787,39 @@
                   <tr>
                     <th>Familia</th>
                     <th>Referencia</th>
-                    <th>Alias ProjectTrack</th>
+                    <th>Rol</th>
                     <th>Uso</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td>Hero</td>
-                    <td><code>.btn ... .pt-hero-button</code></td>
-                    <td><code>.pt-dashboard-hero-button</code> / <code>.pt-back-button--hero</code></td>
-                    <td>Acciones de cabecera, heroes y CTA principal de dashboard.</td>
+                    <td><code>.btn.btn-light</code> / <code>.btn.btn-outline-light</code></td>
+                    <td>Hero Card actions</td>
+                    <td>Acciones de cabecera sobre fondo violeta.</td>
                   </tr>
                   <tr>
                     <td>Runtime / primary</td>
                     <td><code>.btn.btn-primary</code></td>
-                    <td><code>.pt-profile-save-button</code> / <code>.pt-change-create-button</code></td>
+                    <td>Main action</td>
                     <td>Guardado, avance y acciones principales.</td>
                   </tr>
                   <tr>
                     <td>Runtime / secondary</td>
                     <td><code>.btn.btn-secondary</code></td>
-                    <td><code>.pt-editor-secondary-button</code> / <code>.pt-editor-inline-button</code></td>
+                    <td>Secondary action</td>
                     <td>Acciones neutrales y soporte operacional.</td>
                   </tr>
                   <tr>
                     <td>Runtime / outline</td>
                     <td><code>.btn.btn-outline-*</code></td>
-                    <td><code>.pt-back-button</code></td>
+                    <td>Context action</td>
                     <td>Regreso, filtros, acciones contextuales y baja jerarquia.</td>
                   </tr>
                   <tr>
                     <td>Runtime / danger</td>
                     <td><code>.btn.btn-danger</code></td>
-                    <td><code>.pt-danger-button</code></td>
+                    <td>Danger action</td>
                     <td>Acciones destructivas y confirmaciones de riesgo.</td>
                   </tr>
                 </tbody>
@@ -2904,15 +2889,6 @@
               </label>
             </div>
 
-            <span class="badge text-bg-secondary rounded-pill">Compatibilidad con clases pt-*</span>
-            <div class="card bg-body-tertiary card-body bg-doc-preview-gradient shadow-none rounded-4 d-grid gap-2">
-              <div class="d-grid gap-cus-8">
-                <label class="pt-profile-label">Alias heredado</label>
-                <input class="pt-profile-input" type="text" value="Sigue funcionando sobre la misma base">
-              </div>
-              <textarea class="pt-profile-textarea">Las clases pt-* del producto siguen siendo validas.</textarea>
-            </div>
-
             <pre class="pt-code-block rounded-3">&lt;label class="form-label"&gt;Correo&lt;/label&gt;
 &lt;input class="form-control" type="email"&gt;
 &lt;p class="form-text"&gt;Ayuda breve&lt;/p&gt;
@@ -2924,35 +2900,29 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Bootstrap-ProjectTrack</th>
-                    <th>Alias ProjectTrack</th>
+                    <th>Clase</th>
                     <th>Uso</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td><code>.form-label</code></td>
-                    <td><code>.pt-profile-label</code></td>
                     <td>Labels de campos.</td>
                   </tr>
                   <tr>
                     <td><code>.form-control</code></td>
-                    <td><code>.pt-profile-input</code> / <code>.pt-profile-textarea</code></td>
                     <td>Inputs y textarea base.</td>
                   </tr>
                   <tr>
                     <td><code>.is-invalid</code> + <code>.invalid-feedback</code></td>
-                    <td><code>.pt-profile-input--error</code> + <code>.pt-field-error</code></td>
                     <td>Estados de validacion.</td>
                   </tr>
                   <tr>
                     <td><code>.form-check</code> / <code>.form-switch</code></td>
-                    <td><code>.pt-editor-check-row</code></td>
                     <td>Checks y toggles semanticos.</td>
                   </tr>
                   <tr>
                     <td><code>.input-group</code></td>
-                    <td><code>.pt-path-picker-row</code></td>
                     <td>Campos compuestos con prefijos o acciones.</td>
                   </tr>
                 </tbody>
@@ -2965,8 +2935,7 @@
       <!-- Components / tables -->
       <section id="table" class="card bg-body-tertiary card-body d-grid gap-cus-16 min-w-0">
         <h2>Tables</h2>
-        <p>Las tablas ahora aceptan tanto el par historico <code>.pt-table-wrap + .pt-table</code> como la semantica
-          Bootstrap-ProjectTrack <code>.table-responsive + .table</code>. Tambien existen modificadores
+        <p>Las tablas usan la semantica Bootstrap-ProjectTrack <code>.table-responsive + .table</code>. Tambien existen modificadores
           <code>.table-hover</code>, <code>.table-striped</code>, <code>.table-sm</code>,
           <code>.table-bordered</code> y <code>.align-middle</code>.
         </p>
@@ -3181,48 +3150,53 @@
       <section id="cards" class="card bg-body-tertiary card-body d-grid gap-cus-16 min-w-0">
         <h2>Cards</h2>
 
-        <p>ProjectTrack expone una capa compatible con la semantica base de Bootstrap para cards. La shell neutra
-          recomendada hoy es <code>.card.bg-body-tertiary</code>, y desde ahi se pueden copiar estructuras como
-          <code>.card-header</code>, <code>.card-body</code> y <code>.card-footer</code> sin cargar Bootstrap en
-          runtime, pero manteniendo los tokens visuales del app.
+        <p>ProjectTrack usa cards Bootstrap reales para superficies, panels, formularios y listas. La shell neutra
+          recomendada es <code>.card.bg-body-tertiary</code> con <code>.card-header</code>,
+          <code>.card-body</code> y <code>.card-footer</code> cuando aplique.
         </p>
 
         <div class="pt-grid-auto-320">
           <article class="card bg-body-tertiary card-body d-grid gap-cus-14 min-w-0">
-            <span class="badge text-bg-secondary rounded-pill">Bootstrap shell compatible</span>
+            <span class="badge text-bg-secondary rounded-pill">Runtime card</span>
             <div class="card bg-body-tertiary">
-              <div class="card-header">
-                <strong>Workspace activo</strong>
-                <span class="pt-dashboard-count-chip">4 items</span>
+              <div class="card-header bg-white border-0 d-flex justify-content-between align-items-start gap-2">
+                <strong>Workspace</strong>
+                <span class="badge rounded-pill text-bg-light border">4 items</span>
               </div>
               <div class="card-body">
-                <h3 class="card-title">Resumen del workspace</h3>
-                <p class="card-subtitle">Header, body y footer con skin ProjectTrack</p>
-                <p class="card-text">Este shell permite copiar la estructura mental de Bootstrap y reutilizarla dentro
-                  de la extension sin agregar dependencias nuevas.</p>
-                <div class="pt-grid-auto-190">
-                  <article class="pt-meta-card">
-                    <p>Estado</p>
-                    <strong>Sincronizado</strong>
-                  </article>
-                  <article class="pt-meta-card">
-                    <p>Usuario</p>
-                    <strong>Workspace activo</strong>
-                  </article>
+                <h3 class="card-title">Workspace summary</h3>
+                <p class="card-subtitle text-secondary">Header, body and footer with ProjectTrack tokens.</p>
+                <p class="card-text">Use this structure for stable runtime panels.</p>
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <article class="card bg-white border-0 shadow-sm">
+                      <div class="card-body">
+                        <p class="small text-secondary mb-1">Status</p>
+                        <strong>Synced</strong>
+                      </div>
+                    </article>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <article class="card bg-white border-0 shadow-sm">
+                      <div class="card-body">
+                        <p class="small text-secondary mb-1">User</p>
+                        <strong>Active session</strong>
+                      </div>
+                    </article>
+                  </div>
                 </div>
               </div>
-              <div class="card-footer">
-                <button type="button" class="pt-editor-secondary-button">Cancelar</button>
-                <button type="button" class="pt-change-create-button">Guardar</button>
+              <div class="card-footer d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary">Cancel</button>
+                <button type="button" class="btn btn-primary">Save</button>
               </div>
             </div>
 
             <pre class="pt-code-block rounded-3">&lt;div class="card bg-body-tertiary"&gt;
-  &lt;div class="card-header"&gt;...&lt;/div&gt;
+  &lt;div class="card-header bg-white border-0"&gt;...&lt;/div&gt;
   &lt;div class="card-body"&gt;
-    &lt;h3 class="card-title"&gt;Titulo&lt;/h3&gt;
-    &lt;p class="card-subtitle"&gt;Subtitulo&lt;/p&gt;
-    &lt;p class="card-text"&gt;Descripcion&lt;/p&gt;
+    &lt;h3 class="card-title"&gt;Workspace summary&lt;/h3&gt;
+    &lt;p class="card-text"&gt;Use this structure for stable runtime panels.&lt;/p&gt;
   &lt;/div&gt;
   &lt;div class="card-footer"&gt;...&lt;/div&gt;
 &lt;/div&gt;</pre>
@@ -3251,73 +3225,37 @@
   &lt;div class="card-body"&gt;...&lt;/div&gt;
 &lt;/div&gt;</pre>
 
-            <span class="badge text-bg-secondary rounded-pill">ProjectTrack dark card</span>
-            <article class="pt-project-card pt-card pt-card--dark">
-              <div class="d-flex justify-content-between align-items-start flex-wrap gap-cus-10 pt-card-header">
-                <strong class="pt-project-title">Chrome Extension</strong>
-                <div class="pt-project-date-row">
-                  <span>Creado:</span>
-                  <span class="pt-project-date-badge">2026-03-22</span>
-                </div>
-              </div>
-              <div class="pt-card-body pt-card-body--project">
-                <p class="pt-card-text">El mismo lenguaje puede vestirse con una variante oscura para tarjetas de
-                  proyecto, resumenes destacados o cards de hero secundario.</p>
-                <div class="pt-project-fieldset">
-                  <span class="pt-project-fieldset-label">CAMBIOS</span>
-                  <div class="pt-project-fieldset-body">
-                    <article class="pt-project-change-item">
-                      <div class="d-flex justify-content-between align-items-start flex-wrap gap-cus-10">
-                        <strong>Navbar + cards</strong>
-                        <div class="pt-dashboard-pill-stack">
-                          <span class="pt-pill status-progress">En desarrollo</span>
-                          <span class="pt-pill priority-high">Alta</span>
-                        </div>
-                      </div>
-                    </article>
-                  </div>
-                </div>
-              </div>
-            </article>
-
             <div class="table-responsive rounded-3">
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Bootstrap</th>
-                    <th>ProjectTrack</th>
+                    <th>Clase</th>
                     <th>Uso</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td><code>.card</code></td>
-                    <td><code>.pt-screen-card</code> / <code>.pt-project-card</code></td>
                     <td>Contenedor principal de la superficie.</td>
                   </tr>
                   <tr>
                     <td><code>.card-header</code></td>
-                    <td><code>.pt-card-header</code></td>
                     <td>Cabecera con borde inferior y jerarquia visual.</td>
                   </tr>
                   <tr>
                     <td><code>.card-title-win</code></td>
-                    <td><code>.pt-card-title-win</code></td>
                     <td>Barra superior tipo ventana, pensada para ir encima del <code>.card-body</code>.</td>
                   </tr>
                   <tr>
                     <td><code>.card-body</code></td>
-                    <td><code>.pt-card-body</code></td>
                     <td>Bloque interno para copy, grids y listas.</td>
                   </tr>
                   <tr>
                     <td><code>.card-footer</code></td>
-                    <td><code>.pt-card-footer</code></td>
                     <td>Zona de acciones o metadata final.</td>
                   </tr>
                   <tr>
-                    <td><code>.card-title</code> / <code>.card-text</code></td>
-                    <td><code>.pt-card-title</code> / <code>.pt-card-text</code></td>
+                    <td><code>.card-title</code> / <code>.card-subtitle</code> / <code>.card-text</code></td>
                     <td>Tipografia semantica del contenido.</td>
                   </tr>
                 </tbody>
@@ -3331,73 +3269,37 @@
       <!-- Components / hero card -->
       <section id="hero-card" class="card bg-body-tertiary card-body d-grid gap-cus-16 min-w-0">
         <h2>Hero Card</h2>
-        <p>El sistema usa heroes reales del runtime para abrir pantallas, dar contexto y concentrar acciones primarias.
-          Hay dos variantes principales: <code>.pt-dashboard-hero-card</code> para la bienvenida compacta del dashboard
-          y <code>.pt-screen-hero</code> para listados, detalles y editores.</p>
+        <p>El primer bloque visual de las pantallas usa el componente compartido Hero Card. El template editable vive
+          en <code>Chrome/components/hero-card.html</code> y el renderer vive en
+          <code>Chrome/src/components/hero-card.js</code>.</p>
         <div class="pt-grid-auto-320">
           <article class="card bg-body-tertiary card-body d-grid gap-cus-14 min-w-0">
-            <span class="badge text-bg-secondary rounded-pill">Dashboard hero</span>
-            <section class="pt-dashboard-hero-card">
-              <div class="pt-dashboard-hero-copy">
-                <h3>Hello, Demo User</h3>
-                <p>You have 3 open tasks to move forward today.</p>
-              </div>
-              <button type="button" class="btn pt-dashboard-hero-button pt-hero-button">Go to Projects</button>
-            </section>
-            <pre class="pt-code-block rounded-3">&lt;section class="pt-dashboard-hero-card"&gt;
-  &lt;div class="pt-dashboard-hero-copy"&gt;
-    &lt;h3&gt;Hello, Demo User&lt;/h3&gt;
-    &lt;p&gt;You have 3 open tasks to move forward today.&lt;/p&gt;
-  &lt;/div&gt;
-  &lt;button type="button" class="btn pt-dashboard-hero-button pt-hero-button"&gt;Go to Projects&lt;/button&gt;
-&lt;/section&gt;</pre>
-          </article>
-          <article class="card bg-body-tertiary card-body d-grid gap-cus-14 min-w-0">
-            <span class="badge text-bg-secondary rounded-pill">Screen hero</span>
-            <section class="pt-screen-hero">
-              <div class="row">
-                <div class="col">
-                  <div class="pt-change-detail-topline">
-                    <span>Workspace / Projects</span>
-                  </div>
-                  <div class="pt-change-detail-copy">
-                    <h3>Projects</h3>
-                    <p>Centralize workspace tracking and jump quickly into each project's recent changes.</p>
-                  </div>
-                  <div class="pt-change-detail-meta">
-                    <span class="pt-mini-chip pt-mini-chip--light">Filter: Active</span>
-                    <span class="pt-mini-chip pt-mini-chip--light">2 workspaces</span>
+            <span class="badge text-bg-secondary rounded-pill">Shared hero card</span>
+            <section class="pt-web-hero pt-hero-card">
+              <div class="row g-3 align-items-start">
+                <div class="col-12 col-lg">
+                  <h1 class="display-6 fw-bold mb-2">Projects</h1>
+                  <p class="lead mb-0">Centralize workspace tracking and jump quickly into each project's recent
+                    changes.</p>
+                  <div class="d-flex flex-wrap gap-2 mt-3">
+                    <span class="badge rounded-pill bg-white text-dark border">Filter: Active</span>
+                    <span class="badge rounded-pill bg-white text-dark border">2 workspaces</span>
                   </div>
                 </div>
-              </div>
-              <div class="row">
-                <div class="col d-flex justify-content-end gap-2 flex-wrap">
-                  <button type="button"
-                    class="btn btn-outline-primary pt-back-button pt-back-button--hero pt-hero-button">Back</button>
-                  <button type="button" class="btn btn-primary pt-change-create-button pt-hero-button">New
-                    Project</button>
+                <div class="col-12 col-lg-auto d-flex justify-content-lg-end align-items-start gap-2 flex-wrap">
+                  <button type="button" class="btn btn-light">New Project</button>
+                  <button type="button" class="btn btn-outline-light">Back</button>
                 </div>
               </div>
             </section>
-            <pre class="pt-code-block rounded-3">&lt;section class="pt-screen-hero"&gt;
-  &lt;div class="row"&gt;
-    &lt;div class="col"&gt;
-      &lt;div class="pt-change-detail-topline"&gt;
-        &lt;span&gt;Workspace / Projects&lt;/span&gt;
-      &lt;/div&gt;
-      &lt;div class="pt-change-detail-copy"&gt;
-        &lt;h3&gt;Projects&lt;/h3&gt;
-        &lt;p&gt;Centralize workspace tracking and jump quickly into each project's recent changes.&lt;/p&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-  &lt;div class="row"&gt;
-    &lt;div class="col d-flex justify-content-end gap-2 flex-wrap"&gt;
-      &lt;button type="button" class="btn btn-outline-primary pt-back-button pt-back-button--hero pt-hero-button"&gt;Back&lt;/button&gt;
-      &lt;button type="button" class="btn btn-primary pt-change-create-button pt-hero-button"&gt;New Project&lt;/button&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-&lt;/section&gt;</pre>
+            <pre class="pt-code-block rounded-3">renderHeroCard({
+  title: "Projects",
+  description: "Centralize workspace tracking and jump quickly into each project's recent changes.",
+  meta: ["Filter: Active", "2 workspaces"],
+  actionsHtml: `
+    &lt;button type="button" class="btn btn-light"&gt;New Project&lt;/button&gt;
+    &lt;button type="button" class="btn btn-outline-light"&gt;Back&lt;/button&gt;`
+})</pre>
           </article>
         </div>
         <div class="table-responsive rounded-3">
@@ -3411,31 +3313,19 @@
             </thead>
             <tbody>
               <tr>
-                <td><code>.pt-dashboard-hero-card</code></td>
-                <td>Hero compacto de dashboard</td>
-                <td>Bienvenida corta con una CTA principal.</td>
-              </tr>
-              <tr>
-                <td><code>.pt-screen-hero</code></td>
-                <td>Hero principal de pantalla</td>
-                <td>Base visual para proyectos, cambios, detalle, editores, login y perfil.</td>
+                <td><code>.pt-web-hero.pt-hero-card</code></td>
+                <td>Hero principal</td>
+                <td>Base visual compartida de pantallas full-tab.</td>
               </tr>
               <tr>
                 <td><code>.row</code> + <code>.col-*</code></td>
                 <td>Composicion interna recomendada</td>
-                <td>Organiza contexto en la fila superior y acciones en una fila independiente.</td>
+                <td>Organiza copy, controles y acciones.</td>
               </tr>
               <tr>
-                <td><code>.pt-change-detail-topline</code> + <code>.pt-change-detail-copy</code> +
-                  <code>.pt-change-detail-meta</code>
-                </td>
-                <td>Copy y metadata</td>
-                <td>Resuelve breadcrumb corto, titulo, descripcion y chips dentro del hero actual.</td>
-              </tr>
-              <tr>
-                <td><code>.pt-screen-hero-layout</code> y familia asociada</td>
-                <td>Shell anterior</td>
-                <td>Se conserva por compatibilidad, pero ya no es el patron recomendado para heroes nuevos.</td>
+                <td><code>.btn-light</code> / <code>.btn-outline-light</code></td>
+                <td>Acciones</td>
+                <td>Mantienen contraste sobre el gradiente del hero.</td>
               </tr>
             </tbody>
           </table>
@@ -3447,8 +3337,7 @@
         <h2>Metric Cards</h2>
         <p>Estas son las metricas reales del dashboard actual. En <code>workspace.html?view=dashboard</code> se
           renderizan con <code>.pt-web-metric-card</code> y el grid
-          <code>.row-cols-xl-6</code> para mantener seis indicadores en una sola linea en desktop. La variante
-          historica <code>.pt-dashboard-metric-card</code> se conserva como referencia visual legacy.
+          <code>.row-cols-xl-6</code> para mantener seis indicadores en una sola linea en desktop.
         </p>
 
         <div class="pt-grid-auto-320">
@@ -3539,63 +3428,6 @@
   &lt;/div&gt;
 &lt;/section&gt;</pre>
 
-            <span class="badge text-bg-secondary rounded-pill">Legacy metric strip</span>
-
-            <section class="pt-dashboard-metric-strip pt-grid-auto-150" aria-label="Metricas de estado del dashboard">
-              <article class="card bg-body-tertiary pt-dashboard-metric-card">
-                <div class="card-body">
-                  <p class="card-subtitle">Asignadas</p>
-                  <span class="badge rounded-pill pt-dashboard-metric-badge tone-assigned">1</span>
-                  <p class="card-text">Total del usuario</p>
-                </div>
-              </article>
-              <article class="card bg-body-tertiary pt-dashboard-metric-card">
-                <div class="card-body">
-                  <p class="card-subtitle">Pendientes</p>
-                  <span class="badge rounded-pill pt-dashboard-metric-badge tone-pending">1</span>
-                  <p class="card-text">Por iniciar</p>
-                </div>
-              </article>
-              <article class="card bg-body-tertiary pt-dashboard-metric-card">
-                <div class="card-body">
-                  <p class="card-subtitle">En desarrollo</p>
-                  <span class="badge rounded-pill pt-dashboard-metric-badge tone-in-progress">0</span>
-                  <p class="card-text">Trabajo activo</p>
-                </div>
-              </article>
-              <article class="card bg-body-tertiary pt-dashboard-metric-card">
-                <div class="card-body">
-                  <p class="card-subtitle">En revision QA</p>
-                  <span class="badge rounded-pill pt-dashboard-metric-badge tone-qa-review">0</span>
-                  <p class="card-text">Validacion en curso</p>
-                </div>
-              </article>
-              <article class="card bg-body-tertiary pt-dashboard-metric-card">
-                <div class="card-body">
-                  <p class="card-subtitle">QA aprobado</p>
-                  <span class="badge rounded-pill pt-dashboard-metric-badge tone-completed">0</span>
-                  <p class="card-text">Cambios completados</p>
-                </div>
-              </article>
-              <article class="card bg-body-tertiary pt-dashboard-metric-card">
-                <div class="card-body">
-                  <p class="card-subtitle">Alta prioridad</p>
-                  <span class="badge rounded-pill pt-dashboard-metric-badge tone-high-priority">0</span>
-                  <p class="card-text">Requieren foco</p>
-                </div>
-              </article>
-            </section>
-
-            <pre class="pt-code-block rounded-3">&lt;section class="pt-dashboard-metric-strip pt-grid-auto-150"&gt;
-  &lt;article class="card bg-body-tertiary pt-dashboard-metric-card"&gt;
-    &lt;div class="card-body"&gt;
-      &lt;p class="card-subtitle"&gt;Asignadas&lt;/p&gt;
-      &lt;span class="badge rounded-pill pt-dashboard-metric-badge tone-assigned"&gt;1&lt;/span&gt;
-      &lt;p class="card-text"&gt;Total del usuario&lt;/p&gt;
-    &lt;/div&gt;
-  &lt;/article&gt;
-&lt;/section&gt;</pre>
-
             <div class="table-responsive rounded-3">
               <table class="table">
                 <thead>
@@ -3607,34 +3439,24 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td><code>.pt-dashboard-metric-strip</code></td>
+                    <td><code>.row.row-cols-*</code></td>
                     <td>Contenedor de metricas</td>
-                    <td>Organiza la fila y en movil se convierte en carrusel horizontal compacto.</td>
+                    <td>Controla el numero de columnas por breakpoint.</td>
                   </tr>
                   <tr>
-                    <td><code>.card.pt-dashboard-metric-card</code></td>
+                    <td><code>.card.pt-web-card.pt-web-metric-card</code></td>
                     <td>Superficie de metrica</td>
-                    <td>Usa la shell de card y aplica una densidad mas compacta para KPIs cortos.</td>
+                    <td>Usa la shell de card con densidad de KPI.</td>
                   </tr>
                   <tr>
-                    <td><code>.card-subtitle</code></td>
+                    <td><code>.display-6</code></td>
                     <td>Etiqueta</td>
-                    <td>Nombre del indicador, por ejemplo <code>Asignadas</code> o <code>QA aprobado</code>.</td>
+                    <td>Numero principal del indicador.</td>
                   </tr>
                   <tr>
-                    <td><code>.pt-dashboard-metric-badge</code></td>
-                    <td>Valor</td>
-                    <td>Numero principal con forma pill.</td>
-                  </tr>
-                  <tr>
-                    <td><code>.tone-*</code></td>
+                    <td><code>.badge.rounded-pill.text-bg-light.border</code></td>
                     <td>Tono semantico</td>
-                    <td>Mapea el badge a asignadas, pendiente, progreso, QA, completado o prioridad alta.</td>
-                  </tr>
-                  <tr>
-                    <td><code>.card-text</code></td>
-                    <td>Contexto</td>
-                    <td>Microcopy secundario que explica el valor.</td>
+                    <td>Etiqueta compacta del estado contado.</td>
                   </tr>
                 </tbody>
               </table>
@@ -3653,26 +3475,25 @@
 
         <div class="pt-grid-auto-320">
           <article class="card bg-body-tertiary card-body d-grid gap-cus-14 min-w-0 rounded-3">
-            <span class="badge text-bg-secondary rounded-pill">Bootstrap shell compatible</span>
+            <span class="badge text-bg-secondary rounded-pill">Runtime list group</span>
             <div class="list-group">
               <article class="list-group-item">
                 <div class="d-flex justify-content-between align-items-start flex-wrap gap-cus-10">
-                  <strong>Workspace activo</strong>
-                  <span class="pt-pill status-done">Listo</span>
+                  <strong>Workspace</strong>
+                  <span class="badge rounded-pill text-bg-light border">ready</span>
                 </div>
-                <p class="pt-project-list-group-caption">Fila base sin interaccion, util para agrupar bloques de
-                  informacion relacionados.</p>
+                <p class="mb-0 mt-2 small text-secondary">Base row for related information.</p>
               </article>
-              <article class="list-group-item list-group-item-action pt-project-list-group-item pt-clickable-card">
+              <article class="list-group-item list-group-item-action pt-clickable-card">
                 <div class="d-flex justify-content-between align-items-start flex-wrap gap-cus-10">
-                  <strong>Sincronizacion de cambios</strong>
-                  <div class="pt-dashboard-pill-stack">
-                    <span class="pt-pill status-progress">En desarrollo</span>
-                    <span class="pt-pill priority-high">Alta</span>
+                  <strong>Change synchronization</strong>
+                  <div class="d-flex flex-wrap gap-2">
+                    <span class="badge rounded-pill pt-pill status-progress">In progress</span>
+                    <span class="badge rounded-pill pt-pill priority-high">High</span>
                   </div>
                 </div>
-                <p class="pt-project-list-group-caption">La variante <code>.list-group-item-action</code> agrega hover,
-                  foco y affordance de fila interactiva.</p>
+                <p class="mb-0 mt-2 small text-secondary"><code>.list-group-item-action</code> agrega hover, foco y
+                  affordance de fila interactiva.</p>
               </article>
             </div>
 
@@ -3681,31 +3502,29 @@
   &lt;article class="list-group-item list-group-item-action"&gt;...&lt;/article&gt;
 &lt;/div&gt;</pre>
 
-            <span class="badge text-bg-secondary rounded-pill">Renderizado segun el proyecto</span>
+            <span class="badge text-bg-secondary rounded-pill">Related changes</span>
             <div class="list-group">
-              <article class="list-group-item list-group-item-action pt-project-list-group-item pt-clickable-card">
+              <article class="list-group-item list-group-item-action pt-clickable-card">
                 <div class="d-flex justify-content-between align-items-start flex-wrap gap-cus-10">
                   <strong>ProjectTrack UI</strong>
-                  <div class="pt-dashboard-pill-stack">
-                    <span class="pt-pill neutral">CHG-204</span>
-                    <span class="pt-pill status-progress">En desarrollo</span>
-                    <span class="pt-pill priority-high">Alta</span>
+                  <div class="d-flex flex-wrap gap-2">
+                    <span class="badge rounded-pill pt-pill neutral">CHG-204</span>
+                    <span class="badge rounded-pill pt-pill status-progress">In progress</span>
+                    <span class="badge rounded-pill pt-pill priority-high">High</span>
                   </div>
                 </div>
-                <p class="pt-project-list-group-caption">Cambio visible porque pertenece al proyecto ProjectTrack
-                  Chrome.</p>
+                <p class="mb-0 mt-2 small text-secondary">Visible change for the selected project.</p>
               </article>
-              <article class="list-group-item list-group-item-action pt-project-list-group-item pt-clickable-card">
+              <article class="list-group-item list-group-item-action pt-clickable-card">
                 <div class="d-flex justify-content-between align-items-start flex-wrap gap-cus-10">
                   <strong>Navbar + List Group</strong>
-                  <div class="pt-dashboard-pill-stack">
-                    <span class="pt-pill neutral">CHG-205</span>
-                    <span class="pt-pill status-qa">En revision de QA</span>
-                    <span class="pt-pill priority-medium">Media</span>
+                  <div class="d-flex flex-wrap gap-2">
+                    <span class="badge rounded-pill pt-pill neutral">CHG-205</span>
+                    <span class="badge rounded-pill pt-pill status-qa">QA review</span>
+                    <span class="badge rounded-pill pt-pill priority-medium">Medium</span>
                   </div>
                 </div>
-                <p class="pt-project-list-group-caption">La vista de detalle ahora puede listar todos los cambios del
-                  proyecto seleccionado usando el mismo patron.</p>
+                <p class="mb-0 mt-2 small text-secondary">The detail view lists related changes with this pattern.</p>
               </article>
             </div>
 
@@ -3733,11 +3552,6 @@
                     <td><code>.list-group-item-action</code></td>
                     <td>Fila interactiva</td>
                     <td>Agrega hover y foco para navegacion a detalle.</td>
-                  </tr>
-                  <tr>
-                    <td><code>.pt-list-group--dark</code></td>
-                    <td>Variante oscura</td>
-                    <td>Se usa dentro de las cards de proyecto en la vista de proyectos.</td>
                   </tr>
                 </tbody>
               </table>
@@ -3819,9 +3633,8 @@
       <!-- Components / alerts -->
       <section id="feedback" class="card bg-body-tertiary card-body d-grid gap-cus-16 min-w-0">
         <h2>Alerts</h2>
-        <p>La base recomendada ahora es <code>.alert</code> con variantes semanticas. Los bloques heredados
-          <code>.pt-inline-notice-card</code> y <code>.pt-inline-error-card</code> siguen funcionando sobre el mismo
-          lenguaje visual.
+        <p>La base recomendada es <code>.alert</code> con variantes semanticas para estados informativos, exito,
+          advertencia y error.
         </p>
         <div class="pt-grid-auto-320">
           <article class="card bg-body-tertiary card-body d-grid gap-cus-14 min-w-0">
@@ -3842,14 +3655,6 @@
             <section class="alert alert-danger">
               <strong>No se puede guardar.</strong>
               <p>Faltan datos obligatorios.</p>
-            </section>
-
-            <span class="badge text-bg-secondary rounded-pill">Compatibilidad con pt-*</span>
-            <section class="pt-inline-notice-card pt-inline-notice-card--info"><strong>Notice heredado</strong>
-              <p>La capa anterior sigue viva por compatibilidad con pantallas existentes.</p>
-            </section>
-            <section class="pt-inline-error-card"><strong>Error heredado</strong>
-              <p>Tambien sigue disponible mientras migramos runtime.</p>
             </section>
           </article>
         </div>
@@ -3887,8 +3692,7 @@
         <h2>Modal</h2>
         <p>La capa <code>.modal</code> replica la estructura mental de Bootstrap con
           <code>.modal-dialog</code>, <code>.modal-content</code>, <code>.modal-header</code>,
-          <code>.modal-body</code> y <code>.modal-footer</code>. El runtime actual puede seguir usando
-          <code>.pt-confirm-dialog</code> mientras migramos el markup.
+          <code>.modal-body</code> y <code>.modal-footer</code>.
         </p>
         <div class="pt-grid-auto-320">
           <article class="card bg-body-tertiary card-body d-grid gap-cus-14 min-w-0">
@@ -4082,7 +3886,7 @@
               <div class="container-fluid px-4 px-xl-5">
                 <button type="button" class="navbar-brand d-flex align-items-center gap-3 mb-0 pt-workspace-brand"
                   aria-label="Go to Dashboard">
-                  <span class="pt-web-brand-mark" aria-hidden="true">
+                  <span class="pt-brand-mark" aria-hidden="true" style="width:34px;height:34px;">
                     <img src="../assets/projecttrack-icon.svg" alt="">
                   </span>
                   <span class="d-grid">

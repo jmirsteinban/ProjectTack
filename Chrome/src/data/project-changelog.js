@@ -3,6 +3,75 @@ export const PROJECT_CHANGELOG = [
     date: "2026-04-17",
     entries: [
       {
+        time: "16:05",
+        type: "Release",
+        title: "ProjectTrack Chrome 0.1.2 release prep",
+        description: "Prepared the next Chrome release with consolidated documentation and the simplified Bootstrap stylesheet stack.",
+        details: [
+          "The central project document was renamed to docs/PROJECTTRACK.md.",
+          "The highest-priority pending work now starts with the Bootstrap 100% review, reusable UI configuration screen, user documentation page, and the next feature cycle.",
+          "Change History records the documentation consolidation, single ProjectTrack stylesheet, Bootstrap migration QA approval, and release preparation."
+        ]
+      },
+      {
+        time: "15:50",
+        type: "Documentation",
+        title: "Central documentation consolidated",
+        description: "Merged the operational tracking notes into the central ProjectTrack documentation and removed the separate operational file.",
+        details: [
+          "docs/PROJECTTRACK.md is now the single canonical project status and pending-work document.",
+          "README.md was simplified into a short repository entry point.",
+          "The active documentation now points to the central document for status and pending work."
+        ]
+      },
+      {
+        time: "15:35",
+        type: "Maintenance",
+        title: "Single ProjectTrack stylesheet",
+        description: "Consolidated Chrome custom styling into projecttrack.css so the runtime loads Bootstrap plus one ProjectTrack stylesheet.",
+        details: [
+          "workspace.html and the UI Guide now load local Bootstrap followed by projecttrack.css.",
+          "ProjectTrack tokens, full-tab skin, workspace layout, domain components, popup/side-panel styles, and docs helpers live in projecttrack.css.",
+          "Removed projecttrack-theme.css, projecttrack-fulltab.css, and projecttrack-workspace.css from the active stack."
+        ]
+      },
+      {
+        time: "15:15",
+        type: "QA",
+        title: "Functional QA approved",
+        description: "Confirmed the main Chrome workspace functional QA checklist passed.",
+        details: [
+          "Projects search, filters, project navigation, and recent change navigation passed.",
+          "Project Details, Change Details, editors, Login, Profile, navbar, Change History, and UI Guide passed.",
+          "Long text, long URLs, stale project/change selections, breadcrumbs, release channel, notes, tasks, and related navigation passed."
+        ]
+      },
+      {
+        time: "15:05",
+        type: "QA",
+        title: "Full-tab visual QA approved",
+        description: "Confirmed Chrome full-tab visual QA for 360px, 550px, 960px, and desktop wide.",
+        details: [
+          "No horizontal overflow was reported.",
+          "Navbar, dropdown, selectable breadcrumbs, cards, lists, tables, forms, and buttons passed the visual review."
+        ]
+      },
+      {
+        time: "14:40",
+        type: "Migration",
+        title: "Bootstrap migration resumed",
+        description: "Completed the next Bootstrap migration pass for Project Detail, Change Detail, Project Editor, and Change Editor.",
+        details: [
+          "Project Detail no longer depends on legacy change link, summary, environment, or separator classes.",
+          "Change Detail now uses the shared Hero Card, Bootstrap cards, list groups, badges, and alerts for its main layout.",
+          "Change Detail no longer falls back silently to the first change when the selected change id is stale.",
+          "Project Editor and Change Editor now use the shared Hero Card and Bootstrap heading/button patterns.",
+          "Change Editor replaced pt-editor-choice controls with Bootstrap outline buttons while preserving the existing choice data attributes.",
+          "The workspace CSS no longer carries runtime compatibility rules for the removed hero, screen card, project title/search, list caption, change summary, or change link classes.",
+          "The active runtime no longer references the critical legacy classes tracked for this migration pass."
+        ]
+      },
+      {
         time: "14:05",
         type: "UI",
         title: "Reusable hero card",
@@ -196,10 +265,10 @@ export const PROJECT_CHANGELOG = [
       {
         type: "Documentation",
         title: "Operational tracking and UI guide expansion",
-        description: "Created the active ToDo reference and expanded the live Chrome UI documentation.",
+        description: "Expanded operational tracking and the live Chrome UI documentation.",
         details: [
-          "docs/ToDo.md became the main operational list for findings and pending work.",
-          "docs/ToDo.md was defined as the short AI reference to review before analyzing, proposing changes, or documenting the runtime.",
+          "The central documentation became the main operational list for findings and pending work.",
+          "The central documentation was defined as the short AI reference to review before analyzing, proposing changes, or documenting the runtime.",
           "Useful pending information was migrated from the old Chrome tracking document.",
           "docs/chrome/Seguimiento_Chrome_ProjectTrack.md was removed to avoid duplicate tracking.",
           "The live Chrome documentation was updated to reflect the recent UI system evolution.",

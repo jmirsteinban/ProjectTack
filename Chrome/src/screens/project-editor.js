@@ -1,3 +1,6 @@
+import { renderHeroCard } from "../components/hero-card.js";
+import { escapeAttribute, escapeHtml } from "../services/html.js";
+
 function rowsFromMap(urlMap) {
   const entries = Object.entries(urlMap ?? {});
   if (entries.length === 0) {
@@ -11,9 +14,9 @@ function rowsFromMap(urlMap) {
         <button type="button" class="btn btn-secondary btn-sm" data-action="remove-url-row">Remove</button>
       </div>
       <label class="form-label">Name</label>
-      <input class="form-control" type="text" value="${label}" data-field="url-label">
+      <input class="form-control" type="text" value="${escapeAttribute(label)}" data-field="url-label">
       <label class="form-label">URL</label>
-      <input class="form-control" type="text" value="${value}" data-field="url-value">
+      <input class="form-control" type="text" value="${escapeAttribute(value)}" data-field="url-value">
     </div>
   `).join("");
 }
@@ -21,55 +24,51 @@ function rowsFromMap(urlMap) {
 export function renderProjectEditorScreen(state, data) {
   const project = state.projectEditorMode === "create"
     ? { name: "", description: "", startDate: "", workfrontLink: "", onedriveLink: "", qaUrls: {}, stgUrls: {}, prodUrls: {} }
-    : data.projects.find((item) => item.id === state.selectedProjectId) ?? data.projects[0];
+    : data.projects.find((item) => item.id === state.selectedProjectId);
+
+  if (!project) {
+    return `<section class="card bg-body-tertiary"><div class="card-body"><strong>Project unavailable</strong><p class="mb-0">This project is no longer available or was logically deleted.</p></div></section>`;
+  }
 
   const title = state.projectEditorMode === "create" ? "New Project" : "Edit Project";
 
   return `
-    <section class="pt-screen-hero">
-      <div class="row g-3">
-        <div class="col-12 col-lg">
-          <div class="pt-change-detail-topline">
-            <span>Project</span>
-          </div>
-          <div class="pt-change-detail-copy">
-            <h3>${title}</h3>
-          </div>
-        </div>
-        <div class="col-12 col-lg-auto d-flex justify-content-lg-end align-items-start gap-2 flex-wrap">
-          <button type="button" class="btn btn-primary pt-hero-button" data-action="save-project">${state.projectEditorMode === "create" ? "Create Project" : "Save Project"}</button>
-          <button type="button" class="btn btn-outline-primary pt-hero-button" data-action="back-to-project-detail">Cancel</button>
-        </div>
-      </div>
-    </section>
-    ${state.projectFormError ? `<section class="alert alert-danger mb-0"><strong>Unable to save.</strong><p class="mb-0">${state.projectFormError}</p></section>` : ""}
+    ${renderHeroCard({
+      title,
+      description: "Project setup, environments, and shared access links.",
+      meta: [`Mode: ${state.projectEditorMode === "create" ? "Create" : "Edit"}`],
+      actionsHtml: `
+        <button type="button" class="btn btn-light" data-action="save-project">${state.projectEditorMode === "create" ? "Create Project" : "Save Project"}</button>
+        <button type="button" class="btn btn-outline-light" data-action="back-to-project-detail">Cancel</button>`
+    })}
+    ${state.projectFormError ? `<section class="alert alert-danger mb-0"><strong>Unable to save.</strong><p class="mb-0">${escapeHtml(state.projectFormError)}</p></section>` : ""}
     <section class="card bg-body-tertiary">
       <div class="card-body d-grid gap-3">
         <div>
-          <h3 class="pt-section-title mb-1">General Information</h3>
+          <h2 class="h5 fw-semibold mb-1">General Information</h2>
           <p class="text-secondary mb-0">Core project data and main access links.</p>
         </div>
         <div class="row g-3">
           <div class="col-12 col-md-6">
             <label class="form-label">Name *</label>
-            <input class="form-control" type="text" value="${project.name || ""}" data-field="project-name">
+            <input class="form-control" type="text" value="${escapeAttribute(project.name || "")}" data-field="project-name">
           </div>
           <div class="col-12 col-md-6">
             <label class="form-label">Start Date</label>
-            <input class="form-control" type="date" value="${project.startDate || ""}" data-field="project-start-date">
+            <input class="form-control" type="date" value="${escapeAttribute(project.startDate || "")}" data-field="project-start-date">
           </div>
           <div class="col-12">
             <label class="form-label">Description</label>
-            <textarea class="form-control" data-field="project-description">${project.description || ""}</textarea>
+            <textarea class="form-control" data-field="project-description">${escapeHtml(project.description || "")}</textarea>
           </div>
           <div class="col-12 col-xl-6">
             <label class="form-label">Workfront Link</label>
-            <input class="form-control" type="text" value="${project.workfrontLink || ""}" data-field="project-workfront">
+            <input class="form-control" type="text" value="${escapeAttribute(project.workfrontLink || "")}" data-field="project-workfront">
           </div>
           <div class="col-12">
             <label class="form-label">OneDrive Link</label>
             <div class="input-group">
-              <input class="form-control" type="text" value="${project.onedriveLink || ""}" data-field="project-onedrive">
+              <input class="form-control" type="text" value="${escapeAttribute(project.onedriveLink || "")}" data-field="project-onedrive">
               <button type="button" class="btn btn-secondary pt-path-picker-button" data-action="pick-project-onedrive-folder">Pick Folder</button>
             </div>
           </div>
@@ -82,7 +81,7 @@ export function renderProjectEditorScreen(state, data) {
           <div class="card-body d-grid gap-3">
             <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
               <div>
-                <h3 class="pt-section-title mb-1">QA Environment</h3>
+                <h2 class="h5 fw-semibold mb-1">QA Environment</h2>
                 <p class="text-secondary mb-0">Visible URLs in QA.</p>
               </div>
               <button type="button" class="btn btn-secondary btn-sm" data-action="add-url-row" data-env-name="QA">Add URL</button>
@@ -96,7 +95,7 @@ export function renderProjectEditorScreen(state, data) {
           <div class="card-body d-grid gap-3">
             <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
               <div>
-                <h3 class="pt-section-title mb-1">STG Environment</h3>
+                <h2 class="h5 fw-semibold mb-1">STG Environment</h2>
                 <p class="text-secondary mb-0">Visible URLs in STG.</p>
               </div>
               <button type="button" class="btn btn-secondary btn-sm" data-action="add-url-row" data-env-name="STG">Add URL</button>
@@ -110,7 +109,7 @@ export function renderProjectEditorScreen(state, data) {
           <div class="card-body d-grid gap-3">
             <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
               <div>
-                <h3 class="pt-section-title mb-1">PROD Environment</h3>
+                <h2 class="h5 fw-semibold mb-1">PROD Environment</h2>
                 <p class="text-secondary mb-0">Visible URLs in production.</p>
               </div>
               <button type="button" class="btn btn-secondary btn-sm" data-action="add-url-row" data-env-name="PROD">Add URL</button>

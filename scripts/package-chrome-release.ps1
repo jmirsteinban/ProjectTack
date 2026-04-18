@@ -6,16 +6,25 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$repoRoot = Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")
-$chromeDirectory = Join-Path $repoRoot "Chrome"
-$manifestPath = Join-Path $chromeDirectory "manifest.json"
+function Join-PathLiteral {
+  param(
+    [Parameter(Mandatory = $true)][string]$Path,
+    [Parameter(Mandatory = $true)][string]$ChildPath
+  )
+
+  return [System.IO.Path]::Combine($Path, $ChildPath)
+}
+
+$repoRoot = [System.IO.Path]::GetFullPath((Join-PathLiteral $PSScriptRoot ".."))
+$chromeDirectory = Join-PathLiteral $repoRoot "Chrome"
+$manifestPath = Join-PathLiteral $chromeDirectory "manifest.json"
 
 if (-not (Test-Path -LiteralPath $manifestPath)) {
   throw "Chrome manifest was not found at $manifestPath"
 }
 
 if (-not $OutputDirectory) {
-  $OutputDirectory = Join-Path $repoRoot "dist\chrome"
+  $OutputDirectory = Join-PathLiteral $repoRoot "dist\chrome"
 }
 
 $outputPath = [System.IO.Directory]::CreateDirectory($OutputDirectory)
@@ -29,11 +38,11 @@ if (-not $version) {
 $generatedAtUtc = (Get-Date).ToUniversalTime()
 $stamp = $generatedAtUtc.ToString("yyyyMMddHHmmss")
 $releaseId = "$version+$stamp"
-$stagingPath = Join-Path $outputPath.FullName "ProjectTrack-Chrome"
-$stableZipPath = Join-Path $outputPath.FullName "ProjectTrack-Chrome.zip"
+$stagingPath = Join-PathLiteral $outputPath.FullName "ProjectTrack-Chrome"
+$stableZipPath = Join-PathLiteral $outputPath.FullName "ProjectTrack-Chrome.zip"
 $versionedZipName = "ProjectTrack-Chrome-v$version.zip"
-$versionedZipPath = Join-Path $outputPath.FullName $versionedZipName
-$metadataPath = Join-Path $outputPath.FullName "projecttrack-chrome-release.json"
+$versionedZipPath = Join-PathLiteral $outputPath.FullName $versionedZipName
+$metadataPath = Join-PathLiteral $outputPath.FullName "projecttrack-chrome-release.json"
 
 if (Test-Path -LiteralPath $stagingPath) {
   Remove-Item -LiteralPath $stagingPath -Recurse -Force

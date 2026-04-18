@@ -683,11 +683,11 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
               <div class="pt-project-editor-form">
                 <div class="d-flex align-items-center w-100 gap-2 flex-wrap">
                   <label class="form-label m-0">Linked Tasks</label>
-                  <span class="pt-dashboard-count-chip">${changeTasks.length} available</span>
+                  <span class="badge rounded-pill text-bg-light border">${changeTasks.length} available</span>
                 </div>
                 ${
                   !tasksFeatureAvailable
-                    ? `<p class="form-text m-0">Linked tasks are unavailable until <code>${taskFeatureStatus.migrationFile}</code> is applied in Supabase.</p>`
+                    ? `<p class="form-text m-0">Linked tasks are unavailable until <code>${escapeHtml(taskFeatureStatus.migrationFile)}</code> is applied in Supabase.</p>`
                     : changeTasks.length
                     ? `
                       <div class="${linkedTasksClass}">
@@ -697,13 +697,13 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
                               class="form-check-input"
                               type="checkbox"
                               data-field="note-task-link"
-                              value="${task.id}"
+                              value="${escapeAttribute(task.id)}"
                               ${state.noteLinkedTaskIds.includes(task.id) ? "checked" : ""}
                             />
                             <span class="form-check-label d-grid gap-1 min-w-0">
-                              <strong>${task.label}</strong>
-                              <span class="text-body-secondary">${task.documentName || task.annotationType || "Task"}</span>
-                              <span>${task.requestText}</span>
+                              <strong>${escapeHtml(task.label)}</strong>
+                              <span class="text-body-secondary">${escapeHtml(task.documentName || task.annotationType || "Task")}</span>
+                              <span>${escapeHtml(task.requestText)}</span>
                             </span>
                           </label>
                         `).join("")}

@@ -17,6 +17,8 @@ import {
   getVisibleProjects,
   getVisibleTasksForChange,
 } from "../services/workspace-selectors.js";
+import { renderHeroCard } from "../components/hero-card.js";
+import { escapeAttribute, escapeHtml, isHttpUrl } from "../services/html.js";
 
 function urlsByEnvironment(project, environment) {
   if (!project) return {};
@@ -24,13 +26,6 @@ function urlsByEnvironment(project, environment) {
   if (environment === "STG") return project.stgUrls ?? {};
   if (environment === "PROD") return project.prodUrls ?? {};
   return {};
-}
-
-function environmentTone(environment) {
-  if (environment === "QA") return "status-progress";
-  if (environment === "STG") return "priority-medium";
-  if (environment === "PROD") return "status-done";
-  return "neutral";
 }
 
 function environmentCardSurfaceClasses(environment) {
@@ -53,31 +48,23 @@ function encodeCopyValue(value) {
   return encodeURIComponent(value ?? "");
 }
 
-function isOpenableLink(value) {
-  return /^https?:\/\//i.test(value ?? "");
-}
-
 function renderLinkValue(value) {
   if (!value) {
     return `
-      <span class="pt-change-link-content">
-        <span class="pt-change-link-value">Not defined</span>
+      <span class="d-flex min-w-0">
+        <span class="text-secondary">Not defined</span>
       </span>
     `;
   }
 
-  const valueMarkup = isOpenableLink(value)
-    ? `<a class="pt-change-link-value pt-change-link-value--link" href="${value}" target="_blank" rel="noopener noreferrer" title="${value}">${value}</a>`
-    : `<span class="pt-change-link-value" title="${value}">${value}</span>`;
+  const valueMarkup = isHttpUrl(value)
+    ? `<a class="link-primary text-break min-w-0" href="${escapeAttribute(value)}" target="_blank" rel="noopener noreferrer" title="${escapeAttribute(value)}">${escapeHtml(value)}</a>`
+    : `<span class="text-break min-w-0" title="${escapeAttribute(value)}">${escapeHtml(value)}</span>`;
 
   return `
-    <span class="pt-change-link-content">
+    <span class="d-flex align-items-start gap-2 flex-wrap min-w-0">
       ${valueMarkup}
-      <button type="button" class="pt-copy-icon-button" data-action="copy-link-value" data-copy-value="${encodeCopyValue(value)}" aria-label="Copy link" title="Copy link">
-        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-          <path d="M9 9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2Zm-6 6V5a2 2 0 0 1 2-2h8v2H5v10z"></path>
-        </svg>
-      </button>
+      <button type="button" class="btn btn-outline-secondary btn-sm" data-action="copy-link-value" data-copy-value="${escapeAttribute(encodeCopyValue(value))}" aria-label="Copy link" title="Copy link">Copy</button>
     </span>
   `;
 }
@@ -105,8 +92,8 @@ function noteMentions(note) {
     return "";
   }
   return `
-    <div class="pt-inline-list">
-      ${mentions.map((mention) => `<span class="pt-mini-chip" title="${mention.title}">${mention.text}</span>`).join("")}
+    <div class="d-flex flex-wrap gap-2 mt-2">
+      ${mentions.map((mention) => `<span class="badge rounded-pill text-bg-light border" title="${escapeAttribute(mention.title)}">${escapeHtml(mention.text)}</span>`).join("")}
     </div>
   `;
 }
@@ -117,12 +104,12 @@ function noteLinkedTasks(note) {
   }
 
   return `
-    <div class="pt-inline-list">
+    <div class="d-flex flex-wrap gap-2 mt-2">
       ${(note.linkedTasks ?? [])
         .map(
           (task) => `
-        <span class="pt-mini-chip pt-mini-chip--task" title="${task.documentName || task.label}">
-          ${task.label}
+        <span class="badge rounded-pill text-bg-light border" title="${escapeAttribute(task.documentName || task.label)}">
+          ${escapeHtml(task.label)}
         </span>
       `,
         )
@@ -167,8 +154,8 @@ function renderHeaderPillDropdown({
     .filter((value) => value !== currentValue)
     .map(
       (value) => `
-      <button type="button" class="dropdown-item pt-change-pill-option" data-action="${itemAction}" data-${dataAttribute}="${value}">
-        <span class="pt-pill pt-pill--md ${toneClass(value)}">${translate(value)}</span>
+      <button type="button" class="dropdown-item pt-change-pill-option" data-action="${escapeAttribute(itemAction)}" data-${dataAttribute}="${escapeAttribute(value)}">
+        <span class="badge rounded-pill pt-pill ${toneClass(value)}">${escapeHtml(translate(value))}</span>
       </button>
     `,
     )
@@ -176,9 +163,9 @@ function renderHeaderPillDropdown({
 
   return `
     <div class="dropdown">
-      <button type="button" class="pt-pill-dropdown-toggle" data-action="${toggleAction}" aria-expanded="${isOpen ? "true" : "false"}" aria-haspopup="true" title="${title}">
-        <span class="pt-pill pt-pill--md ${toneClass(currentValue)}">
-          ${translate(currentValue)}
+      <button type="button" class="btn btn-light dropdown-toggle" data-action="${toggleAction}" aria-expanded="${isOpen ? "true" : "false"}" aria-haspopup="true" title="${escapeAttribute(title)}">
+        <span class="badge rounded-pill pt-pill ${toneClass(currentValue)}">
+          ${escapeHtml(translate(currentValue))}
           <svg viewBox="0 0 16 16" focusable="false" aria-hidden="true">
             <path d="M4.47 6.97a.75.75 0 0 1 1.06 0L8 9.44l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06Z"></path>
           </svg>
@@ -192,11 +179,9 @@ function renderHeaderPillDropdown({
 export function renderChangeDetailScreen(state, data) {
   const visibleChanges = getVisibleChanges(data);
   const visibleProjects = getVisibleProjects(data);
-  const change =
-    visibleChanges.find((item) => item.id === state.selectedChangeId) ??
-    visibleChanges[0];
+  const change = visibleChanges.find((item) => item.id === state.selectedChangeId);
   if (!change) {
-    return `<section class="pt-empty-state-card"><strong>Change unavailable</strong><p>This change is no longer available or was logically deleted.</p></section>`;
+    return `<section class="card bg-body-tertiary"><div class="card-body"><strong>Change unavailable</strong><p class="mb-0">This change is no longer available or was logically deleted.</p></div></section>`;
   }
   const project = visibleProjects.find((item) => item.name === change.project);
   const notes = getVisibleNotesForChange(data, change);
@@ -235,23 +220,25 @@ export function renderChangeDetailScreen(state, data) {
           ? Object.entries(urls)
               .map(
                 ([label, value]) => `
-        <div class="pt-change-link-row">
-          <span class="pt-change-link-label">${label}:</span>
-          ${renderLinkValue(value)}
+        <div class="list-group-item px-0">
+          <div class="d-grid gap-1">
+            <span class="small fw-semibold text-secondary">${escapeHtml(label)}</span>
+            ${renderLinkValue(value)}
+          </div>
         </div>
       `,
               )
               .join("")
-          : `<p>No URLs configured for this environment.</p>`;
+          : `<div class="alert alert-info mb-0">No URLs configured for this environment.</div>`;
 
       return `
       <div class="col-12">
         <article class="${environmentCardSurfaceClasses(environment)}">
-          <div class="position-absolute top-0 start-0 translate-middle-y ms-3 px-1 bg-body-tertiary">
-            <span class="pt-pill pt-pill--md ${environmentTone(environment)}">${environment}</span>
+          <div class="card-header bg-transparent border-0 pb-0">
+            <span class="badge rounded-pill text-bg-light border">${escapeHtml(environment)}</span>
           </div>
           <div class="card-body d-grid gap-2 min-w-0">
-            <div class="pt-change-environment-links">${urlRows}</div>
+            ${Object.entries(urls).length > 0 ? `<div class="list-group list-group-flush">${urlRows}</div>` : urlRows}
           </div>
         </article>
       </div>
@@ -265,18 +252,18 @@ export function renderChangeDetailScreen(state, data) {
           .map(
             (note, index) => `
       <article class="list-group-item pt-change-note-card">
-        <div class="pt-row-top">
-          <span class="pt-row-subtle">Note #${index + 1}</span>
-          <span class="pt-pill ${statusClass(note.status)}">${translateStatus(note.status)}</span>
+        <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+          <span class="small text-secondary">Note #${index + 1}</span>
+          <span class="badge rounded-pill pt-pill ${statusClass(note.status)}">${escapeHtml(translateStatus(note.status))}</span>
         </div>
-        <strong>${note.text}</strong>
-        <p>${note.project}</p>
+        <strong>${escapeHtml(note.text)}</strong>
+        <p>${escapeHtml(note.project)}</p>
         ${noteMentions(note)}
         ${noteLinkedTasks(note)}
         <div class="pt-project-editor-actions">
-          <button type="button" class="btn btn-secondary btn-sm" data-action="edit-note" data-note-id="${note.id}">Edit</button>
-          <button type="button" class="btn btn-secondary btn-sm" data-action="toggle-note-status" data-note-id="${note.id}">${isCompletedStatus(note.status) ? "Reopen" : "Complete"}</button>
-          <button type="button" class="btn btn-secondary btn-sm" data-action="delete-note" data-note-id="${note.id}">Delete</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-action="edit-note" data-note-id="${escapeAttribute(note.id)}">Edit</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-action="toggle-note-status" data-note-id="${escapeAttribute(note.id)}">${isCompletedStatus(note.status) ? "Reopen" : "Complete"}</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-action="delete-note" data-note-id="${escapeAttribute(note.id)}">Delete</button>
         </div>
       </article>
     `,
@@ -288,7 +275,7 @@ export function renderChangeDetailScreen(state, data) {
     ? `
         <section class="alert alert-warning pt-change-task-warning" role="status">
           <strong>Tasks require the Supabase migration and permissions.</strong>
-          <p>Apply or re-run <code>${taskFeatureStatus.migrationFile}</code> so the tables, grants and RLS policies are available for authenticated users.</p>
+          <p>Apply or re-run <code>${escapeHtml(taskFeatureStatus.migrationFile)}</code> so the tables, grants and RLS policies are available for authenticated users.</p>
         </section>
       `
     : tasks.length > 0
@@ -297,40 +284,40 @@ export function renderChangeDetailScreen(state, data) {
             (task, index) => `
       <article class="list-group-item pt-change-task-card">
         <div class="d-grid gap-3 min-w-0">
-          <div class="pt-row-top gap-2">
-            <span class="pt-row-subtle">TSKID ${index + 1}</span>
-            <span class="pt-pill ${taskStatusClass(task.status)}">${translateTaskStatus(task.status)}</span>
+          <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+            <span class="small text-secondary">TSKID ${index + 1}</span>
+            <span class="badge rounded-pill pt-pill ${taskStatusClass(task.status)}">${escapeHtml(translateTaskStatus(task.status))}</span>
           </div>
           <div class="d-flex flex-wrap align-items-center gap-2 min-w-0 pt-change-task-meta">
-            ${task.page ? `<span class="pt-mini-chip">Page ${task.page}</span>` : ""}
-            ${task.itemNumber ? `<span class="pt-mini-chip">#${task.itemNumber}</span>` : ""}
-            ${task.annotationType ? `<span class="pt-mini-chip pt-mini-chip--task">${task.annotationType}</span>` : ""}
-            ${task.linkedNoteCount > 0 ? `<span class="pt-mini-chip pt-mini-chip--task">${task.linkedNoteCount} linked ${task.linkedNoteCount === 1 ? "note" : "notes"}</span>` : ""}
+            ${task.page ? `<span class="badge rounded-pill text-bg-light border">Page ${escapeHtml(task.page)}</span>` : ""}
+            ${task.itemNumber ? `<span class="badge rounded-pill text-bg-light border">#${escapeHtml(task.itemNumber)}</span>` : ""}
+            ${task.annotationType ? `<span class="badge rounded-pill text-bg-light border">${escapeHtml(task.annotationType)}</span>` : ""}
+            ${task.linkedNoteCount > 0 ? `<span class="badge rounded-pill text-bg-light border">${escapeHtml(String(task.linkedNoteCount))} linked ${task.linkedNoteCount === 1 ? "note" : "notes"}</span>` : ""}
           </div>
           <div class="d-grid gap-1 min-w-0">
-            ${task.documentName ? `<strong class="pt-change-task-title">${task.documentName}</strong>` : ""}
-            <p class="pt-change-task-request m-0">${task.requestText}</p>
+            ${task.documentName ? `<strong class="pt-change-task-title">${escapeHtml(task.documentName)}</strong>` : ""}
+            <p class="pt-change-task-request m-0">${escapeHtml(task.requestText)}</p>
           </div>
           <div class="row g-2 pt-change-task-controls">
             <div class="col-12 col-sm-6">
-              <label class="form-label" for="task-assignee-${task.id}">Assignee</label>
-              <select id="task-assignee-${task.id}" class="form-select" data-action="change-task-assignee" data-task-id="${task.id}"${tasksFeatureAvailable ? "" : " disabled"}>
+              <label class="form-label" for="task-assignee-${escapeAttribute(task.id)}">Assignee</label>
+              <select id="task-assignee-${escapeAttribute(task.id)}" class="form-select" data-action="change-task-assignee" data-task-id="${escapeAttribute(task.id)}"${tasksFeatureAvailable ? "" : " disabled"}>
                 <option value="">Unassigned</option>
                 ${(data.users ?? [])
                   .map(
                     (user) => `
-                  <option value="${user.id}"${user.id === task.assignedToId ? " selected" : ""}>${user.name || user.email}</option>
+                  <option value="${escapeAttribute(user.id)}"${user.id === task.assignedToId ? " selected" : ""}>${escapeHtml(user.name || user.email)}</option>
                 `,
                   )
                   .join("")}
               </select>
             </div>
             <div class="col-12 col-sm-6">
-              <label class="form-label" for="task-status-${task.id}">Status</label>
-              <select id="task-status-${task.id}" class="form-select" data-action="change-task-status" data-task-id="${task.id}"${tasksFeatureAvailable ? "" : " disabled"}>
+              <label class="form-label" for="task-status-${escapeAttribute(task.id)}">Status</label>
+              <select id="task-status-${escapeAttribute(task.id)}" class="form-select" data-action="change-task-status" data-task-id="${escapeAttribute(task.id)}"${tasksFeatureAvailable ? "" : " disabled"}>
                 ${TASK_STATUS_OPTIONS.map(
                   (statusValue) => `
-                  <option value="${statusValue}"${statusValue === task.status ? " selected" : ""}>${translateTaskStatus(statusValue)}</option>
+                  <option value="${escapeAttribute(statusValue)}"${statusValue === task.status ? " selected" : ""}>${escapeHtml(translateTaskStatus(statusValue))}</option>
                 `,
                 ).join("")}
               </select>
@@ -351,15 +338,15 @@ export function renderChangeDetailScreen(state, data) {
     .slice(0, 3)
     .map(
       (item) => `
-    <article class="list-group-item list-group-item-action pt-project-list-group-item pt-clickable-card" data-change-id="${item.id}">
-      <div class="pt-row-top">
-        <strong>${item.title}</strong>
-        <div class="pt-dashboard-pill-stack">
-          <span class="pt-pill ${statusClass(item.status)}">${translateStatus(item.status)}</span>
-          <span class="pt-pill ${priorityClass(item.priority)}">${translatePriority(item.priority)}</span>
+    <article class="list-group-item list-group-item-action py-3 pt-clickable-card" data-change-id="${escapeAttribute(item.id)}" role="button" tabindex="0">
+      <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+        <strong class="min-w-0">${escapeHtml(item.title)}</strong>
+        <div class="d-flex gap-2 flex-wrap">
+          <span class="badge rounded-pill pt-pill ${statusClass(item.status)}">${escapeHtml(translateStatus(item.status))}</span>
+          <span class="badge rounded-pill pt-pill ${priorityClass(item.priority)}">${escapeHtml(translatePriority(item.priority))}</span>
         </div>
       </div>
-      <p>${item.description || "No description"}</p>
+      <p class="mb-0 mt-2 small text-secondary">${escapeHtml(item.description || "No description")}</p>
     </article>
   `,
     )
@@ -371,11 +358,11 @@ export function renderChangeDetailScreen(state, data) {
           .map(
             (entry, index) => `
       <article class="list-group-item pt-change-history-item">
-        <div class="pt-row-top">
-          <span class="pt-row-subtle">HSTID ${index + 1}</span>
-          <span>${formatHistoryTimestamp(entry.createdAt)}</span>
+        <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+          <span class="small text-secondary">HSTID ${index + 1}</span>
+          <span class="small text-secondary">${escapeHtml(formatHistoryTimestamp(entry.createdAt))}</span>
         </div>
-        <p>${entry.text || "A change update was recorded."}</p>
+        <p class="mb-0 mt-2">${escapeHtml(entry.text || "A change update was recorded.")}</p>
       </article>
     `,
           )
@@ -387,48 +374,23 @@ export function renderChangeDetailScreen(state, data) {
       : "list-group pt-change-history-list";
 
   return `
-    <section class="pt-screen-hero">
-        <div class="row g-3 align-items-center">
-            <div class="col-12 col-sm-7">
-                <div class="d-grid gap-2 min-w-0">
-                    <div class="pt-change-detail-topline">
-                        <span>${change.project}</span>
-                    </div>
-                    <div class="pt-change-detail-copy">
-                        <h3>${change.title}</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-5">
-                <article class="card bg-body-tertiary rounded-3 h-100">
-                    <div class="card-body d-grid gap-3 min-w-0">
-                        <h5 class="pt-section-title m-0">Environment Path: ${change.environment}</h5>
-                        ${renderEnvironmentProgress(change.environment, visibleEnvironments)}
-                    </div>
-                </article>
-            </div>
-        </div>
-
-        <div class="row g-2">
-            <div class="col d-flex justify-content-end gap-2 flex-wrap">
-                <button type="button" class="btn btn-secondary pt-editor-secondary-button pt-hero-button" data-action="open-change-project">
-                    View Project
-                </button>
-
-                <button type="button" class="btn btn-primary pt-change-create-button pt-hero-button" data-action="open-change-editor">
-                    Edit Change
-                </button>
-
-                <button type="button" class="btn btn-danger pt-danger-button pt-hero-button" data-action="delete-change">
-                    Delete Change
-                </button>
-
-                <button type="button" class="btn btn-outline-primary pt-back-button pt-back-button--hero pt-hero-button" data-action="back-to-change-origin">
-                    Back
-                </button>
-            </div>
-        </div>
-    </section>
+    ${renderHeroCard({
+      title: change.title,
+      description: change.project,
+      meta: [`Environment: ${change.environment}`],
+      controlsHtml: `
+        <article class="card bg-body-tertiary rounded-3 h-100">
+          <div class="card-body d-grid gap-3 min-w-0">
+            <h2 class="h6 fw-semibold m-0">Environment Path: ${escapeHtml(change.environment)}</h2>
+            ${renderEnvironmentProgress(change.environment, visibleEnvironments)}
+          </div>
+        </article>`,
+      actionsHtml: `
+        <button type="button" class="btn btn-light" data-action="open-change-project">View Project</button>
+        <button type="button" class="btn btn-light" data-action="open-change-editor">Edit Change</button>
+        <button type="button" class="btn btn-danger" data-action="delete-change">Delete Change</button>
+        <button type="button" class="btn btn-outline-light" data-action="back-to-change-origin">Back</button>`
+    })}
 
 
     <section class="card bg-body-tertiary rounded-3">
@@ -436,8 +398,8 @@ export function renderChangeDetailScreen(state, data) {
         <div class="d-flex align-items-center w-100">
           
           <div class="d-flex flex-column">
-            <span class="text-step--2">${change.id}</span>
-            <h3 class="pt-section-title mb-0">Change Details</h3>
+            <span class="small text-secondary">${escapeHtml(change.id)}</span>
+            <h2 class="h5 fw-semibold mb-0">Change Details</h2>
           </div>
 
           <div class="d-flex gap-2 ms-auto">
@@ -474,15 +436,15 @@ export function renderChangeDetailScreen(state, data) {
       <div class="card-body d-grid gap-3">
         <div class="row g-2">
           <div class="col-12">
-            <div class="pt-change-summary-row">
-              <span class="pt-change-summary-label">Assignees:</span>
-              <div class="pt-inline-list">
+            <div class="d-grid gap-2">
+              <span class="small fw-semibold text-secondary">Assignees</span>
+              <div class="d-flex flex-wrap gap-2">
                 ${
                   (change.assignees ?? []).length > 0
                     ? change.assignees
                         .map(
                           (assignee) =>
-                            `<span class="pt-mini-chip">${assignee}</span>`,
+                            `<span class="badge rounded-pill text-bg-light border">${escapeHtml(assignee)}</span>`,
                         )
                         .join("")
                     : `<span class="text-body-secondary">No assignees</span>`
@@ -491,49 +453,49 @@ export function renderChangeDetailScreen(state, data) {
             </div>
           </div>
           <div class="col-12">
-            <div class="pt-change-summary-row">
-              <span class="pt-change-summary-label">Details:</span>
-              <span class="pt-change-summary-value">${change.description || "No description"}</span>
+            <div class="d-grid gap-2">
+              <span class="small fw-semibold text-secondary">Details</span>
+              <span class="text-break">${escapeHtml(change.description || "No description")}</span>
             </div>
           </div>
         </div>
 
         <div class="row g-2">
           <div class="col-12">
-            <div class="pt-change-link-row">
-              <span class="pt-change-link-label">Workfront:</span>
+            <div class="d-grid gap-1">
+              <span class="small fw-semibold text-secondary">Workfront</span>
               ${renderLinkValue(change.workfrontLink || project?.workfrontLink)}
             </div>
           </div>
           <div class="col-12">
-            <div class="pt-change-link-row">
-              <span class="pt-change-link-label">OneDrive:</span>
+            <div class="d-grid gap-1">
+              <span class="small fw-semibold text-secondary">OneDrive</span>
               ${renderLinkValue(change.onedriveLink || project?.onedriveLink)}
             </div>
           </div>
         </div>
 
-        <div class="pt-section-separator"></div>
+        <hr class="my-1">
 
         <div class="d-flex align-items-center w-100 gap-2 min-w-0">
-          <h3 class="pt-section-title m-0">Environments</h3>
-          <span class="ms-auto text-body-secondary text-end">${visibleEnvironmentsLabel}</span>
+          <h2 class="h5 fw-semibold m-0">Environments</h2>
+          <span class="ms-auto text-body-secondary text-end">${escapeHtml(visibleEnvironmentsLabel)}</span>
         </div>
         <div class="row g-3">${environmentCards}</div>
 
-        <div class="pt-section-separator"></div>
+        <hr class="my-1">
       </div>
 
       <div class="card-body">
         <div class="d-flex align-items-center w-100 gap-2 flex-wrap">
           <div class="d-flex flex-column">
-            <h3 class="pt-section-title">Tasks</h3>
+            <h2 class="h5 fw-semibold mb-0">Tasks</h2>
           </div>
 
           <div class="d-flex gap-2 ms-auto flex-wrap align-items-end pt-range-export-controls">
-            <span class="pt-dashboard-count-chip">${taskOpenCount} open</span>
-            <span class="pt-dashboard-count-chip">${taskCompletedCount} completed</span>
-            ${taskErrorCount > 0 ? `<span class="pt-dashboard-count-chip">${taskErrorCount} error</span>` : ""}
+            <span class="badge rounded-pill text-bg-light border">${taskOpenCount} open</span>
+            <span class="badge rounded-pill text-bg-light border">${taskCompletedCount} completed</span>
+            ${taskErrorCount > 0 ? `<span class="badge rounded-pill text-bg-light border">${taskErrorCount} error</span>` : ""}
             <button type="button" class="btn btn-secondary pt-change-task-import-button" data-action="open-task-import"${tasksFeatureAvailable ? "" : " disabled"}>
               <span class="material-symbols-outlined pt-ms-wght-700 pt-ms-opsz-20" aria-hidden="true">upload_file</span>
               <span>Import Tasks from Excel</span>
@@ -544,11 +506,11 @@ export function renderChangeDetailScreen(state, data) {
             </button>
             <div class="d-flex flex-column">
               <label class="form-label mb-1" for="task-export-start">From TSKID</label>
-              <input id="task-export-start" type="number" min="1" max="${Math.max(tasks.length, 1)}" inputmode="numeric" class="form-control pt-range-export-field" data-field="task-export-start" value="${state.taskExportStart ?? ""}" placeholder="1">
+              <input id="task-export-start" type="number" min="1" max="${Math.max(tasks.length, 1)}" inputmode="numeric" class="form-control pt-range-export-field" data-field="task-export-start" value="${escapeAttribute(state.taskExportStart ?? "")}" placeholder="1">
             </div>
             <div class="d-flex flex-column">
               <label class="form-label mb-1" for="task-export-end">To TSKID</label>
-              <input id="task-export-end" type="number" min="1" max="${Math.max(tasks.length, 1)}" inputmode="numeric" class="form-control pt-range-export-field" data-field="task-export-end" value="${state.taskExportEnd ?? ""}" placeholder="${tasks.length || 1}">
+              <input id="task-export-end" type="number" min="1" max="${Math.max(tasks.length, 1)}" inputmode="numeric" class="form-control pt-range-export-field" data-field="task-export-end" value="${escapeAttribute(state.taskExportEnd ?? "")}" placeholder="${tasks.length || 1}">
             </div>
             <button type="button" class="btn btn-outline-secondary pt-change-task-import-button" data-action="export-change-tasks"${tasks.length ? "" : " disabled"}>
               <span class="material-symbols-outlined pt-ms-wght-700 pt-ms-opsz-20" aria-hidden="true">download</span>
@@ -557,19 +519,19 @@ export function renderChangeDetailScreen(state, data) {
           </div>
         </div>
         <input type="file" class="visually-hidden" data-field="change-task-import-file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
-        <div class="${taskListClass}">${taskRows}</div>
+        <div class="${escapeAttribute(taskListClass)}">${taskRows}</div>
       </div>
 
-      <div class="pt-section-separator mx-3"></div>
+      <hr class="mx-3 my-0">
 
       <div class="card-body">
         <div class="d-flex align-items-center w-100">
           <div class="d-flex flex-column">
-            <h3 class="pt-section-title">Notes</h3>
+            <h2 class="h5 fw-semibold mb-0">Notes</h2>
           </div>
 
           <div class="d-flex gap-2 ms-auto">
-            <span class="pt-dashboard-count-chip">${notes.length} notes</span>
+            <span class="badge rounded-pill text-bg-light border">${notes.length} notes</span>
             <button type="button" class="btn bg-warning-subtle text-warning-emphasis border border-warning-subtle pt-change-note-create-button" data-action="open-note-modal">
               <span class="material-symbols-outlined pt-ms-wght-700 pt-ms-opsz-20" aria-hidden="true">edit_note</span>
               <span>Create Note</span>
@@ -581,34 +543,36 @@ export function renderChangeDetailScreen(state, data) {
           : todoRows}
       </div>
 
-      <div class="pt-section-separator mx-3"></div>
+      <hr class="mx-3 my-0">
 
       <div class="card-body">
         <div class="d-flex align-items-center w-100 gap-2 flex-wrap">
           <div class="d-flex flex-column">
-            <h3 class="pt-section-title">History</h3>
+            <h2 class="h5 fw-semibold mb-0">History</h2>
           </div>
 
           <div class="d-flex gap-2 ms-auto flex-wrap">
-            <span class="pt-dashboard-count-chip">${historyEntries.length} events</span>
+            <span class="badge rounded-pill text-bg-light border">${historyEntries.length} events</span>
           </div>
         </div>
-        <div class="${historyListClass}">${historyRows}</div>
+        <div class="${escapeAttribute(historyListClass)}">${historyRows}</div>
       </div>
       
     </section>
 
-    <section class="pt-screen-card">
-      <div class="pt-row-top">
+    <section class="card bg-body-tertiary">
+      <div class="card-body d-grid gap-3">
+      <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
         <div>
-          <h3 class="pt-section-title">Other Project Changes</h3>
-          <p>Related to the same project in the current local state.</p>
+          <h2 class="h5 fw-semibold mb-1">Other Project Changes</h2>
+          <p class="text-secondary mb-0">Related to the same project in the current local state.</p>
         </div>
-        <span class="pt-dashboard-count-chip">${siblingChanges.length} related</span>
+        <span class="badge rounded-pill text-bg-light border">${siblingChanges.length} related</span>
       </div>
       ${siblingRows
         ? `<div class="list-group">${siblingRows}</div>`
-        : `<div class="pt-empty-state-card"><strong>No related changes</strong><p>There are no other visible changes for this project.</p></div>`}
+        : `<div class="alert alert-info mb-0"><strong>No related changes</strong><p class="mb-0">There are no other visible changes for this project.</p></div>`}
+      </div>
     </section>
   `;
 }

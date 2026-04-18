@@ -1,13 +1,13 @@
 # ProjectTrack
 
-ProjectTrack es un repositorio mixto que concentra dos frentes del producto:
+ProjectTrack es un repositorio mixto con dos frentes del producto:
 
-- `Android/`: aplicacion Android, fuente funcional principal del producto.
-- `Chrome/`: extension de Chrome con experiencia popup/full-tab que replica progresivamente la experiencia de Android.
+- `Android/`: aplicacion Android, fuente funcional principal.
+- `Chrome/`: extension Chrome con experiencia popup/full-tab.
 
-La referencia documental principal del estado actual del proyecto vive en:
+La documentacion canonica del estado actual vive en:
 
-- `docs/DOCUMENTACION_CENTRAL_PROJECTTRACK.md`
+- `docs/PROJECTTRACK.md`
 
 ## Estructura
 
@@ -17,28 +17,28 @@ ProjectTack/
 |  |- ProjectTrack/
 |  `- ...
 |- Chrome/
+|  |- docs/
 |  |- src/
 |  |- styles/
 |  |- manifest.json
 |  |- popup.html
-|  |- dashboard.html
 |  |- workspace.html
 |  `- sidepanel.html
 |- docs/
-|  |- DOCUMENTACION_CENTRAL_PROJECTTRACK.md
-|  |- ToDo.md
+|  |- PROJECTTRACK.md
 |  `- chrome/
+|- sql/
 `- README.md
 ```
 
 ## Documentacion
 
-- `docs/DOCUMENTACION_CENTRAL_PROJECTTRACK.md`: estado funcional, tecnico y operativo del proyecto.
-- `docs/ToDo.md`: lista corta de hallazgos, pendientes y contexto operativo.
-- `docs/AGENTES_IA_PROJECTTRACK.md`: playbook para usar agentes IA con roles, prompts y feedback preciso.
-- `docs/AGENTES_IA_FEEDBACK_LOG.md`: log de fallas, aciertos y mejoras para ciclos con agentes.
+- `docs/PROJECTTRACK.md`: estado funcional, tecnico, operativo, pendientes y reglas de mantenimiento.
 - `Chrome/docs/projecttrack-ui.html`: guia viva del sistema UI de la extension Chrome.
 - `docs/chrome/deployment-github-releases.md`: guia de empaquetado y actualizacion privada de la extension Chrome.
+- `docs/chrome/bootstrap-migration-tracking.md`: seguimiento de la migracion Bootstrap Chrome.
+- `docs/AGENTES_IA_PROJECTTRACK.md`: playbook para usar agentes IA con roles, prompts y feedback preciso.
+- `docs/AGENTES_IA_FEEDBACK_LOG.md`: log de fallas, aciertos y mejoras para ciclos con agentes.
 
 ## Chrome Extension
 
@@ -46,14 +46,14 @@ La extension usa Manifest V3. La entrada visible actual es `Chrome/popup.html`, 
 
 El side panel queda oculto temporalmente hasta nuevo aviso. `Chrome/sidepanel.html` permanece en el repo, pero no esta publicado en `manifest.json` ni aparece como accion del popup.
 
-Puntos importantes:
+Puntos principales:
 
 - `Chrome/src/main.js`: entrypoint del runtime.
 - `Chrome/src/projecttrack-app.js`: app shell, wiring de acciones y estado principal.
 - `Chrome/src/projecttrack-router.js`: router de pantallas.
 - `Chrome/workspace.html`: runtime principal full-tab con Bootstrap local.
-- `Chrome/styles/projecttrack-workspace.css`: capa Bootstrap full-tab del workspace.
-- `Chrome/styles/projecttrack.css`: capa legacy transicional para estilos `pt-*` aun usados por pantallas grandes.
+- `Chrome/styles/projecttrack.css`: unica capa custom de ProjectTrack.
+- `Chrome/docs/projecttrack-ui.html`: referencia viva de UI.
 
 Para probar la extension localmente:
 
@@ -62,16 +62,11 @@ Para probar la extension localmente:
 3. Haz clic en `Load unpacked`.
 4. Selecciona la carpeta `Chrome/`.
 
-### Deployment y actualizaciones
+## Deployment Chrome
 
-La distribucion privada de Chrome ya no depende de OneDrive como punto principal de entrega.
+La distribucion privada de Chrome usa GitHub Releases para paquetes `.zip` y Supabase para metadata de version en `public.app_releases`.
 
-- GitHub Releases privado guarda los paquetes `.zip`.
-- Supabase guarda solo la metadata de version en `public.app_releases`.
-- La extension consulta esa metadata despues del login y avisa si hay una version nueva.
-- La extension no guarda tokens de GitHub.
-
-Chrome no permite que una extension instalada como `Load unpacked` se reemplace sola. Por eso la actualizacion sigue siendo manual:
+Chrome no permite que una extension instalada como `Load unpacked` se reemplace sola. La actualizacion sigue siendo manual:
 
 1. Abrir `Profile / Extension Updates`.
 2. Abrir el release privado de GitHub.
@@ -102,22 +97,11 @@ El proyecto usa Supabase para:
 - lectura remota
 - escritura remota
 - borrado logico
+- metadata del canal privado de releases Chrome
 
-La implementacion activa de la extension Chrome ya trabaja con ese backend y la documentacion central explica el alcance actual.
+## Contribuir
 
-## Estado actual
-
-Resumen corto:
-
-- Android sigue siendo la base funcional principal.
-- Chrome ya tiene runtime web activo; el side panel queda oculto temporalmente.
-- Chrome usa una capa UI propia documentada como Bootstrap-ProjectTrack.
-- El trabajo activo se sigue desde `docs/ToDo.md`.
-
-## Recomendaciones para contribuir
-
-- Revisa primero `docs/DOCUMENTACION_CENTRAL_PROJECTTRACK.md`.
-- Revisa luego `docs/ToDo.md` antes de empezar cambios.
+- Revisa primero `docs/PROJECTTRACK.md`.
+- En Chrome, prioriza Bootstrap real y los patrones documentados en `Chrome/docs/projecttrack-ui.html`.
 - Si usas agentes IA, sigue `docs/AGENTES_IA_PROJECTTRACK.md` y registra mejoras en `docs/AGENTES_IA_FEEDBACK_LOG.md`.
-- En Chrome, prioriza clases y patrones Bootstrap-ProjectTrack antes de crear clases custom nuevas.
 - Evita subir caches, builds o archivos locales sensibles; el `.gitignore` raiz ya cubre la mayoria de esos casos.

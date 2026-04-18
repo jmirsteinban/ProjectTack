@@ -9,13 +9,6 @@ import { getVisibleChangesForProject, getVisibleProjects } from "../services/wor
 import { escapeAttribute, escapeHtml, isHttpUrl } from "../services/html.js";
 import { renderHeroCard } from "../components/hero-card.js";
 
-function environmentCardClass(environment) {
-  if (environment === "QA") return "status-progress";
-  if (environment === "STG") return "priority-medium";
-  if (environment === "PROD") return "status-done";
-  return "neutral";
-}
-
 function environmentCardSurfaceClasses(environment) {
   const classes = [
     "card",
@@ -43,24 +36,20 @@ function isOpenableLink(value) {
 function renderLinkValue(value) {
   if (!value) {
     return `
-      <span class="pt-change-link-content">
-        <span class="pt-change-link-value">Not defined</span>
+      <span class="d-flex min-w-0">
+        <span class="text-secondary">Not defined</span>
       </span>
     `;
   }
 
   const valueMarkup = isOpenableLink(value)
-    ? `<a class="pt-change-link-value pt-change-link-value--link" href="${escapeAttribute(value)}" target="_blank" rel="noopener noreferrer" title="${escapeAttribute(value)}">${escapeHtml(value)}</a>`
-    : `<span class="pt-change-link-value" title="${escapeAttribute(value)}">${escapeHtml(value)}</span>`;
+    ? `<a class="link-primary text-break min-w-0" href="${escapeAttribute(value)}" target="_blank" rel="noopener noreferrer" title="${escapeAttribute(value)}">${escapeHtml(value)}</a>`
+    : `<span class="text-break min-w-0" title="${escapeAttribute(value)}">${escapeHtml(value)}</span>`;
 
   return `
-    <span class="pt-change-link-content">
+    <span class="d-flex align-items-start gap-2 flex-wrap min-w-0">
       ${valueMarkup}
-      <button type="button" class="pt-copy-icon-button" data-action="copy-link-value" data-copy-value="${encodeCopyValue(value)}" aria-label="Copy link" title="Copy link">
-        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-          <path d="M9 9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2Zm-6 6V5a2 2 0 0 1 2-2h8v2H5v10z"></path>
-        </svg>
-      </button>
+      <button type="button" class="btn btn-outline-secondary btn-sm" data-action="copy-link-value" data-copy-value="${escapeAttribute(encodeCopyValue(value))}" aria-label="Copy link" title="Copy link">Copy</button>
     </span>
   `;
 }
@@ -68,15 +57,21 @@ function renderLinkValue(value) {
 function buildEnvironmentRows(urls) {
   const entries = Object.entries(urls ?? {});
   if (entries.length === 0) {
-    return `<p>No URLs configured</p>`;
+    return `<div class="alert alert-info mb-0">No URLs configured</div>`;
   }
 
-  return entries.map(([label, value]) => `
-    <div class="pt-change-link-row">
-      <span class="pt-change-link-label">${escapeHtml(label)}:</span>
-      ${renderLinkValue(value)}
+  return `
+    <div class="list-group list-group-flush">
+      ${entries.map(([label, value]) => `
+        <div class="list-group-item px-0">
+          <div class="d-grid gap-1">
+            <span class="small fw-semibold text-secondary">${escapeHtml(label)}</span>
+            ${renderLinkValue(value)}
+          </div>
+        </div>
+      `).join("")}
     </div>
-  `).join("");
+  `;
 }
 
 function projectStatusLabel(changes) {
@@ -134,31 +129,31 @@ export function renderProjectDetailScreen(state, data) {
         <div class="row g-3">
           <div class="col-12 col-md-5">
             <article class="card bg-light border-0 h-100">
-              <div class="card-body">
-                <div class="pt-change-link-row">
-                  <span class="pt-change-link-label">Workfront:</span>
+              <div class="card-body d-grid gap-3">
+                <div class="d-grid gap-1">
+                  <span class="small fw-semibold text-secondary">Workfront</span>
                   ${renderLinkValue(project.workfrontLink)}
                 </div>
-                <div class="pt-change-link-row">
-                  <span class="pt-change-link-label">OneDrive:</span>
+                <div class="d-grid gap-1">
+                  <span class="small fw-semibold text-secondary">OneDrive</span>
                   ${renderLinkValue(project.onedriveLink)}
                 </div>
               </div>
             </article>
           </div>
           <div class="col-12 col-md-7">
-            <div class="d-grid gap-2">
-              <div class="pt-change-summary-row">
-                <span class="pt-change-summary-label">Project:</span>
-                <span class="pt-change-summary-value">${escapeHtml(project.name)}</span>
+            <div class="list-group list-group-flush">
+              <div class="list-group-item bg-transparent px-0">
+                <span class="small fw-semibold text-secondary d-block">Project</span>
+                <span class="text-break">${escapeHtml(project.name)}</span>
               </div>
-              <div class="pt-change-summary-row">
-                <span class="pt-change-summary-label">Details:</span>
-                <span class="pt-change-summary-value">${escapeHtml(project.description || "No description")}</span>
+              <div class="list-group-item bg-transparent px-0">
+                <span class="small fw-semibold text-secondary d-block">Details</span>
+                <span class="text-break">${escapeHtml(project.description || "No description")}</span>
               </div>
-              <div class="pt-change-summary-row">
-                <span class="pt-change-summary-label">Created:</span>
-                <span class="pt-change-summary-value">${escapeHtml(project.createdAt || project.startDate || "Not defined")}</span>
+              <div class="list-group-item bg-transparent px-0">
+                <span class="small fw-semibold text-secondary d-block">Created</span>
+                <span class="text-break">${escapeHtml(project.createdAt || project.startDate || "Not defined")}</span>
               </div>
             </div>
           </div>
@@ -174,36 +169,36 @@ export function renderProjectDetailScreen(state, data) {
         <div class="row g-3">
           <div class="col-12 col-sm-6 col-lg-4">
             <article class="${environmentCardSurfaceClasses("QA")}">
-              <div class="position-absolute top-0 start-0 translate-middle-y ms-3 px-1 bg-body-tertiary">
-                <span class="pt-pill ${environmentCardClass("QA")}">QA</span>
+              <div class="card-header bg-transparent border-0 pb-0">
+                <span class="badge rounded-pill text-bg-light border">QA</span>
               </div>
               <div class="card-body d-grid gap-2 min-w-0">
-                <div class="pt-change-environment-links">${buildEnvironmentRows(project.qaUrls)}</div>
+                ${buildEnvironmentRows(project.qaUrls)}
               </div>
             </article>
           </div>
           <div class="col-12 col-sm-6 col-lg-4">
             <article class="${environmentCardSurfaceClasses("STG")}">
-              <div class="position-absolute top-0 start-0 translate-middle-y ms-3 px-1 bg-body-tertiary">
-                <span class="pt-pill ${environmentCardClass("STG")}">STG</span>
+              <div class="card-header bg-transparent border-0 pb-0">
+                <span class="badge rounded-pill text-bg-light border">STG</span>
               </div>
               <div class="card-body d-grid gap-2 min-w-0">
-                <div class="pt-change-environment-links">${buildEnvironmentRows(project.stgUrls)}</div>
+                ${buildEnvironmentRows(project.stgUrls)}
               </div>
             </article>
           </div>
           <div class="col-12 col-sm-6 col-lg-4">
             <article class="${environmentCardSurfaceClasses("PROD")}">
-              <div class="position-absolute top-0 start-0 translate-middle-y ms-3 px-1 bg-body-tertiary">
-                <span class="pt-pill ${environmentCardClass("PROD")}">PROD</span>
+              <div class="card-header bg-transparent border-0 pb-0">
+                <span class="badge rounded-pill text-bg-light border">PROD</span>
               </div>
               <div class="card-body d-grid gap-2 min-w-0">
-                <div class="pt-change-environment-links">${buildEnvironmentRows(project.prodUrls)}</div>
+                ${buildEnvironmentRows(project.prodUrls)}
               </div>
             </article>
           </div>
         </div>
-        <div class="pt-section-separator"></div>
+        <hr class="my-1">
         <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
           <div>
             <h2 class="h5 fw-semibold mb-0">Project Changes</h2>
