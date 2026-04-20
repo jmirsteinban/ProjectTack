@@ -46,6 +46,7 @@ import {
 import { getVisibleProjects, getVisibleTasksForChange } from "./services/workspace-selectors.js";
 import { renderProjectTrackBrand } from "./components/projecttrack-brand.js";
 import { escapeAttribute, escapeHtml } from "./services/html.js";
+import { bindThemeManagerControls } from "./screens/theme-manager.js";
 
 const PROJECTTRACK_UI_GUIDE_PATH = "docs/projecttrack-ui.html";
 
@@ -239,6 +240,8 @@ function buildWorkspaceBreadcrumbLabel(state) {
         : `Workspace / Projects / Details / ${projectLabel} / Changes / Details / ${changeLabel} / Edit`;
     case "change-history":
       return "Workspace / Change History";
+    case "theme-manager":
+      return "Workspace / Theme Manager";
     case "login":
       return "Workspace / Login";
     case "profile":
@@ -453,6 +456,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
       "{{USER_ROLE}}": escapeHtml(userRole),
       "{{BREADCRUMB_LABEL}}": escapeHtml(breadcrumbLabel),
       "{{MENU_ITEMS}}": menuItems,
+      "{{THEME_MANAGER_ACTIVE}}": state.currentView === "theme-manager" ? "active" : "",
       "{{CHANGE_HISTORY_ACTIVE}}": state.currentView === "change-history" ? "active" : "",
       "{{NOTICE}}": renderNotice()
     };
@@ -488,6 +492,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
             <ul class="dropdown-menu dropdown-menu-end pt-web-user-menu">
               {{MENU_ITEMS}}
               <li><hr class="dropdown-divider"></li>
+              <li><button type="button" class="dropdown-item {{THEME_MANAGER_ACTIVE}}" data-action="navigate-main" data-view-id="theme-manager">Theme Manager</button></li>
               <li><button type="button" class="dropdown-item" data-action="open-ui-guide">UI Guide</button></li>
               <li><button type="button" class="dropdown-item {{CHANGE_HISTORY_ACTIVE}}" data-action="navigate-main" data-view-id="change-history">Change History</button></li>
             </ul>
@@ -506,6 +511,15 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
         `<li><hr class="dropdown-divider"></li>
         <li><button type="button" class="dropdown-item" data-action="open-ui-guide">UI Guide</button></li>`
       );
+    }
+    if (!navbar.querySelector("[data-view-id='theme-manager']")) {
+      const uiGuideItem = navbar.querySelector("[data-action='open-ui-guide']")?.closest("li");
+      const themeManagerItem = `<li><button type="button" class="dropdown-item ${state.currentView === "theme-manager" ? "active" : ""}" data-action="navigate-main" data-view-id="theme-manager">Theme Manager</button></li>`;
+      if (uiGuideItem) {
+        uiGuideItem.insertAdjacentHTML("beforebegin", themeManagerItem);
+      } else {
+        navbar.querySelector(".pt-web-user-menu")?.insertAdjacentHTML("beforeend", themeManagerItem);
+      }
     }
     if (!navbar.querySelector("[data-view-id='change-history']")) {
       const uiGuideItem = navbar.querySelector("[data-action='open-ui-guide']")?.closest("li");
@@ -880,6 +894,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
       renderConfirmDialog();
     }
     wireActions();
+    bindThemeManagerControls(viewNode);
   }
 
   async function refreshChromeReleaseUpdate(promptedByUser = false) {

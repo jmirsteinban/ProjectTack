@@ -1,6 +1,6 @@
 # Documentacion Central - ProjectTrack
 
-Actualizado al: 2026-04-17
+Actualizado al: 2026-04-20
 Estado general: En progreso
 Alcance actual: Android + Extension Chrome
 
@@ -11,6 +11,7 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
 ## Referencias Principales
 
 - Guia UI Chrome: `Chrome/docs/projecttrack-ui.html`
+- Theme Manager Chrome: `docs/chrome/theme-manager.md`
 - Deployment Chrome privado: `docs/chrome/deployment-github-releases.md`
 - Tracking de migracion Bootstrap Chrome: `docs/chrome/bootstrap-migration-tracking.md`
 - Guia agentes IA: `docs/AGENTES_IA_PROJECTTRACK.md`
@@ -19,15 +20,12 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
 
 ## Resumen Ejecutivo
 
-- Android sigue siendo la fuente funcional principal del producto.
-- Chrome replica progresivamente la experiencia Android dentro de la extension unica en `Chrome/`.
-- Chrome ya opera como experiencia popup/full-tab activa.
 - El side panel queda oculto temporalmente hasta nuevo aviso.
 - Chrome usa Bootstrap real como base visual y una sola capa custom: `Chrome/styles/projecttrack.css`.
 - Supabase es el backend real para auth, lectura, escritura, borrado logico y metadata del canal privado de releases.
 - El runtime Chrome y la documentacion funcional deben converger a ingles; el naming tecnico interno no se renombra por defecto.
-- La experiencia Chrome full-tab ya paso QA visual principal en 360px, 550px, 960px y desktop wide.
 - Las pantallas principales de Chrome ya pasaron QA funcional principal: Projects, Project Details, Change Details, editors, Login, Profile, navbar, Change History y UI Guide.
+- Chrome incluye `Theme Manager` como pantalla del workspace para leer `projecttrack.css`, configurar tokens visuales, previsualizar componentes reales, exportar `:root`, revisar diff y guardar de forma segura mediante bloque marcado con backup.
 
 ## Estructura Del Proyecto
 
@@ -42,7 +40,9 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
 - `Chrome/src/`
   - runtime principal de ProjectTrack en JavaScript
 - `Chrome/styles/projecttrack.css`
-  - unica capa custom de ProjectTrack: tokens, marca, full-tab skin, workspace layout, componentes de dominio, popup/side-panel y helpers documentales
+  - unica capa custom de ProjectTrack: tokens, bloque `THEME MANAGER TOKENS`, marca, full-tab skin, workspace layout, componentes de dominio, popup/side-panel y helpers documentales
+- `scripts/theme/`
+  - servidor local y script manual para leer, guardar, respaldar y restaurar el bloque de tokens del Theme Manager
 - `sql/`
   - migraciones y scripts SQL compartidos por Android, Chrome y documentacion
 - `docs/`
@@ -121,6 +121,10 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
 - `Chrome/src/projecttrack-router.js` resuelve la vista activa.
 - `Chrome/styles/projecttrack.css` es la unica capa custom activa.
 - `Chrome/docs/projecttrack-ui.html` documenta la capa UI actual.
+- `Chrome/src/screens/theme-manager.js` implementa la herramienta activa para editar tokens y guardar el bloque controlado del tema.
+- `Chrome/src/theme/component-registry.js` registra el inventario inicial de componentes propios configurables.
+- `scripts/theme/theme_manager_server.py` expone el servidor local aprobado para lectura, guardado, backups y restauracion del CSS.
+- `scripts/theme/save_theme.py` permite aplicar manualmente un bloque `:root` como fallback.
 
 ### Vistas Activas
 
@@ -134,6 +138,7 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
 - Project Editor
 - Change Editor
 - Change History
+- Theme Manager
 - UI Guide
 
 ### UI Actual
@@ -151,6 +156,8 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
 - Botones recomendados: `btn` + variante Bootstrap.
 - Layout publico recomendado: `row` + `col-*`.
 - `pt-*` queda reservado para identidad visual, tokens y componentes de dominio ProjectTrack.
+- El Theme Manager solo puede guardar automaticamente dentro del bloque marcado `THEME MANAGER TOKENS` en `projecttrack.css`.
+- Las clases custom que no sean Bootstrap deben migrar a componentes propios en `Chrome/components` o quedar justificadas en el registro de componentes.
 - Viewport:
   - minimo soportado: `360px`
   - ancho de diseno optimo: `550px`
@@ -294,20 +301,21 @@ Script:
 
 Tabla de referencia para edicion manual de pantallas:
 
-| Breadcrumb                                      | Archivo js                             |
-| ----------------------------------------------- | -------------------------------------- |
-| `Workspace / Dashboard`                         | `Chrome/src/screens/dashboard.js`      |
-| `Workspace / Projects`                          | `Chrome/src/screens/projects.js`       |
-| `Workspace / Projects / New`                    | `Chrome/src/screens/project-editor.js` |
-| `Workspace / Projects / Details`                | `Chrome/src/screens/project-detail.js` |
-| `Workspace / Projects / Details / Edit`         | `Chrome/src/screens/project-editor.js` |
-| `Workspace / Login`                             | `Chrome/src/screens/login.js`          |
-| `Workspace / Profile`                           | `Chrome/src/screens/profile.js`        |
-| `Workspace / Change History`                    | `Chrome/src/screens/change-history.js` |
-| `Workspace / Projects / Details / Changes`      | `Chrome/src/screens/changes.js`        |
-| `Workspace / Projects / Details / Changes / Details` | `Chrome/src/screens/change-detail.js` |
-| `Workspace / Projects / Details / Changes / New` | `Chrome/src/screens/change-editor.js` |
-| `Workspace / Projects / Details / Changes / Edit` | `Chrome/src/screens/change-editor.js` |
+| Breadcrumb                                           | Archivo js                             |
+| ---------------------------------------------------- | -------------------------------------- |
+| `Workspace / Dashboard`                              | `Chrome/src/screens/dashboard.js`      |
+| `Workspace / Projects`                               | `Chrome/src/screens/projects.js`       |
+| `Workspace / Projects / New`                         | `Chrome/src/screens/project-editor.js` |
+| `Workspace / Projects / Details`                     | `Chrome/src/screens/project-detail.js` |
+| `Workspace / Projects / Details / Edit`              | `Chrome/src/screens/project-editor.js` |
+| `Workspace / Login`                                  | `Chrome/src/screens/login.js`          |
+| `Workspace / Profile`                                | `Chrome/src/screens/profile.js`        |
+| `Workspace / Change History`                         | `Chrome/src/screens/change-history.js` |
+| `Workspace / Theme Manager`                          | `Chrome/src/screens/theme-manager.js`  |
+| `Workspace / Projects / Details / Changes`           | `Chrome/src/screens/changes.js`        |
+| `Workspace / Projects / Details / Changes / Details` | `Chrome/src/screens/change-detail.js`  |
+| `Workspace / Projects / Details / Changes / New`     | `Chrome/src/screens/change-editor.js`  |
+| `Workspace / Projects / Details / Changes / Edit`    | `Chrome/src/screens/change-editor.js`  |
 
 Si el cambio manual es sobre el navbar global, el breadcrumb o el clic en la marca `ProjectTrack`, editar `Chrome/src/projecttrack-app.js`.
 
@@ -316,6 +324,7 @@ Si el cambio manual es sobre el navbar global, el breadcrumb o el clic en la mar
 Chrome:
 
 - UI Guide: `Chrome/docs/projecttrack-ui.html`
+- Theme Manager: `docs/chrome/theme-manager.md`
 - Bootstrap migration tracking: `docs/chrome/bootstrap-migration-tracking.md`
 - Deployment Chrome: `docs/chrome/deployment-github-releases.md`
 
@@ -347,14 +356,15 @@ IA:
 - `Tasks`: falta futura pantalla o widget de burndown chart apoyado en `change_task_events`.
 - Documentacion funcional: falta seguir migrando a ingles donde aplique y mantener las guias vivas alineadas al runtime actual.
 - CSS unico: validar visualmente que `workspace.html` y `Chrome/docs/projecttrack-ui.html` sigan correctos despues de consolidar estilos.
+- Theme Manager: falta completar la galeria completa de componentes, ampliar tokens por componente, mejorar diff por impacto y reemplazar la auditoria automatica inicial por registro explicito completo.
 
 ## Pendientes Priorizados
 
-1. Ejecutar una revision profunda para confirmar que Chrome ya esta al 100% sobre Bootstrap real.
-2. Crear una pantalla de configuracion de UI reutilizable para cualquier proyecto basado en Bootstrap.
+1. Completar la implementacion real del Theme Manager: galeria de componentes, tokens por componente, diff por impacto, preview/compare de backups y registro explicito completo.
+2. Ejecutar una revision profunda para confirmar que Chrome ya esta al 100% sobre Bootstrap real.
 3. Crear una pagina de documentacion para el usuario final.
 4. Continuar con el resto de pendientes y nuevas funciones priorizadas.
-5. Validar visualmente el stack CSS unico en Chrome cargando `workspace.html` y `Chrome/docs/projecttrack-ui.html`.
+5. Validar visualmente el stack CSS unico en Chrome cargando `workspace.html`, `workspace.html?view=theme-manager` y `Chrome/docs/projecttrack-ui.html`.
 6. Aplicar en Supabase la migracion `sql/change_tasks_excel_import_20260331.sql`.
 7. Disenar la siguiente fase de `Tasks`: burndown chart por proyecto/cambio.
 8. Cerrar documentacion funcional restante en ingles.

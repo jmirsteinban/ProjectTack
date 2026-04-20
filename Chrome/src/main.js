@@ -8,6 +8,7 @@ const VALID_INITIAL_VIEWS = [
   "changes",
   "change-detail",
   "change-history",
+  "theme-manager",
   "change-editor",
   "profile",
   "login"

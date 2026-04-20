@@ -1,5 +1,48 @@
 export const PROJECT_CHANGELOG = [
   {
+    date: "2026-04-20",
+    entries: [
+      {
+        time: "12:05",
+        type: "UI",
+        title: "Theme Manager menu placement",
+        description: "Moved Theme Manager below the user menu separator so it is grouped with workspace tools instead of primary navigation.",
+        details: [
+          "Dashboard, Projects, Changes, and Profile remain above the separator.",
+          "Theme Manager now appears with UI Guide and Change History below the separator.",
+          "The active state is preserved when Theme Manager is open."
+        ]
+      },
+      {
+        time: "12:00",
+        type: "Feature",
+        title: "Theme Manager real implementation",
+        description: "Started the production Theme Manager architecture with safe CSS reading, token editing, export, diff, backups, and guarded save flow.",
+        details: [
+          "The Theme Manager now reads Chrome/styles/projecttrack.css and uses the marked THEME MANAGER TOKENS block as the only automatic write area.",
+          "Added a local Python server for read/save/backup/restore operations on 127.0.0.1:4177.",
+          "Added a manual Python save script as fallback when the local server is unavailable.",
+          "Added an initial component registry for ProjectTrack components such as global navbar, hero card, brand mark, environment progress, pills, metric cards, inline notices, release updates, and change history entries.",
+          "The UI now includes sections for Overview, Theme Tokens, Bootstrap Base, ProjectTrack Components, Legacy / Audit, Accessibility, Import / Export, Backups / Versions, and Diff.",
+          "The first implementation supports live preview, known-token import, reusable :root export, basic WCAG AA checks, pt-* audit, backup listing, and backup restore through the Python server.",
+          "Theme Manager documentation was updated to reflect the implemented architecture and remaining product gaps."
+        ]
+      },
+      {
+        time: "10:23",
+        type: "Feature",
+        title: "Theme Manager",
+        description: "Added a workspace page for real-time theme configuration and reusable CSS variable export.",
+        details: [
+          "The page is available from the global menu as Theme Manager.",
+          "Controls cover brand colors, base typography, global radius, and suggested Google Font stacks.",
+          "The preview applies the selected tokens live to buttons, cards, alerts, navigation, and a contact form.",
+          "The export panel generates a ready-to-use :root block for a custom.css file."
+        ]
+      }
+    ]
+  },
+  {
     date: "2026-04-17",
     entries: [
       {

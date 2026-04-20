@@ -5,6 +5,7 @@ import { renderProfileScreen } from "./screens/profile.js";
 import { renderLoginScreen } from "./screens/login.js";
 import { renderChangeDetailScreen } from "./screens/change-detail.js";
 import { renderChangeHistoryScreen } from "./screens/change-history.js";
+import { renderThemeManagerScreen } from "./screens/theme-manager.js";
 import { renderProjectDetailScreen } from "./screens/project-detail.js";
 import { renderProjectEditorScreen } from "./screens/project-editor.js";
 import { renderChangeEditorScreen } from "./screens/change-editor.js";
@@ -21,6 +22,8 @@ export function renderProjectTrackView(state, data) {
       return renderChangeDetailScreen(state, data);
     case "change-history":
       return renderChangeHistoryScreen();
+    case "theme-manager":
+      return renderThemeManagerScreen();
     case "change-editor":
       return renderChangeEditorScreen(state, data);
     case "project-detail":
