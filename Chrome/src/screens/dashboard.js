@@ -221,7 +221,7 @@ export function renderDashboardScreen(data) {
           <div class="col-12 col-xxl-6">
               <article class="card border-0 shadow-sm h-100">
                   <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex flex-wrap justify-content-between align-items-start gap-2">
-                      <div class="pt-dashboard-panel-copy">
+                      <div class="d-grid gap-1 min-w-0">
                           <h2 class="h4 mb-1">${escapeHtml(workQueuePanel.title)}</h2>
                           <p class="text-secondary mb-0">${escapeHtml(workQueuePanel.subtitle)}</p>
                       </div>
@@ -237,7 +237,7 @@ export function renderDashboardScreen(data) {
           <div class="col-12 col-xxl-6">
               <article class="card border-0 shadow-sm h-100">
                   <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex flex-wrap justify-content-between align-items-start gap-2">
-                      <div class="pt-dashboard-panel-copy">
+                      <div class="d-grid gap-1 min-w-0">
                           <h2 class="h4 mb-1">${escapeHtml(notesPanel.title)}</h2>
                           <p class="text-secondary mb-0">${escapeHtml(notesPanel.subtitle)}</p>
                       </div>

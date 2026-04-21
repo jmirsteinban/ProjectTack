@@ -354,6 +354,7 @@ IA:
 ## Hallazgos Activos
 
 - `Tasks`: falta futura pantalla o widget de burndown chart apoyado en `change_task_events`.
+- Bootstrap audit: ya se retiraron wrappers presentacionales pequenos en Dashboard y Change Detail, pero la revision profunda del runtime sigue pendiente.
 - Documentacion funcional: falta seguir migrando a ingles donde aplique y mantener las guias vivas alineadas al runtime actual.
 - CSS unico: validar visualmente que `workspace.html` y `Chrome/docs/projecttrack-ui.html` sigan correctos despues de consolidar estilos.
 - Theme Manager: falta completar la galeria completa de componentes, ampliar tokens por componente, mejorar diff por impacto y reemplazar la auditoria automatica inicial por registro explicito completo.

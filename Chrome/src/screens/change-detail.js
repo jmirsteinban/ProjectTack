@@ -260,7 +260,7 @@ export function renderChangeDetailScreen(state, data) {
         <p>${escapeHtml(note.project)}</p>
         ${noteMentions(note)}
         ${noteLinkedTasks(note)}
-        <div class="pt-project-editor-actions">
+        <div class="d-flex flex-wrap gap-2">
           <button type="button" class="btn btn-secondary btn-sm" data-action="edit-note" data-note-id="${escapeAttribute(note.id)}">Edit</button>
           <button type="button" class="btn btn-secondary btn-sm" data-action="toggle-note-status" data-note-id="${escapeAttribute(note.id)}">${isCompletedStatus(note.status) ? "Reopen" : "Complete"}</button>
           <button type="button" class="btn btn-secondary btn-sm" data-action="delete-note" data-note-id="${escapeAttribute(note.id)}">Delete</button>

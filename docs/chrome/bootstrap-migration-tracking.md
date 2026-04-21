@@ -90,6 +90,7 @@ ProjectTrack identidad y dominio:
 - QA funcional principal aprobado en Chrome para Projects, Project Details, Change Details, editors, Login, Profile, navbar, Change History y UI Guide.
 - `workspace.html` carga Bootstrap local primero y `projecttrack.css` despues.
 - `projecttrack.css` es la unica capa custom activa: tokens, marca, full-tab skin, workspace layout, componentes de dominio, popup/side-panel y helpers documentales.
+- Dashboard y Change Detail ya retiraron wrappers presentacionales pequenos que Bootstrap cubria con utilidades (`d-grid`, `min-w-0`, `d-flex`, `flex-wrap`, `gap-*`).
 
 ## Siguiente Trabajo
 
