@@ -357,6 +357,7 @@ IA:
 - Documentacion funcional: falta seguir migrando a ingles donde aplique y mantener las guias vivas alineadas al runtime actual.
 - CSS unico: validar visualmente que `workspace.html` y `Chrome/docs/projecttrack-ui.html` sigan correctos despues de consolidar estilos.
 - Theme Manager: falta completar la galeria completa de componentes, ampliar tokens por componente, mejorar diff por impacto y reemplazar la auditoria automatica inicial por registro explicito completo.
+- OpenCode: en este workspace la CLI puede resolver la raiz del proyecto como `C:\` en lugar del repo por la ruta con corchetes `[...]`; mientras no se corrija, conviene forzar `OPENCODE_CONFIG` apuntando a `opencode.jsonc` para que carguen agentes y comandos del proyecto.
 
 ## Pendientes Priorizados
 
@@ -397,4 +398,5 @@ IA:
 - Para trabajo con agentes, seguir `docs/AGENTES_IA_PROJECTTRACK.md` y registrar fallas/mejoras en `docs/AGENTES_IA_FEEDBACK_LOG.md`.
 - Si aparece un hallazgo nuevo del runtime o del UI, agregarlo aqui si afecta trabajo pendiente.
 - Ruta con corchetes: el workspace contiene `[...]`, asi que en PowerShell conviene usar `-LiteralPath` o rutas absolutas bien escapadas para evitar que `[]` se interprete como patron.
+- Si OpenCode no detecta esta carpeta como raiz del repo y cae en `C:\`, usar `OPENCODE_CONFIG=<ruta-absoluta>\opencode.jsonc` antes de ejecutar comandos o pruebas del sistema de agentes.
 - Cualquier avance funcional o tecnico debe actualizar este documento primero.

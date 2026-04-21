@@ -28,3 +28,9 @@ Keep entries short, concrete, and action-oriented.
 - Problem: <short description>
 - Suggested improvement: <short description>
 - Status: open | reviewed | implemented | rejected
+
+### 2026-04-20 - opencode-config-loading
+
+- Problem: In this workspace, OpenCode can resolve the project root as `C:\` instead of the repository path because the directory includes brackets `[...]`. When that happens, the local `opencode.jsonc` is not loaded automatically.
+- Suggested improvement: Document the workaround and use `OPENCODE_CONFIG` with the absolute path to the repository `opencode.jsonc` until project-root detection is stable for this workspace shape.
+- Status: implemented
