@@ -65,7 +65,7 @@ export function renderChangeEditorScreen(state, data) {
             <input class="form-control${inputErrorClass("assignees")}" type="text" value="${escapeAttribute((change.assignees || []).join(", "))}" placeholder="Demo User, QA Team" data-field="change-assignees">
             ${inlineFieldError("assignees")}
             <p class="form-text mb-2">Separate people with commas or type <code>@</code> to search users.</p>
-            <div class="pt-note-mention-suggestions" data-change-assignee-suggestions hidden></div>
+            <div class="list-group mt-2" data-change-assignee-suggestions hidden></div>
             ${assigneeChips(change.assignees || [])}
           </div>
         </div>

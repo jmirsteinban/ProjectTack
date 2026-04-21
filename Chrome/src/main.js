@@ -22,10 +22,11 @@ async function mountProjectTrackExtension(rootNode) {
     : "dashboard";
 
   const host = document.createElement("div");
-  host.className = "pt-web-app pt-workspace-app";
+  host.className = "min-vh-100 d-flex flex-column";
+  host.dataset.projecttrackRoot = "true";
 
   const content = document.createElement("section");
-  content.className = "pt-workspace-mount";
+  content.className = "flex-grow-1 d-flex flex-column";
 
   host.appendChild(content);
   rootNode.replaceChildren(host);

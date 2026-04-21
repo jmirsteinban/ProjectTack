@@ -53,7 +53,7 @@ function renderDayGroup(group) {
   const entries = [...(group.entries ?? [])].sort(sortByTimeDesc);
 
   return `
-    <section class="card pt-web-card border-0">
+    <section class="card border-0 bg-white shadow-sm rounded-4">
       <div class="card-header bg-transparent border-0 pb-0">
         <p class="text-uppercase small fw-semibold text-secondary mb-1">${escapeHtml(group.date)}</p>
         <h2 class="h4 mb-0 text-capitalize">${escapeHtml(formatDateLabel(group.date))}</h2>

@@ -4,12 +4,12 @@ import { escapeAttribute, escapeHtml } from "../services/html.js";
 function rowsFromMap(urlMap) {
   const entries = Object.entries(urlMap ?? {});
   if (entries.length === 0) {
-    return `<div class="list-group-item pt-editor-empty-row" data-empty-row><span>No URLs configured.</span></div>`;
+    return `<div class="list-group-item text-secondary" data-empty-row><span>No URLs configured.</span></div>`;
   }
 
   return entries.map(([label, value], index) => `
-    <div class="list-group-item pt-editor-url-row" data-url-row>
-      <div class="pt-editor-url-header">
+    <div class="list-group-item d-grid gap-2" data-url-row>
+      <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
         <strong>URL ${index + 1}</strong>
         <button type="button" class="btn btn-secondary btn-sm" data-action="remove-url-row">Remove</button>
       </div>
@@ -69,7 +69,7 @@ export function renderProjectEditorScreen(state, data) {
             <label class="form-label">OneDrive Link</label>
             <div class="input-group">
               <input class="form-control" type="text" value="${escapeAttribute(project.onedriveLink || "")}" data-field="project-onedrive">
-              <button type="button" class="btn btn-secondary pt-path-picker-button" data-action="pick-project-onedrive-folder">Pick Folder</button>
+              <button type="button" class="btn btn-secondary" data-action="pick-project-onedrive-folder">Pick Folder</button>
             </div>
           </div>
         </div>

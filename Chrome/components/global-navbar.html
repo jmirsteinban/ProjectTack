@@ -1,33 +1,33 @@
-<div class="container-fluid px-4 px-xl-5">
-  <div class="navbar-brand d-flex align-items-center gap-3 mb-0 pt-workspace-brand">
-    <button type="button" class="pt-workspace-brand-mark-button" data-action="navigate-main" data-view-id="dashboard" aria-label="Go to Dashboard">
+<div class="container-fluid px-4 px-xl-5 gap-3 overflow-visible">
+  <div class="navbar-brand d-inline-flex align-items-center gap-3 mb-0 text-body min-w-0">
+    <button type="button" class="btn btn-link d-inline-flex align-items-center p-0 border-0 text-decoration-none text-reset" data-action="navigate-main" data-view-id="dashboard" aria-label="Go to Dashboard">
       {{BRAND_MARK}}
     </button>
     <span class="d-grid min-w-0">
-      <button type="button" class="pt-workspace-brand-title-button" data-action="navigate-main" data-view-id="dashboard">
-        <strong class="pt-web-brand-title">ProjectTrack</strong>
+      <button type="button" class="btn btn-link p-0 border-0 text-start text-decoration-none text-reset fw-bold" data-action="navigate-main" data-view-id="dashboard">
+        <strong>ProjectTrack</strong>
       </button>
-      <small class="text-secondary pt-workspace-breadcrumb-text" title="{{BREADCRUMB_LABEL}}">{{BREADCRUMB_LABEL}}</small>
+      <small class="text-secondary d-block text-break user-select-text" title="{{BREADCRUMB_LABEL}}">{{BREADCRUMB_LABEL}}</small>
     </span>
   </div>
 
-  <div class="d-flex align-items-center gap-2 ms-auto pt-workspace-navbar-actions">
+  <div class="d-flex align-items-center gap-2 ms-auto flex-wrap justify-content-end">
 
     <button type="button" class="btn btn-primary" data-action="refresh-workspace">
       Refresh Data
     </button>
 
     <div class="dropdown">
-      <button type="button" class="btn pt-web-user-button dropdown-toggle" data-bs-toggle="dropdown"
+      <button type="button" class="btn btn-outline-secondary dropdown-toggle d-inline-flex align-items-center gap-2" data-bs-toggle="dropdown"
         aria-expanded="false">
-        <span class="pt-web-user-avatar" aria-hidden="true">{{USER_INITIAL}}</span>
-        <span class="pt-web-user-copy">
-          <span class="pt-web-user-name">{{USER_NAME}}</span>
-          <span class="pt-web-user-role">{{USER_ROLE}}</span>
+        <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-bg-secondary fw-bold flex-shrink-0" aria-hidden="true" style="width:2rem;height:2rem;">{{USER_INITIAL}}</span>
+        <span class="d-grid text-start lh-sm d-none d-lg-inline-grid">
+          <span class="fw-semibold small">{{USER_NAME}}</span>
+          <span class="text-secondary" style="font-size:0.72rem;">{{USER_ROLE}}</span>
         </span>
       </button>
 
-      <ul class="dropdown-menu dropdown-menu-end pt-web-user-menu">
+      <ul class="dropdown-menu dropdown-menu-end shadow-sm" data-user-menu>
         {{MENU_ITEMS}}
         <li><hr class="dropdown-divider"></li>
         <li><button type="button" class="dropdown-item {{THEME_MANAGER_ACTIVE}}" data-action="navigate-main" data-view-id="theme-manager">Theme Manager</button></li>

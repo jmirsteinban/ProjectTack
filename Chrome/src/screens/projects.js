@@ -64,12 +64,12 @@ export function renderProjectsScreen(state, data) {
           ${projectChanges
             .map(
               (change) => `
-        <article class="list-group-item list-group-item-action py-3 pt-clickable-card" data-change-id="${escapeAttribute(change.id)}" role="button" tabindex="0">
+        <article class="list-group-item list-group-item-action py-3 focus-ring focus-ring-primary" data-change-id="${escapeAttribute(change.id)}" role="button" tabindex="0">
           <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
             <strong class="min-w-0">${escapeHtml(change.title)}</strong>
             <div class="d-flex gap-2 flex-wrap">
-              <span class="badge rounded-pill pt-pill ${statusClass(change.status)}">${escapeHtml(translateStatus(change.status))}</span>
-              <span class="badge rounded-pill pt-pill ${priorityClass(change.priority)}">${escapeHtml(translatePriority(change.priority))}</span>
+              <span class="badge rounded-pill ${statusClass(change.status)}">${escapeHtml(translateStatus(change.status))}</span>
+              <span class="badge rounded-pill ${priorityClass(change.priority)}">${escapeHtml(translatePriority(change.priority))}</span>
             </div>
           </div>
           <p class="mb-0 mt-2 small text-secondary">${escapeHtml(change.description || "No description")}</p>
@@ -83,7 +83,7 @@ export function renderProjectsScreen(state, data) {
 
       return `
       <div class="col">
-        <article class="card border-0 shadow-sm h-100 pt-clickable-card" data-project-id="${escapeAttribute(project.id)}" role="button" tabindex="0">
+        <article class="card border-0 shadow-sm h-100 focus-ring focus-ring-primary" data-project-id="${escapeAttribute(project.id)}" role="button" tabindex="0">
           <div class="card-header bg-white border-0 d-flex justify-content-between align-items-start gap-3 flex-wrap">
             <h2 class="h5 mb-0 min-w-0">${escapeHtml(project.name)}</h2>
             <span class="badge rounded-pill text-bg-light border">Created: ${escapeHtml(project.startDate || "Not defined")}</span>

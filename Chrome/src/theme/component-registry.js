@@ -10,15 +10,8 @@ export const THEME_COMPONENT_REGISTRY = [
       "--pt-color-brand-primary",
       "--pt-color-text-primary"
     ],
-    bootstrapClasses: ["navbar", "btn", "dropdown-menu", "dropdown-item"],
-    projectClasses: [
-      "pt-web-navbar",
-      "pt-workspace-navbar",
-      "pt-workspace-brand",
-      "pt-web-user-button",
-      "pt-web-user-avatar",
-      "pt-web-user-menu"
-    ],
+    bootstrapClasses: ["navbar", "btn", "dropdown-menu", "dropdown-item", "badge", "container-fluid"],
+    projectClasses: [],
     states: ["default", "hover", "focus", "active", "expanded"],
     screens: ["All workspace views"]
   },
@@ -33,8 +26,8 @@ export const THEME_COMPONENT_REGISTRY = [
       "--pt-color-text-on-dark",
       "--pt-color-text-on-dark-muted"
     ],
-    bootstrapClasses: ["btn", "badge"],
-    projectClasses: ["pt-hero-card", "pt-screen-hero", "pt-mini-chip"],
+    bootstrapClasses: ["card", "card-body", "btn", "badge", "row", "col"],
+    projectClasses: [],
     states: ["default", "focus"],
     screens: ["Dashboard", "Projects", "Changes", "Profile", "Change History", "Theme Manager"]
   },
@@ -43,8 +36,8 @@ export const THEME_COMPONENT_REGISTRY = [
     name: "ProjectTrack Brand",
     family: "ProjectTrack",
     tokens: ["--pt-gradient-hero", "--pt-color-white"],
-    bootstrapClasses: [],
-    projectClasses: ["pt-brand-mark"],
+    bootstrapClasses: ["rounded-3", "shadow-sm", "border", "bg-white"],
+    projectClasses: [],
     states: ["default"],
     screens: ["Login", "Navbar", "Launcher"]
   },
@@ -58,12 +51,8 @@ export const THEME_COMPONENT_REGISTRY = [
       "--pt-gradient-progress-current",
       "--pt-gradient-progress-idle"
     ],
-    bootstrapClasses: [],
-    projectClasses: [
-      "pt-environment-progress",
-      "pt-environment-progress-step",
-      "pt-environment-progress-node"
-    ],
+    bootstrapClasses: ["progress", "progress-bar", "card", "badge", "row", "col"],
+    projectClasses: [],
     states: ["complete", "current", "upcoming", "hidden"],
     screens: ["Projects", "Project Detail", "Change Detail"]
   },
@@ -79,7 +68,7 @@ export const THEME_COMPONENT_REGISTRY = [
       "--pt-color-status-danger"
     ],
     bootstrapClasses: ["badge"],
-    projectClasses: ["pt-pill", "status-pending", "status-progress", "status-qa", "status-done", "status-error"],
+    projectClasses: [],
     states: ["neutral", "pending", "progress", "qa", "done", "error"],
     screens: ["Dashboard", "Projects", "Changes", "Change Detail"]
   },
@@ -93,7 +82,7 @@ export const THEME_COMPONENT_REGISTRY = [
       "--pt-color-status-danger"
     ],
     bootstrapClasses: ["badge"],
-    projectClasses: ["pt-pill", "priority-low", "priority-medium", "priority-high"],
+    projectClasses: [],
     states: ["low", "medium", "high"],
     screens: ["Dashboard", "Changes", "Change Detail"]
   },
@@ -109,8 +98,8 @@ export const THEME_COMPONENT_REGISTRY = [
       "--pt-card-body-padding-x",
       "--pt-card-body-padding-y"
     ],
-    bootstrapClasses: ["card", "card-body"],
-    projectClasses: ["pt-dashboard-metric-card", "pt-clickable-card"],
+    bootstrapClasses: ["card", "card-body", "shadow-sm", "rounded-4", "focus-ring"],
+    projectClasses: [],
     states: ["default", "hover", "focus"],
     screens: ["Dashboard", "Project Detail"]
   },
@@ -125,8 +114,8 @@ export const THEME_COMPONENT_REGISTRY = [
       "--pt-color-status-success-bg",
       "--pt-color-status-danger-soft"
     ],
-    bootstrapClasses: ["alert", "alert-dismissible", "btn-close"],
-    projectClasses: ["pt-inline-notice-toast"],
+    bootstrapClasses: ["alert", "alert-dismissible", "btn-close", "shadow-sm"],
+    projectClasses: [],
     states: ["default", "success", "danger", "closing"],
     screens: ["Workspace shell"]
   },
@@ -141,7 +130,7 @@ export const THEME_COMPONENT_REGISTRY = [
       "--pt-color-status-info-bg"
     ],
     bootstrapClasses: ["card", "btn", "alert"],
-    projectClasses: ["pt-release-update-panel"],
+    projectClasses: [],
     states: ["idle", "checking", "available", "current", "error"],
     screens: ["Profile"]
   },
@@ -156,7 +145,7 @@ export const THEME_COMPONENT_REGISTRY = [
       "--pt-color-text-secondary"
     ],
     bootstrapClasses: ["card", "list-group", "badge"],
-    projectClasses: ["pt-change-history-item", "pt-change-task-card"],
+    projectClasses: [],
     states: ["default", "linked", "empty"],
     screens: ["Change Detail", "Change History"]
   }

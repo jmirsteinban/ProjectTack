@@ -43,8 +43,9 @@ export function renderHeroCard({
     : "";
 
   return `
-    <section class="pt-web-hero pt-hero-card ${heroClass}">
-      <div class="row g-3 align-items-start">
+    <section class="card border-0 text-white shadow-lg rounded-4 ${heroClass}" style="background: var(--pt-gradient-hero);">
+      <div class="card-body p-4 p-xl-5">
+        <div class="row g-3 align-items-start">
         <div class="${mainClass}">
           ${renderOptionalText("h1", title, titleClass)}
           ${descriptionMarkup}
@@ -52,6 +53,7 @@ export function renderHeroCard({
         </div>
         ${controlsMarkup}
         ${actionsMarkup}
+        </div>
       </div>
     </section>
   `;

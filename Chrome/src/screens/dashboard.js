@@ -96,7 +96,7 @@ export function renderDashboardScreen(data) {
     .map(
       (metric) => `
     <div class="col">
-      <article class="card h-100 pt-web-card pt-web-metric-card border-0">
+      <article class="card h-100 border-0 bg-white shadow-sm rounded-4">
         <div class="card-body">
           <p class="text-uppercase small fw-semibold text-secondary mb-2">${escapeHtml(metric.title)}</p>
           <div class="d-flex align-items-end justify-content-between gap-3">
@@ -134,15 +134,15 @@ export function renderDashboardScreen(data) {
     .slice(0, 8)
     .map(
       (item) => `
-      <article class="list-group-item list-group-item-action py-3 pt-clickable-card" data-change-id="${escapeAttribute(item.id)}" role="button" tabindex="0">
+      <article class="list-group-item list-group-item-action py-3 focus-ring focus-ring-primary" data-change-id="${escapeAttribute(item.id)}" role="button" tabindex="0">
         <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
           <div class="min-w-0">
             <h3 class="h6 mb-1">${escapeHtml(item.title)}</h3>
             <p class="mb-0 text-secondary small">${escapeHtml(item.project)}</p>
           </div>
           <div class="d-flex flex-wrap gap-2 justify-content-end">
-            <span class="badge rounded-pill pt-pill ${priorityClass(item.priority)}">${escapeHtml(translatePriority(item.priority))}</span>
-            <span class="badge rounded-pill pt-pill ${statusClass(item.status)}">${escapeHtml(translateStatus(item.status))}</span>
+            <span class="badge rounded-pill ${priorityClass(item.priority)}">${escapeHtml(translatePriority(item.priority))}</span>
+            <span class="badge rounded-pill ${statusClass(item.status)}">${escapeHtml(translateStatus(item.status))}</span>
             <span class="badge rounded-pill bg-light text-dark border">${escapeHtml(item.environment)}</span>
           </div>
         </div>
@@ -180,7 +180,7 @@ export function renderDashboardScreen(data) {
         : "";
 
       return `
-      <article class="list-group-item list-group-item-action py-3 pt-clickable-card" ${navigationAttr} role="button" tabindex="0">
+      <article class="list-group-item list-group-item-action py-3 focus-ring focus-ring-primary" ${navigationAttr} role="button" tabindex="0">
         <div class="d-flex flex-wrap justify-content-between gap-2 mb-2">
           <div class="min-w-0">
             <span class="badge rounded-pill text-bg-light border">${escapeHtml(note.id)}</span>
@@ -188,7 +188,7 @@ export function renderDashboardScreen(data) {
             <p class="mb-0 fw-semibold">${escapeHtml(note.text)}</p>
           </div>
           <div class="d-flex flex-wrap gap-2 align-content-start">
-            <span class="badge rounded-pill pt-pill ${statusClass(note.status)}">${escapeHtml(translateStatus(note.status))}</span>
+            <span class="badge rounded-pill ${statusClass(note.status)}">${escapeHtml(translateStatus(note.status))}</span>
             ${noteEnvironmentPill}
           </div>
         </div>
@@ -229,7 +229,7 @@ export function renderDashboardScreen(data) {
                   </div>
 
                   <div class="card-body pt-3 px-4 pb-4">
-                    <div class="list-group list-group-flush pt-web-list-group">${openChangesMarkup}</div>
+                    <div class="list-group list-group-flush">${openChangesMarkup}</div>
                   </div>
               </article>
           </div>
@@ -245,7 +245,7 @@ export function renderDashboardScreen(data) {
                   </div>
 
                   <div class="card-body pt-3 px-4 pb-4">
-                    <div class="list-group list-group-flush pt-web-list-group">${mentionedNotesMarkup}</div>
+                    <div class="list-group list-group-flush">${mentionedNotesMarkup}</div>
                   </div>
               </article>
           </div>

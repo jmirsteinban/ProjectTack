@@ -25,6 +25,36 @@ La implementación real inicial del `Theme Manager` ya reemplaza el MVP original
 - Incluye importación de CSS, diff de tokens, revisión básica WCAG AA, auditoría inicial de clases `pt-*` y lista de backups/versiones.
 - Incluye un registro explícito inicial de componentes en `Chrome/src/theme/component-registry.js`.
 - Mantiene preview con componentes Bootstrap y ProjectTrack reales.
+- Expone la paleta Bootstrap base completa para tema light activo:
+  - `primary`
+  - `secondary`
+  - `success`
+  - `info`
+  - `warning`
+  - `danger`
+  - `light`
+  - `dark`
+- Muestra `light` y `dark` como colores Bootstrap disponibles, pero no activa todavía un modo oscuro separado con `data-bs-theme="dark"`.
+- El preview ahora incluye más componentes Bootstrap: list group, dropdown, progress, table, badges y alertas por estado.
+- La sección `ProjectTrack Components` incluye una galería visual ampliada con:
+  - breadcrumbs
+  - nav pills
+  - formularios valid/invalid/disabled/readonly
+  - metric cards
+  - notes/tasks
+  - release update panel
+  - Change History entry
+  - modal preview
+  - confirm dialog
+- Los componentes registrados ahora muestran resumen de tokens:
+  - cantidad de tokens editables
+  - cantidad de tokens pendientes de definición
+  - cantidad de tokens modificados
+- Los componentes registrados ahora pueden mostrar controles inline para los tokens que ya conoce el `Theme Manager`.
+- Si un token aparece en varios componentes, sus controles inline se sincronizan al editarlo para evitar valores duplicados desactualizados.
+- Los tokens referenciados por componentes pero todavía no definidos quedan visibles como `Pending token definitions`.
+- La sección `Diff` agrupa cambios por componente impactado usando `Chrome/src/theme/component-registry.js`.
+- La sección `Diff` también conserva una revisión plana de tokens con la lista de componentes impactados.
 
 Scripts disponibles:
 
@@ -284,72 +314,43 @@ Requisitos:
 - Si un componente propio usa Bootstrap internamente, el preview debe mostrar ambas relaciones: clase Bootstrap base y token ProjectTrack aplicado encima.
 - La sección debe servir como inventario visual para detectar componentes que todavía tienen valores codificados de forma fija.
 
-### Clases Bootstrap, ProjectTrack y Legado
+### Bootstrap-Only Runtime Direction
 
-Pregunta origen: qué hacer con las clases que no son Bootstrap y con las clases de componentes propios.
+Pregunta origen: qué hacer con las clases no-Bootstrap en el runtime activo.
 
-Análisis:
+Dirección actual:
 
-- No toda clase no-Bootstrap es deuda técnica.
-- Las clases propias legítimas deben quedarse cuando representan identidad, layout de producto o componentes que Bootstrap no conoce.
-- Las clases heredadas o de compatibilidad deben depurarse cuando duplican Bootstrap o ya no tienen uso real.
+- El runtime activo de Chrome debe usar markup Bootstrap-only.
+- La capa visual residual debe vivir principalmente en tokens y variables Bootstrap editables desde Theme Manager.
+- Las clases custom del runtime deben considerarse deuda a migrar, salvo que el archivo sea histórico, documental o no forme parte del workspace activo.
 
-Clases propias legítimas:
+Reglas actuales:
 
-- Deben conservarse si responden a la pregunta: qué es esto dentro de ProjectTrack.
-- Deben consumir tokens y no valores codificados de forma fija.
-- Ejemplos:
-  - `pt-workspace-navbar`
-  - `pt-workspace-brand`
-  - `pt-web-user-button`
-  - `pt-web-user-avatar`
-  - `pt-hero-card`
-  - `pt-pill`
-  - `pt-clickable-card`
-  - `pt-environment-progress`
-  - `pt-inline-notice-toast`
+- Las pantallas del workspace no deben depender de clases `pt-*` para layout, cards, listas, badges, botones, dropdowns, formularios o wrappers presentacionales.
+- Las previews del Theme Manager deben mostrar el runtime con markup Bootstrap-only siempre que sea posible.
+- Si un comportamiento visual sigue necesitando una capa custom, se debe preferir resolverlo mediante tokens Bootstrap y no mediante nuevas clases de runtime.
 
-Ejemplo esperado:
+Clases residuales aceptables solo de forma temporal:
 
-```css
-.pt-hero-card {
-  background: var(--pt-hero-bg);
-  border-radius: var(--pt-hero-radius);
-  box-shadow: var(--pt-hero-shadow);
-}
-```
+- selectores de compatibilidad mientras una migración está en curso
+- clases de docs internas fuera del runtime activo
+- clases de surfaces no activas como popup legacy o side panel, hasta que se limpien
 
-Clases heredadas o de compatibilidad:
+Objetivo operativo:
 
-- Deben revisarse como deuda potencial si responden solo a la pregunta: cómo se ve esto.
-- Deben migrarse cuando Bootstrap ya resuelve el caso con utilidades o componentes nativos.
-- Ejemplos de clases a auditar:
-  - clases que dupliquen `row` / `col-*`
-  - wrappers visuales que solo agreguen padding, radius o sombra
-  - cards antiguas reemplazables por `card`
-  - clases de layout sin semántica de dominio
-  - clases que ya no aparecen en HTML actual
+- El Theme Manager debe evolucionar hacia un editor de tema Bootstrap en tiempo real, con la menor dependencia posible de markup custom.
+- `Chrome/styles/projecttrack.css` debe converger a una capa minima de tokens/tema y no funcionar como una segunda libreria visual paralela a Bootstrap.
 
-Nota super importante:
+Consecuencia para auditoría:
 
-- En la medida de lo posible, se debe eliminar el uso de clases heredadas que no sean Bootstrap ni componentes propios claros de ProjectTrack.
-- No se deben seguir creando clases `pt-*` sueltas para resolver casos visuales puntuales si Bootstrap ya cubre la necesidad.
-- Si una clase no-Bootstrap se necesita de forma permanente, debe convertirse en un componente propio documentado dentro de `Chrome/components`.
-- Los componentes propios deben tener:
-  - template o renderer identificable
-  - responsabilidad clara
-  - tokens documentados
-  - preview dentro del `Theme Manager`
-  - uso consistente en las pantallas
-- Si no amerita vivir como componente propio, debe resolverse con Bootstrap o eliminarse.
+- toda referencia a `pt-*` en el runtime activo debe tratarse como candidata a eliminación o migración
+- el registro de componentes debe reflejar el estado Bootstrap-first real y no preservar clases antiguas por inercia
 
-Objetivo arquitectónico futuro:
+Objetivo arquitectónico actual:
 
-- Toda clase o regla custom que no pertenezca a Bootstrap debe estar asociada a un componente ubicado en `Chrome/components`.
-- Las pantallas no deben depender de clases custom aisladas.
-- Las pantallas deben consumir Bootstrap para estructura/patrones comunes y componentes propios para reglas visuales específicas de ProjectTrack.
-- Las clases `pt-*` deben quedar como detalle interno de componentes propios, no como una capa visual suelta usada directamente por cada pantalla.
-- El resultado esperado es que `Chrome/styles/projecttrack.css` funcione como soporte de componentes propios bien definidos, no como una segunda librería paralela a Bootstrap.
+- Las pantallas del workspace deben consumir Bootstrap directamente.
+- Theme Manager debe editar tema/tokens, no depender de una capa extensa de clases propias del runtime.
+- `Chrome/styles/projecttrack.css` debe reducirse hasta dejar solo el soporte mínimo que Bootstrap no cubra por variables.
 
 Ejemplo esperado:
 
@@ -468,6 +469,25 @@ Requisitos:
 - El `Theme Manager` debe permitir volver al tema actual del proyecto antes de aplicar o exportar cambios.
 - La fuente de verdad del tema del proyecto es `Chrome/styles/projecttrack.css`.
 - Guardar significa generar el CSS final y sobrescribir solo el bloque marcado del `Theme Manager` dentro de `Chrome/styles/projecttrack.css`.
+
+### Color mode Bootstrap
+
+Decisión actual: ProjectTrack mantiene un solo tema activo en modo light.
+
+Requisitos:
+
+- El `Theme Manager` debe exponer `--bs-light` y `--bs-dark` como colores Bootstrap normales.
+- El `Theme Manager` no debe activar un modo oscuro completo mientras se mantenga la decisión de un solo tema por proyecto.
+- Si en el futuro se decide soportar dark mode, debe agregarse como sección avanzada de `Color Mode`.
+- Un futuro dark mode debe usar la convención Bootstrap 5.3:
+
+```css
+[data-bs-theme="dark"] {
+  /* tokens del modo oscuro */
+}
+```
+
+- El soporte futuro de dark mode debe incluir QA visual, contraste WCAG AA, preview por componente y diff separado por modo.
 
 ### Importación y exportación
 
@@ -809,6 +829,8 @@ Vista de cada componente:
 - Preview en contexto.
 - Tokens globales usados.
 - Tokens específicos del componente.
+- Controles inline para tokens ya registrados por el `Theme Manager`.
+- Lista visible de tokens pendientes de definición.
 - Clases Bootstrap usadas internamente.
 - Clases `pt-*` internas.
 - Estados Bootstrap aplicables.
@@ -967,6 +989,9 @@ Debe mostrar:
   - changed
   - removed
 - Componentes impactados.
+- Resumen de tokens modificados.
+- Resumen de componentes impactados.
+- Cambios agrupados por componente.
 - Acciones:
   - revertir cambio individual
   - copiar cambio

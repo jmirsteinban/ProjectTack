@@ -354,6 +354,10 @@ IA:
 ## Hallazgos Activos
 
 - `Tasks`: falta futura pantalla o widget de burndown chart apoyado en `change_task_events`.
+- Bootstrap audit: la shell activa del workspace ya migro su markup base a Bootstrap puro (`body`, host root, navbar, contenedor principal y vista principal); queda pendiente seguir con componentes y CSS custom residuales.
+- Bootstrap audit: Hero Card, pills runtime, empty states basicos, metric cards y clickable rows activas ya usan markup Bootstrap-only; siguen pendientes Theme Manager, environment progress y la poda fuerte de `projecttrack.css`.
+- Bootstrap audit: Environment Progress ya usa markup Bootstrap-only; el mayor bloque restante del runtime visible sigue concentrado en Theme Manager y en el CSS residual.
+- Bootstrap audit: Theme Manager ya usa markup Bootstrap-only; el mayor bloque restante ya no es el HTML del runtime, sino la limpieza residual de `projecttrack.css`, registros internos y texto historico/documental.
 - Bootstrap audit: ya se retiraron wrappers presentacionales pequenos en Dashboard y Change Detail, pero la revision profunda del runtime sigue pendiente.
 - Bootstrap audit: `Change Detail` ya simplifico helpers de layout de la seccion `Tasks` usando utilidades Bootstrap directas.
 - Documentacion funcional: falta seguir migrando a ingles donde aplique y mantener las guias vivas alineadas al runtime actual.

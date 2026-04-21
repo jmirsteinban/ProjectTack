@@ -83,9 +83,12 @@ ProjectTrack identidad y dominio:
 ## Estado Actual
 
 - `workspace.html` es la entrada principal del runtime Chrome.
+- La shell activa del workspace ya usa markup Bootstrap-first para `body`, host root, navbar y contenedor principal.
 - El navbar global vive en un template editable y muestra breadcrumbs dinamicos copiables.
 - Las pantallas principales usan Bootstrap real para layout, formularios, listas, cards, alerts, badges y botones.
-- El primer bloque visual de las pantallas usa el Hero Card compartido.
+- El Hero Card compartido, los pills runtime, empty states basicos, metric cards y clickable rows activos ya migraron su markup a Bootstrap-only.
+- Environment Progress ya migró a markup Bootstrap-only usando `progress`, `card`, `badge`, `row` y `col`.
+- Theme Manager tambien ya migró su markup activo a Bootstrap-only; el trabajo restante se concentra sobre CSS residual y registros/documentacion heredada.
 - QA visual full-tab aprobado en Chrome para 360px, 550px, 960px y desktop wide.
 - QA funcional principal aprobado en Chrome para Projects, Project Details, Change Details, editors, Login, Profile, navbar, Change History y UI Guide.
 - `workspace.html` carga Bootstrap local primero y `projecttrack.css` despues.
@@ -95,9 +98,9 @@ ProjectTrack identidad y dominio:
 
 ## Siguiente Trabajo
 
-1. Validar visualmente el stack CSS unico en `workspace.html` y `Chrome/docs/projecttrack-ui.html`.
-2. Actualizar `Chrome/docs/projecttrack-ui.html` cada vez que cambie el runtime visible.
-3. Preparar release cuando cierre la validacion CSS final.
+1. Reducir `projecttrack.css` hasta dejar solo la capa minima de tema Bootstrap que siga siendo necesaria para el runtime activo.
+2. Limpiar registros, changelog y documentacion heredada que aun describen clases runtime ya migradas.
+3. Validar visualmente el stack CSS unico en `workspace.html` y `Chrome/docs/projecttrack-ui.html`.
 
 ## QA Funcional
 

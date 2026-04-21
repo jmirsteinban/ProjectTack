@@ -27,7 +27,13 @@ const THEME_TOKEN_DEFINITIONS = [
   { name: "--bs-primary", label: "Bootstrap primary", category: "Colors", type: "color", fallback: "#0d6efd" },
   { name: "--bs-secondary", label: "Bootstrap secondary", category: "Colors", type: "color", fallback: "#6c757d" },
   { name: "--bs-success", label: "Bootstrap success", category: "Colors", type: "color", fallback: "#198754" },
+  { name: "--bs-info", label: "Bootstrap info", category: "Colors", type: "color", fallback: "#0dcaf0" },
+  { name: "--bs-warning", label: "Bootstrap warning", category: "Colors", type: "color", fallback: "#ffc107" },
   { name: "--bs-danger", label: "Bootstrap danger", category: "Colors", type: "color", fallback: "#dc3545" },
+  { name: "--bs-light", label: "Bootstrap light", category: "Colors", type: "color", fallback: "#f8f9fa" },
+  { name: "--bs-dark", label: "Bootstrap dark", category: "Colors", type: "color", fallback: "#212529" },
+  { name: "--bs-body-color", label: "Bootstrap body text", category: "Colors", type: "color", fallback: "#212529" },
+  { name: "--bs-body-bg", label: "Bootstrap body background", category: "Colors", type: "color", fallback: "#ffffff" },
   { name: "--pt-color-brand-primary", label: "ProjectTrack brand", category: "Colors", type: "color", fallback: "#204d38" },
   { name: "--pt-color-brand-strong", label: "Brand strong", category: "Colors", type: "color", fallback: "#153426" },
   { name: "--pt-color-brand-soft", label: "Brand soft", category: "Colors", type: "color", fallback: "#d9e9df" },
@@ -36,10 +42,19 @@ const THEME_TOKEN_DEFINITIONS = [
   { name: "--pt-color-bg-canvas", label: "Canvas background", category: "Colors", type: "text", fallback: "rgba(247, 246, 240, 0.92)" },
   { name: "--pt-color-card", label: "Card surface", category: "Colors", type: "color", fallback: "#fbfaf6" },
   { name: "--pt-color-border-subtle", label: "Subtle border", category: "Colors", type: "text", fallback: "rgba(29, 42, 35, 0.12)" },
+  { name: "--pt-color-text-on-dark", label: "Text on dark", category: "Colors", type: "text", fallback: "var(--pt-color-white)" },
+  { name: "--pt-color-text-on-dark-muted", label: "Muted text on dark", category: "Colors", type: "text", fallback: "rgba(255, 255, 255, 0.78)" },
+  { name: "--pt-card-bg", label: "Component card background", category: "Component Tokens", type: "text", fallback: "var(--pt-color-card)" },
+  { name: "--pt-card-border-color", label: "Component card border", category: "Component Tokens", type: "text", fallback: "var(--pt-color-border-subtle)" },
   { name: "--pt-color-status-info", label: "Status info", category: "States", type: "color", fallback: "#7cb7ff" },
+  { name: "--pt-color-status-info-bg", label: "Status info background", category: "States", type: "color", fallback: "#eef5ff" },
   { name: "--pt-color-status-warning", label: "Status warning", category: "States", type: "color", fallback: "#f59e0b" },
   { name: "--pt-color-status-success", label: "Status success", category: "States", type: "color", fallback: "#16a34a" },
+  { name: "--pt-color-status-success-bg", label: "Status success background", category: "States", type: "color", fallback: "#edf8f1" },
+  { name: "--pt-color-status-neutral", label: "Status neutral", category: "States", type: "color", fallback: "#e8ece8" },
+  { name: "--pt-color-status-neutral-text", label: "Status neutral text", category: "States", type: "color", fallback: "#415046" },
   { name: "--pt-color-status-danger", label: "Status danger", category: "States", type: "color", fallback: "#dc2626" },
+  { name: "--pt-color-status-danger-soft", label: "Status danger soft", category: "States", type: "color", fallback: "#fff0ee" },
   { name: "--pt-font-sans", label: "Body font stack", category: "Typography", type: "font", fallback: FONT_STACKS["System UI"] },
   { name: "--pt-font-heading", label: "Heading font stack", category: "Typography", type: "font", fallback: FONT_STACKS.Graphik },
   { name: "--pt-text-step-base", label: "Base text size", category: "Typography", type: "range", min: 10, max: 18, step: 1, unit: "px", fallback: "12px" },
@@ -47,14 +62,24 @@ const THEME_TOKEN_DEFINITIONS = [
   { name: "--pt-btn-border-radius", label: "Button radius", category: "Shape", type: "select", options: BOOTSTRAP_THEME_SCALES.radius, fallback: "14px" },
   { name: "--pt-form-control-radius", label: "Form radius", category: "Shape", type: "select", options: BOOTSTRAP_THEME_SCALES.radius, fallback: "12px" },
   { name: "--pt-alert-radius", label: "Alert radius", category: "Shape", type: "select", options: BOOTSTRAP_THEME_SCALES.radius, fallback: "16px" },
+  { name: "--pt-modal-radius", label: "Modal radius", category: "Shape", type: "select", options: BOOTSTRAP_THEME_SCALES.radius, fallback: "22px" },
   { name: "--pt-card-box-shadow", label: "Card shadow", category: "Shadows", type: "select", options: BOOTSTRAP_THEME_SCALES.shadow, fallback: "0 14px 28px rgba(22, 36, 27, 0.08)" },
   { name: "--pt-btn-shadow", label: "Button shadow", category: "Shadows", type: "select", options: BOOTSTRAP_THEME_SCALES.shadow, fallback: "0 8px 18px rgba(22, 36, 27, 0.08)" },
   { name: "--pt-card-body-padding-x", label: "Card padding X", category: "Spacing", type: "select", options: BOOTSTRAP_THEME_SCALES.spacing, fallback: "18px" },
   { name: "--pt-card-body-padding-y", label: "Card padding Y", category: "Spacing", type: "select", options: BOOTSTRAP_THEME_SCALES.spacing, fallback: "18px" },
   { name: "--pt-btn-padding-x", label: "Button padding X", category: "Spacing", type: "select", options: BOOTSTRAP_THEME_SCALES.spacing, fallback: "16px" },
+  { name: "--pt-alert-padding-x", label: "Alert padding X", category: "Spacing", type: "select", options: BOOTSTRAP_THEME_SCALES.spacing, fallback: "16px" },
+  { name: "--pt-alert-padding-y", label: "Alert padding Y", category: "Spacing", type: "select", options: BOOTSTRAP_THEME_SCALES.spacing, fallback: "14px" },
   { name: "--pt-gradient-hero", label: "Hero gradient", category: "Gradients", type: "text", fallback: "linear-gradient(135deg, #26263a 0%, #46307a 52%, #6740aa 100%)" },
-  { name: "--pt-gradient-progress-track", label: "Progress gradient", category: "Gradients", type: "text", fallback: "linear-gradient(90deg, #f17d2f 0%, #ff4b5c 48%, #b33ee6 100%)" }
+  { name: "--pt-gradient-progress-track", label: "Progress gradient", category: "Gradients", type: "text", fallback: "linear-gradient(90deg, #f17d2f 0%, #ff4b5c 48%, #b33ee6 100%)" },
+  { name: "--pt-gradient-progress-complete", label: "Progress complete gradient", category: "Gradients", type: "text", fallback: "linear-gradient(135deg, #f17d2f 0%, #ff4b5c 100%)" },
+  { name: "--pt-gradient-progress-current", label: "Progress current gradient", category: "Gradients", type: "text", fallback: "linear-gradient(135deg, #ff4b5c 0%, #b33ee6 100%)" },
+  { name: "--pt-gradient-progress-idle", label: "Progress idle gradient", category: "Gradients", type: "text", fallback: "linear-gradient(135deg, #c8cbd3 0%, #aeb5c2 100%)" }
 ];
+
+const THEME_TOKEN_DEFINITION_BY_NAME = new Map(
+  THEME_TOKEN_DEFINITIONS.map((definition) => [definition.name, definition])
+);
 
 const themeState = {
   activeSection: "overview",
@@ -184,7 +209,11 @@ function getDerivedTokens(tokens = themeState.editedTokens) {
     ["--bs-primary", "--bs-primary-rgb"],
     ["--bs-secondary", "--bs-secondary-rgb"],
     ["--bs-success", "--bs-success-rgb"],
-    ["--bs-danger", "--bs-danger-rgb"]
+    ["--bs-info", "--bs-info-rgb"],
+    ["--bs-warning", "--bs-warning-rgb"],
+    ["--bs-danger", "--bs-danger-rgb"],
+    ["--bs-light", "--bs-light-rgb"],
+    ["--bs-dark", "--bs-dark-rgb"]
   ].forEach(([source, target]) => {
     if (isColorLike(tokens[source])) {
       derived[target] = hexToRgb(tokens[source]).join(", ");
@@ -219,7 +248,7 @@ function applyTheme(tokens) {
   };
   const targets = [
     document.documentElement,
-    document.querySelector(".pt-web-app")
+    document.querySelector("[data-projecttrack-root]")
   ].filter(Boolean);
 
   targets.forEach((target) => {
@@ -237,6 +266,59 @@ function diffTokens() {
       edited: themeState.editedTokens[token.name] || ""
     }))
     .filter((token) => token.original !== token.edited);
+}
+
+function getImpactedComponents(tokenName) {
+  return THEME_COMPONENT_REGISTRY.filter((component) => component.tokens.includes(tokenName));
+}
+
+function buildComponentDiffGroups(changes) {
+  const groups = new Map();
+
+  changes.forEach((change) => {
+    const impactedComponents = getImpactedComponents(change.name);
+    if (!impactedComponents.length) {
+      const groupId = "__global__";
+      if (!groups.has(groupId)) {
+        groups.set(groupId, {
+          id: groupId,
+          name: "Global / Bootstrap Base",
+          screens: ["Theme-wide"],
+          changes: []
+        });
+      }
+      groups.get(groupId).changes.push(change);
+      return;
+    }
+
+    impactedComponents.forEach((component) => {
+      if (!groups.has(component.id)) {
+        groups.set(component.id, {
+          id: component.id,
+          name: component.name,
+          screens: component.screens,
+          changes: []
+        });
+      }
+      groups.get(component.id).changes.push(change);
+    });
+  });
+
+  return [...groups.values()];
+}
+
+function renderDiffChangeRow(change) {
+  return `
+    <tr>
+      <td>
+        <code>${escapeHtml(change.name)}</code>
+        <span class="d-block small text-secondary">${escapeHtml(change.category)}</span>
+      </td>
+      <td><code>${escapeHtml(change.original)}</code></td>
+      <td><code>${escapeHtml(change.edited)}</code></td>
+      <td><button type="button" class="btn btn-sm btn-outline-secondary" data-action="theme-revert-token" data-theme-token-name="${escapeAttribute(change.name)}">Revert</button></td>
+    </tr>
+  `;
 }
 
 function setMessage(message, tone = "info") {
@@ -296,13 +378,31 @@ async function loadProjectCss() {
   applyTheme(themeState.editedTokens);
 }
 
-function readControls(manager) {
-  manager.querySelectorAll("[data-theme-token]").forEach((control) => {
-    const unit = control.dataset.themeUnit || "";
-    themeState.editedTokens[control.dataset.themeToken] = unit
-      ? `${Number.parseFloat(control.value)}${unit}`
-      : control.value;
+function getControlValue(control) {
+  const unit = control.dataset.themeUnit || "";
+  return unit
+    ? `${Number.parseFloat(control.value)}${unit}`
+    : control.value;
+}
+
+function setControlValue(control, value) {
+  if (control.dataset.themeUnit) {
+    control.value = Number.parseFloat(value) || 0;
+    return;
+  }
+  control.value = value;
+}
+
+function syncTokenControls(manager, tokenName) {
+  manager.querySelectorAll(`[data-theme-token="${CSS.escape(tokenName)}"]`).forEach((control) => {
+    setControlValue(control, themeState.editedTokens[tokenName] || "");
   });
+}
+
+function updateEditedTokenFromControl(manager, control) {
+  const tokenName = control.dataset.themeToken;
+  themeState.editedTokens[tokenName] = getControlValue(control);
+  syncTokenControls(manager, tokenName);
   applyTheme(themeState.editedTokens);
 }
 
@@ -365,14 +465,54 @@ function renderTokenControl(token) {
   const value = themeState.editedTokens[token.name] || token.fallback;
   const changed = original !== value;
   return `
-    <label class="pt-theme-token-control ${changed ? "pt-theme-token-control--changed" : ""}">
-      <span class="pt-theme-token-label">
-        <span>${escapeHtml(token.label)}</span>
+    <label class="d-grid gap-2 border rounded-3 p-3 ${changed ? "border-warning bg-warning-subtle" : "bg-white"}">
+      <span class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+        <span class="fw-semibold">${escapeHtml(token.label)}</span>
         <code>${escapeHtml(token.name)}</code>
       </span>
       ${renderValueInput(token)}
-      <span class="pt-theme-token-meta">Current: <code>${escapeHtml(original)}</code></span>
+      <span class="small text-secondary">Current: <code>${escapeHtml(original)}</code></span>
     </label>
+  `;
+}
+
+function renderComponentTokenControl(tokenName) {
+  const token = THEME_TOKEN_DEFINITION_BY_NAME.get(tokenName);
+  if (!token) {
+    return "";
+  }
+  return `
+    <div class="min-w-0">
+      ${renderTokenControl(token)}
+    </div>
+  `;
+}
+
+function renderComponentTokenSummary(component) {
+  const editableTokens = component.tokens.filter((tokenName) => THEME_TOKEN_DEFINITION_BY_NAME.has(tokenName));
+  const pendingTokens = component.tokens.filter((tokenName) => !THEME_TOKEN_DEFINITION_BY_NAME.has(tokenName));
+  const changedTokens = editableTokens.filter((tokenName) => themeState.originalTokens[tokenName] !== themeState.editedTokens[tokenName]);
+
+  return `
+    <div class="d-flex flex-wrap gap-2 mt-3 pt-3 border-top small text-secondary">
+      <span class="badge text-bg-light border"><strong>${editableTokens.length}</strong> editable</span>
+      <span class="badge text-bg-light border"><strong>${pendingTokens.length}</strong> pending</span>
+      <span class="badge text-bg-light border"><strong>${changedTokens.length}</strong> changed</span>
+    </div>
+    ${editableTokens.length ? `
+      <details class="mt-3">
+        <summary>Component token controls</summary>
+        <div class="d-grid gap-3 mt-3">
+          ${editableTokens.map(renderComponentTokenControl).join("")}
+        </div>
+      </details>
+    ` : ""}
+    ${pendingTokens.length ? `
+      <div class="d-grid gap-2 mt-3">
+        <span class="small fw-bold">Pending token definitions</span>
+        <div class="d-flex flex-wrap gap-2">${pendingTokens.map((token) => `<code>${escapeHtml(token)}</code>`).join("")}</div>
+      </div>
+    ` : ""}
   `;
 }
 
@@ -384,8 +524,8 @@ function renderTokensSection() {
   }, {});
 
   return Object.entries(grouped).map(([group, tokens]) => `
-    <section class="card pt-theme-section-card" id="theme-${escapeAttribute(group.toLowerCase())}">
-      <div class="card-body">
+    <section class="card border-0 shadow-sm" id="theme-${escapeAttribute(group.toLowerCase())}">
+      <div class="card-body d-grid gap-3">
         <div class="d-flex justify-content-between gap-3 flex-wrap mb-3">
           <div>
             <p class="text-uppercase text-secondary fw-bold small mb-1">Theme Tokens</p>
@@ -393,7 +533,7 @@ function renderTokensSection() {
           </div>
           <span class="badge text-bg-light border">${tokens.length} tokens</span>
         </div>
-        <div class="pt-theme-token-grid">
+        <div class="d-grid gap-3">
           ${tokens.map(renderTokenControl).join("")}
         </div>
       </div>
@@ -403,11 +543,11 @@ function renderTokensSection() {
 
 function renderBootstrapSection() {
   return `
-    <section class="card pt-theme-section-card">
-      <div class="card-body">
+    <section class="card border-0 shadow-sm">
+      <div class="card-body d-grid gap-3">
         <p class="text-uppercase text-secondary fw-bold small mb-1">Bootstrap 5.3</p>
         <h2 class="h4">Closed scales</h2>
-        <p class="text-secondary">These controls intentionally expose only Bootstrap-approved options.</p>
+        <p class="text-secondary">These controls intentionally expose only Bootstrap-approved options. ProjectTrack is currently using one active light theme, while still exposing Bootstrap light and dark color tokens.</p>
         <div class="row g-3">
           ${Object.entries(BOOTSTRAP_THEME_SCALES).map(([key, options]) => `
             <div class="col-12 col-lg-4">
@@ -422,29 +562,209 @@ function renderBootstrapSection() {
         </div>
       </div>
     </section>
+    <section class="card border-0 shadow-sm">
+      <div class="card-body d-grid gap-3">
+        <p class="text-uppercase text-secondary fw-bold small mb-1">Bootstrap Colors</p>
+        <h2 class="h4">Theme color preview</h2>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3">
+          ${["primary", "secondary", "success", "info", "warning", "danger", "light", "dark"].map((tone) => `
+            <div class="col"><div class="border rounded-3 p-3 h-100 bg-${tone} ${["light", "warning", "info"].includes(tone) ? "text-dark" : "text-white"}" style="min-height:84px;"><strong class="d-block">${tone}</strong><code>${escapeHtml(`--bs-${tone}`)}</code></div></div>
+          `).join("")}
+        </div>
+      </div>
+    </section>
   `;
 }
 
 function renderProjectTrackComponentsSection() {
   return `
-    <section class="card pt-theme-section-card">
-      <div class="card-body">
+    <section class="card border-0 shadow-sm">
+      <div class="card-body d-grid gap-3">
         <p class="text-uppercase text-secondary fw-bold small mb-1">ProjectTrack Components</p>
         <h2 class="h4">Registered components</h2>
-        <div class="pt-theme-component-grid">
+        <div class="row row-cols-1 row-cols-xl-2 g-3">
           ${THEME_COMPONENT_REGISTRY.map((component) => `
-            <article class="border rounded-3 p-3">
-              <div class="d-flex justify-content-between gap-3 mb-2">
-                <h3 class="h6 mb-0">${escapeHtml(component.name)}</h3>
-                <span class="badge text-bg-success">${escapeHtml(component.family)}</span>
-              </div>
-              <p class="small text-secondary mb-2">Screens: ${escapeHtml(component.screens.join(", "))}</p>
-              <p class="small mb-1"><strong>Tokens</strong></p>
-              <div class="pt-theme-code-list">${component.tokens.map((token) => `<code>${escapeHtml(token)}</code>`).join("")}</div>
-              <p class="small mt-3 mb-1"><strong>Project classes</strong></p>
-              <div class="pt-theme-code-list">${component.projectClasses.map((className) => `<code>${escapeHtml(className)}</code>`).join("")}</div>
-            </article>
+            <div class="col">
+              <article class="border rounded-3 p-3 h-100 bg-white">
+                <div class="d-flex justify-content-between gap-3 mb-2">
+                  <h3 class="h6 mb-0">${escapeHtml(component.name)}</h3>
+                  <span class="badge text-bg-success">${escapeHtml(component.family)}</span>
+                </div>
+                <p class="small text-secondary mb-2">Screens: ${escapeHtml(component.screens.join(", "))}</p>
+                <p class="small mb-1"><strong>Tokens</strong></p>
+                <div class="d-flex flex-wrap gap-2">${component.tokens.map((token) => `<code>${escapeHtml(token)}</code>`).join("")}</div>
+                <p class="small mt-3 mb-1"><strong>Project classes</strong></p>
+                <div class="d-flex flex-wrap gap-2">${component.projectClasses.map((className) => `<code>${escapeHtml(className)}</code>`).join("")}</div>
+                ${renderComponentTokenSummary(component)}
+              </article>
+            </div>
           `).join("")}
+        </div>
+      </div>
+    </section>
+    ${renderComponentGallerySection()}
+  `;
+}
+
+function renderComponentGallerySection() {
+  return `
+    <section class="card border-0 shadow-sm">
+      <div class="card-body d-grid gap-3">
+        <p class="text-uppercase text-secondary fw-bold small mb-1">Component Gallery</p>
+        <h2 class="h4">Real states preview</h2>
+        <p class="text-secondary">A wider visual QA surface for Bootstrap and ProjectTrack components before editing tokens by component.</p>
+        <div class="row row-cols-1 row-cols-xl-2 g-3">
+          <div class="col"><section class="border rounded-3 p-3 h-100 bg-white">
+            <h3 class="h6">Breadcrumbs and navigation</h3>
+            <nav aria-label="Theme preview breadcrumb">
+              <ol class="breadcrumb mb-3">
+                <li class="breadcrumb-item"><a href="#">Workspace</a></li>
+                <li class="breadcrumb-item"><a href="#">Projects</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Theme Manager</li>
+              </ol>
+            </nav>
+            <ul class="nav nav-pills gap-2">
+              <li class="nav-item"><a class="nav-link active" href="#">Active</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Default</a></li>
+              <li class="nav-item"><a class="nav-link disabled" aria-disabled="true">Disabled</a></li>
+            </ul>
+          </section></div>
+
+          <div class="col"><section class="border rounded-3 p-3 h-100 bg-white">
+            <h3 class="h6">Form states</h3>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="theme-valid-field">Valid field</label>
+                <input class="form-control is-valid" id="theme-valid-field" type="text" value="Approved">
+                <div class="valid-feedback">Looks good.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="theme-invalid-field">Invalid field</label>
+                <input class="form-control is-invalid" id="theme-invalid-field" type="text" value="Missing owner">
+                <div class="invalid-feedback">Owner is required.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="theme-disabled-field">Disabled field</label>
+                <input class="form-control" id="theme-disabled-field" type="text" value="Locked" disabled>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="theme-readonly-field">Readonly field</label>
+                <input class="form-control" id="theme-readonly-field" type="text" value="System generated" readonly>
+              </div>
+            </div>
+          </section></div>
+
+          <div class="col"><section class="border rounded-3 p-3 h-100 bg-white">
+            <h3 class="h6">Metric cards</h3>
+            <div class="row g-3">
+              <div class="col-12 col-md-4">
+                <div class="border rounded-3 p-3 h-100">
+                  <p class="text-uppercase text-secondary small fw-bold mb-1">Assigned</p>
+                  <strong class="h3 d-block mb-1">18</strong>
+                  <span class="badge text-bg-primary">Active</span>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="border rounded-3 p-3 h-100">
+                  <p class="text-uppercase text-secondary small fw-bold mb-1">QA Ready</p>
+                  <strong class="h3 d-block mb-1">7</strong>
+                  <span class="badge text-bg-warning">Review</span>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="border rounded-3 p-3 h-100">
+                  <p class="text-uppercase text-secondary small fw-bold mb-1">Done</p>
+                  <strong class="h3 d-block mb-1">42</strong>
+                  <span class="badge text-bg-success">Closed</span>
+                </div>
+              </div>
+            </div>
+          </section></div>
+
+          <div class="col"><section class="border rounded-3 p-3 h-100 bg-white">
+            <h3 class="h6">Notes and tasks</h3>
+            <div class="list-group">
+              <article class="list-group-item">
+                <div class="d-flex justify-content-between gap-3">
+                  <strong>Review launch checklist</strong>
+                  <span class="badge rounded-pill text-bg-danger">High</span>
+                </div>
+                <p class="mb-2 text-secondary small">Confirm tracker import and final QA notes before release.</p>
+                <div class="d-flex flex-wrap gap-2">
+                  <span class="badge rounded-pill text-bg-primary">In progress</span>
+                  <span class="badge rounded-pill text-bg-info">Linked note</span>
+                </div>
+              </article>
+              <article class="list-group-item">
+                <div class="d-flex justify-content-between gap-3">
+                  <strong>Document rollback path</strong>
+                  <span class="badge rounded-pill text-bg-warning text-dark">Medium</span>
+                </div>
+                <p class="mb-2 text-secondary small">Keep backup restore behavior visible in Theme Manager.</p>
+                <span class="badge rounded-pill text-bg-warning text-dark">QA</span>
+              </article>
+            </div>
+          </section></div>
+
+          <div class="col"><section class="border rounded-3 p-3 h-100 bg-white">
+            <h3 class="h6">Release update panel</h3>
+            <div class="alert alert-info mb-3" role="status">
+              <strong>Version check.</strong> ProjectTrack Chrome is checking the private release channel.
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-primary" type="button">Download update</button>
+              <button class="btn btn-outline-secondary" type="button">Check again</button>
+              <button class="btn btn-outline-danger" type="button" disabled>Unavailable</button>
+            </div>
+          </section></div>
+
+          <div class="col"><section class="border rounded-3 p-3 h-100 bg-white">
+            <h3 class="h6">Change History entry</h3>
+            <article class="border rounded-3 p-3">
+              <div class="d-flex justify-content-between gap-3 flex-wrap">
+                <div>
+                  <strong>Theme Manager gallery coverage</strong>
+                  <p class="text-secondary small mb-0">Component preview expanded for visual QA.</p>
+                </div>
+                <span class="badge text-bg-success">Feature</span>
+              </div>
+              <ul class="mt-3 mb-0 small">
+                <li>Forms, navigation, modal, metrics and tasks are visible.</li>
+                <li>States can be checked before token changes are saved.</li>
+              </ul>
+            </article>
+          </section></div>
+
+          <div class="col"><section class="border rounded-3 p-3 h-100 bg-white">
+            <h3 class="h6">Modal preview</h3>
+            <div class="card" role="dialog" aria-modal="false" aria-label="Theme modal preview">
+              <div class="modal-header">
+                <h4 class="modal-title h6">Confirm theme save</h4>
+                <button type="button" class="btn-close" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p class="mb-0">Only the marked token block will be replaced. A backup is created first.</p>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-outline-secondary" type="button">Cancel</button>
+                <button class="btn btn-primary" type="button">Save tokens</button>
+              </div>
+            </div>
+          </section></div>
+
+          <div class="col"><section class="border rounded-3 p-3 h-100 bg-white">
+            <h3 class="h6">Confirm dialog</h3>
+            <div class="card">
+              <div class="card-body">
+              <strong>Restore backup?</strong>
+              <p class="text-secondary mb-3">The current CSS will be backed up before restoring the selected version.</p>
+              <div class="d-flex flex-wrap gap-2 justify-content-end">
+                <button class="btn btn-outline-secondary btn-sm" type="button">Cancel</button>
+                <button class="btn btn-danger btn-sm" type="button">Restore</button>
+              </div>
+              </div>
+            </div>
+          </section></div>
         </div>
       </div>
     </section>
@@ -467,8 +787,8 @@ function renderAuditSection() {
   }).join("");
 
   return `
-    <section class="card pt-theme-section-card">
-      <div class="card-body">
+    <section class="card border-0 shadow-sm">
+      <div class="card-body d-grid gap-3">
         <p class="text-uppercase text-secondary fw-bold small mb-1">Legacy / Audit</p>
         <h2 class="h4">Custom class inventory</h2>
         <p class="text-secondary">Initial automatic audit. Future source of truth should be the explicit component registry.</p>
@@ -518,7 +838,7 @@ function renderAccessibilitySection() {
   });
 
   return `
-    <section class="card pt-theme-section-card">
+    <section class="card border-0 shadow-sm">
       <div class="card-body">
         <p class="text-uppercase text-secondary fw-bold small mb-1">WCAG AA</p>
         <h2 class="h4">Accessibility checks</h2>
@@ -544,19 +864,19 @@ function renderAccessibilitySection() {
 
 function renderImportExportSection() {
   return `
-    <section class="card pt-theme-section-card">
-      <div class="card-body">
+    <section class="card border-0 shadow-sm">
+      <div class="card-body d-grid gap-3">
         <p class="text-uppercase text-secondary fw-bold small mb-1">Import / Export</p>
         <h2 class="h4">Reusable CSS</h2>
         <div class="row g-3">
           <div class="col-12 col-xl-6">
             <label class="form-label fw-bold" for="theme-import-css">Import :root block</label>
-            <textarea class="form-control pt-theme-output" id="theme-import-css" data-theme-import rows="14" spellcheck="false">${escapeHtml(themeState.importCss)}</textarea>
+            <textarea class="form-control font-monospace" id="theme-import-css" data-theme-import rows="14" spellcheck="false">${escapeHtml(themeState.importCss)}</textarea>
             <button type="button" class="btn btn-outline-primary mt-3" data-action="theme-import-css">Apply import to preview</button>
           </div>
           <div class="col-12 col-xl-6">
             <label class="form-label fw-bold" for="theme-export-css">Export :root block</label>
-            <textarea class="form-control pt-theme-output" id="theme-export-css" data-theme-output rows="14" spellcheck="false">${escapeHtml(buildRootBlock())}</textarea>
+            <textarea class="form-control font-monospace" id="theme-export-css" data-theme-output rows="14" spellcheck="false">${escapeHtml(buildRootBlock())}</textarea>
             <div class="d-flex flex-wrap gap-2 mt-3">
               <button type="button" class="btn btn-primary" data-action="theme-copy-css">Copy CSS</button>
               <button type="button" class="btn btn-outline-secondary" data-action="theme-copy-marked-css">Copy marked block</button>
@@ -570,7 +890,7 @@ function renderImportExportSection() {
 
 function renderBackupsSection() {
   return `
-    <section class="card pt-theme-section-card">
+    <section class="card border-0 shadow-sm">
       <div class="card-body">
         <div class="d-flex justify-content-between gap-3 flex-wrap mb-3">
           <div>
@@ -605,23 +925,85 @@ function renderBackupsSection() {
 
 function renderDiffSection() {
   const changes = diffTokens();
+  const componentGroups = buildComponentDiffGroups(changes);
+  const changedComponents = new Set(
+    changes.flatMap((change) => getImpactedComponents(change.name).map((component) => component.id))
+  );
+  const categoryCounts = changes.reduce((counts, change) => {
+    counts[change.category] = (counts[change.category] || 0) + 1;
+    return counts;
+  }, {});
+
   return `
-    <section class="card pt-theme-section-card">
-      <div class="card-body">
+    <section class="card border-0 shadow-sm">
+      <div class="card-body d-grid gap-3">
         <p class="text-uppercase text-secondary fw-bold small mb-1">Diff</p>
         <h2 class="h4">Unsaved changes</h2>
+        ${changes.length ? `
+          <div class="row row-cols-1 row-cols-md-3 g-3">
+            <div class="col"><div class="border rounded-3 p-3 h-100 bg-white">
+              <strong>${changes.length}</strong>
+              <span>changed tokens</span>
+            </div></div>
+            <div class="col"><div class="border rounded-3 p-3 h-100 bg-white">
+              <strong>${changedComponents.size}</strong>
+              <span>impacted components</span>
+            </div></div>
+            <div class="col"><div class="border rounded-3 p-3 h-100 bg-white">
+              <strong>${Object.keys(categoryCounts).length}</strong>
+              <span>changed categories</span>
+            </div></div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            ${Object.entries(categoryCounts).map(([category, count]) => `<code>${escapeHtml(category)}: ${count}</code>`).join("")}
+          </div>
+
+          <div class="row row-cols-1 g-3 mt-3">
+            ${componentGroups.map((group) => `
+              <div class="col"><article class="border rounded-3 p-3 bg-white h-100">
+                <div class="d-flex justify-content-between gap-3 flex-wrap mb-2">
+                  <div>
+                    <h3 class="h6 mb-1">${escapeHtml(group.name)}</h3>
+                    <p class="small text-secondary mb-0">${escapeHtml(group.screens.join(", "))}</p>
+                  </div>
+                  <span class="badge text-bg-primary">${group.changes.length} changes</span>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-sm align-middle mb-0">
+                    <thead><tr><th>Variable</th><th>Current</th><th>Edited</th><th>Action</th></tr></thead>
+                    <tbody>${group.changes.map(renderDiffChangeRow).join("")}</tbody>
+                  </table>
+                </div>
+              </article></div>
+            `).join("")}
+          </div>
+        ` : `
+          <p class="alert alert-success mb-0">No changes. The edited theme matches project CSS.</p>
+        `}
+      </div>
+    </section>
+
+    <section class="card border-0 shadow-sm">
+      <div class="card-body">
+        <p class="text-uppercase text-secondary fw-bold small mb-1">Full Token Diff</p>
+        <h2 class="h4">Flat review</h2>
         <div class="table-responsive">
           <table class="table table-sm align-middle">
-            <thead><tr><th>Variable</th><th>Current</th><th>Edited</th><th>Action</th></tr></thead>
+            <thead><tr><th>Variable</th><th>Current</th><th>Edited</th><th>Impacted components</th><th>Action</th></tr></thead>
             <tbody>
-              ${changes.map((change) => `
-                <tr>
-                  <td><code>${escapeHtml(change.name)}</code></td>
-                  <td><code>${escapeHtml(change.original)}</code></td>
-                  <td><code>${escapeHtml(change.edited)}</code></td>
-                  <td><button type="button" class="btn btn-sm btn-outline-secondary" data-action="theme-revert-token" data-theme-token-name="${escapeAttribute(change.name)}">Revert</button></td>
-                </tr>
-              `).join("") || `<tr><td colspan="4">No changes. The edited theme matches project CSS.</td></tr>`}
+              ${changes.map((change) => {
+                const impacted = getImpactedComponents(change.name);
+                return `
+                  <tr>
+                    <td><code>${escapeHtml(change.name)}</code><span class="d-block small text-secondary">${escapeHtml(change.category)}</span></td>
+                    <td><code>${escapeHtml(change.original)}</code></td>
+                    <td><code>${escapeHtml(change.edited)}</code></td>
+                    <td>${impacted.length ? impacted.map((component) => `<span class="badge text-bg-light border me-1">${escapeHtml(component.name)}</span>`).join("") : `<span class="badge text-bg-secondary">Global</span>`}</td>
+                    <td><button type="button" class="btn btn-sm btn-outline-secondary" data-action="theme-revert-token" data-theme-token-name="${escapeAttribute(change.name)}">Revert</button></td>
+                  </tr>
+                `;
+              }).join("") || `<tr><td colspan="5">No changes. The edited theme matches project CSS.</td></tr>`}
             </tbody>
           </table>
         </div>
@@ -632,7 +1014,7 @@ function renderDiffSection() {
 
 function renderPreviewSection() {
   return `
-    <section class="pt-theme-preview-stage" aria-label="Live theme preview">
+    <section class="d-grid gap-4" aria-label="Live theme preview">
       <nav class="navbar navbar-expand-lg bg-body-tertiary border rounded mb-4">
         <div class="container-fluid">
           <span class="navbar-brand d-flex align-items-center gap-2 fw-bold">${renderProjectTrackBrand(32)} ProjectTrack</span>
@@ -658,12 +1040,15 @@ function renderPreviewSection() {
         <div class="col-12 col-xl-6">
           <section class="card h-100">
             <div class="card-body">
-              <span class="pt-pill status-progress">In progress</span>
+              <span class="badge rounded-pill text-bg-primary">In progress</span>
               <h3 class="h5 mt-3">Bootstrap and ProjectTrack cards</h3>
               <p class="text-secondary">Cards, buttons, forms, alerts and pills consume the edited tokens in real time.</p>
               <div class="d-flex flex-wrap gap-2">
                 <button class="btn btn-primary" type="button">Primary</button>
                 <button class="btn btn-secondary" type="button">Secondary</button>
+                <button class="btn btn-info" type="button">Info</button>
+                <button class="btn btn-warning" type="button">Warning</button>
+                <button class="btn btn-dark" type="button">Dark</button>
                 <button class="btn btn-outline-primary" type="button">Outline</button>
               </div>
             </div>
@@ -674,6 +1059,9 @@ function renderPreviewSection() {
             <div class="card-body">
               <h3 class="h5">Environment Progress</h3>
               ${renderEnvironmentProgress("STG", ["QA", "STG", "PROD"])}
+              <div class="progress mt-4" role="progressbar" aria-label="Theme progress" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar bg-success" style="width: 72%">72%</div>
+              </div>
             </div>
           </section>
         </div>
@@ -682,6 +1070,8 @@ function renderPreviewSection() {
       <div class="row g-3 mt-1">
         <div class="col-12 col-lg-6">
           <div class="alert alert-success" role="alert"><strong>Success.</strong> The selected success token is readable.</div>
+          <div class="alert alert-warning" role="alert"><strong>Warning.</strong> Bootstrap warning should remain readable on light surfaces.</div>
+          <div class="alert alert-info" role="alert"><strong>Info.</strong> Bootstrap info covers neutral guidance and support messages.</div>
           <div class="alert alert-danger mb-lg-0" role="alert"><strong>Danger.</strong> Critical states use the danger token.</div>
         </div>
         <div class="col-12 col-lg-6">
@@ -700,6 +1090,49 @@ function renderPreviewSection() {
                 <div class="col-12">
                   <textarea class="form-control" rows="3">Share a concise update for the project team.</textarea>
                 </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="row g-3 mt-1">
+        <div class="col-12 col-xl-6">
+          <section class="card h-100">
+            <div class="card-body">
+              <h3 class="h5">List group and dropdown</h3>
+              <div class="list-group mb-3">
+                <button type="button" class="list-group-item list-group-item-action active">Active workspace item</button>
+                <button type="button" class="list-group-item list-group-item-action">Default workspace item</button>
+                <button type="button" class="list-group-item list-group-item-action disabled" disabled>Disabled workspace item</button>
+              </div>
+              <div class="dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Dropdown states</button>
+                <ul class="dropdown-menu show position-static mt-2">
+                  <li><button class="dropdown-item active" type="button">Active item</button></li>
+                  <li><button class="dropdown-item" type="button">Default item</button></li>
+                  <li><button class="dropdown-item disabled" type="button" disabled>Disabled item</button></li>
+                </ul>
+              </div>
+            </div>
+          </section>
+        </div>
+        <div class="col-12 col-xl-6">
+          <section class="card h-100">
+            <div class="card-body">
+              <h3 class="h5">Table and badges</h3>
+              <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                  <thead>
+                    <tr><th>Component</th><th>Status</th><th>Token</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Cards</td><td><span class="badge text-bg-success">Pass</span></td><td><code>--pt-card-bg</code></td></tr>
+                    <tr><td>Buttons</td><td><span class="badge text-bg-warning">Review</span></td><td><code>--bs-primary</code></td></tr>
+                    <tr><td>Alerts</td><td><span class="badge text-bg-info">Info</span></td><td><code>--bs-info</code></td></tr>
+                    <tr><td>Danger</td><td><span class="badge text-bg-danger">Fail</span></td><td><code>--bs-danger</code></td></tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </section>
@@ -729,7 +1162,7 @@ function renderActiveSection() {
       return renderDiffSection();
     default:
       return `
-        <section class="card pt-theme-section-card">
+        <section class="card border-0 shadow-sm">
           <div class="card-body">
             <p class="text-uppercase text-secondary fw-bold small mb-1">Overview</p>
             <h2 class="h4">Project theme status</h2>
@@ -809,11 +1242,11 @@ export function bindThemeManagerControls(rootNode = document) {
 
   manager.querySelectorAll("[data-theme-token]").forEach((control) => {
     control.addEventListener("input", () => {
-      readControls(manager);
+      updateEditedTokenFromControl(manager, control);
       updateLiveOutputs(manager);
     });
     control.addEventListener("change", () => {
-      readControls(manager);
+      updateEditedTokenFromControl(manager, control);
       renderInto(manager);
     });
   });
@@ -1024,8 +1457,10 @@ export function renderThemeManagerScreen() {
       actionsHtml: `<button type="button" class="btn btn-outline-light" data-action="navigate-main" data-view-id="dashboard">Back</button>`
     })}
 
-    <section class="pt-theme-manager-v2" data-theme-manager>
-      <header class="pt-theme-status-bar">
+    <section class="d-grid gap-4" data-theme-manager>
+      <header class="card border-0 shadow-sm">
+        <div class="card-body d-grid gap-3">
+        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
         <div>
           <p class="text-uppercase text-secondary fw-bold small mb-1">Source</p>
           <h2 class="h5 mb-0">Chrome/styles/projecttrack.css</h2>
@@ -1038,19 +1473,25 @@ export function renderThemeManagerScreen() {
           <button type="button" class="btn btn-outline-primary" data-action="theme-add-google-font">Add Google Font</button>
           <button type="button" class="btn btn-primary" data-action="theme-save-css">Save to projecttrack.css</button>
         </div>
+        </div>
+        </div>
       </header>
 
-      <div class="pt-theme-shell">
-        <aside class="pt-theme-sidebar" aria-label="Theme Manager sections">
+      <div class="row g-4">
+        <aside class="col-12 col-xl-3" aria-label="Theme Manager sections">
+          <div class="card border-0 shadow-sm sticky-top" style="top: 96px;">
+          <div class="card-body d-grid gap-3">
           <nav class="nav nav-pills flex-column gap-1">
             ${navItems.map(([id, label]) => renderNavButton(id, label)).join("")}
           </nav>
-          <div class="pt-theme-sidebar-note">
+          <div class="border-top pt-3 d-grid gap-1 text-secondary small">
             <strong data-theme-diff-count>${changes.length}</strong>
             <span>unsaved changes</span>
           </div>
+          </div>
+          </div>
         </aside>
-        <main class="pt-theme-workbench">
+        <main class="col-12 col-xl-9 d-grid gap-4">
           ${renderActiveSection()}
           ${themeState.activeSection !== "overview" ? renderPreviewSection() : ""}
         </main>

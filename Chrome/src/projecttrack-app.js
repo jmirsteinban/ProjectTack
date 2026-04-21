@@ -419,15 +419,17 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
   let noticeFadeTimeoutId = null;
   let promptedReleaseId = "";
   const appNode = document.createElement("div");
-  appNode.className = "pt-app pt-workspace-shell";
+  appNode.className = "position-relative d-flex flex-column flex-grow-1 min-vh-100";
+  appNode.dataset.projecttrackShell = "true";
 
   const navbar = document.createElement("nav");
-  navbar.className = "navbar navbar-expand-lg bg-white border-bottom sticky-top pt-web-navbar pt-workspace-navbar";
+  navbar.className = "navbar navbar-expand-lg bg-white border-bottom sticky-top shadow-sm";
   navbar.setAttribute("aria-label", "ProjectTrack main navigation");
   const viewNode = document.createElement("section");
-  viewNode.className = "pt-view pt-workspace-view container-fluid px-4 px-xl-5 py-4 py-xl-5";
+  viewNode.className = "container-fluid px-4 px-xl-5 py-4 py-xl-5 d-grid gap-4 align-content-start flex-grow-1";
   const overlayNode = document.createElement("div");
-  overlayNode.className = "pt-overlay-layer";
+  overlayNode.className = "position-absolute top-0 start-0 w-100 h-100 pe-none";
+  overlayNode.dataset.overlayLayer = "true";
 
   const tabItems = [
     ["dashboard", "Dashboard"],
@@ -462,34 +464,34 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     };
     const template = globalNavbarTemplate || `
       <div class="container-fluid px-4 px-xl-5">
-        <div class="navbar-brand d-flex align-items-center gap-3 mb-0 pt-workspace-brand">
-          <button type="button" class="pt-workspace-brand-mark-button" data-action="navigate-main" data-view-id="dashboard" aria-label="Go to Dashboard">
+        <div class="navbar-brand d-inline-flex align-items-center gap-3 mb-0 text-body min-w-0">
+          <button type="button" class="btn btn-link d-inline-flex align-items-center p-0 border-0 text-decoration-none text-reset" data-action="navigate-main" data-view-id="dashboard" aria-label="Go to Dashboard">
             {{BRAND_MARK}}
           </button>
           <span class="d-grid min-w-0">
-            <button type="button" class="pt-workspace-brand-title-button" data-action="navigate-main" data-view-id="dashboard">
-              <strong class="pt-web-brand-title">ProjectTrack</strong>
+            <button type="button" class="btn btn-link p-0 border-0 text-start text-decoration-none text-reset fw-bold" data-action="navigate-main" data-view-id="dashboard">
+              <strong>ProjectTrack</strong>
             </button>
-            <small class="text-secondary pt-workspace-breadcrumb-text" title="{{BREADCRUMB_LABEL}}">{{BREADCRUMB_LABEL}}</small>
+            <small class="text-secondary d-block text-break user-select-text" title="{{BREADCRUMB_LABEL}}">{{BREADCRUMB_LABEL}}</small>
           </span>
         </div>
-        <div class="d-flex align-items-center gap-2 ms-auto pt-workspace-navbar-actions">
+        <div class="d-flex align-items-center gap-2 ms-auto flex-wrap justify-content-end">
           <button type="button" class="btn btn-outline-primary" data-action="navigate-main" data-view-id="dashboard">Open Classic Workspace</button>
           <button type="button" class="btn btn-primary" data-action="refresh-workspace">Refresh Data</button>
           <div class="dropdown">
             <button
               type="button"
-              class="btn pt-web-user-button dropdown-toggle"
+              class="btn btn-outline-secondary dropdown-toggle d-inline-flex align-items-center gap-2"
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              <span class="pt-web-user-avatar" aria-hidden="true">{{USER_INITIAL}}</span>
-              <span class="pt-web-user-copy">
-                <span class="pt-web-user-name">{{USER_NAME}}</span>
-                <span class="pt-web-user-role">{{USER_ROLE}}</span>
+              <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-bg-secondary fw-bold flex-shrink-0" aria-hidden="true" style="width:2rem;height:2rem;">{{USER_INITIAL}}</span>
+              <span class="d-grid text-start lh-sm d-none d-lg-inline-grid">
+                <span class="fw-semibold small">{{USER_NAME}}</span>
+                <span class="text-secondary" style="font-size:0.72rem;">{{USER_ROLE}}</span>
               </span>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end pt-web-user-menu">
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm" data-user-menu>
               {{MENU_ITEMS}}
               <li><hr class="dropdown-divider"></li>
               <li><button type="button" class="dropdown-item {{THEME_MANAGER_ACTIVE}}" data-action="navigate-main" data-view-id="theme-manager">Theme Manager</button></li>
@@ -506,7 +508,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
       template
     );
     if (!navbar.querySelector("[data-action='open-ui-guide']")) {
-      navbar.querySelector(".pt-web-user-menu")?.insertAdjacentHTML(
+      navbar.querySelector("[data-user-menu]")?.insertAdjacentHTML(
         "beforeend",
         `<li><hr class="dropdown-divider"></li>
         <li><button type="button" class="dropdown-item" data-action="open-ui-guide">UI Guide</button></li>`
@@ -518,7 +520,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
       if (uiGuideItem) {
         uiGuideItem.insertAdjacentHTML("beforebegin", themeManagerItem);
       } else {
-        navbar.querySelector(".pt-web-user-menu")?.insertAdjacentHTML("beforeend", themeManagerItem);
+        navbar.querySelector("[data-user-menu]")?.insertAdjacentHTML("beforeend", themeManagerItem);
       }
     }
     if (!navbar.querySelector("[data-view-id='change-history']")) {
@@ -527,7 +529,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
       if (uiGuideItem) {
         uiGuideItem.insertAdjacentHTML("afterend", changeHistoryItem);
       } else {
-        navbar.querySelector(".pt-web-user-menu")?.insertAdjacentHTML("beforeend", changeHistoryItem);
+        navbar.querySelector("[data-user-menu]")?.insertAdjacentHTML("beforeend", changeHistoryItem);
       }
     }
   }
@@ -538,9 +540,8 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     }
 
     const toneClass = state.notice.tone === "success" ? "alert-success" : "alert-info";
-    const closingClass = state.notice.closing ? "pt-inline-notice-card--closing" : "";
     return `
-      <section class="alert alert-dismissible pt-inline-notice-toast ${toneClass} ${closingClass}" role="status" aria-live="polite">
+      <section class="alert alert-dismissible shadow-sm ${toneClass}" role="status" aria-live="polite">
         <strong class="alert-heading">${escapeHtml(state.notice.title || "Notice")}</strong>
         <p>${escapeHtml(state.notice.message)}</p>
         <button type="button" class="btn-close" data-action="dismiss-notice" aria-label="Close notice"></button>
@@ -554,8 +555,8 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     }
 
     overlayNode.innerHTML = `
-      <div class="modal show" role="alertdialog" aria-modal="true" aria-label="${state.confirmDialog.title || "Confirm action"}">
-        <div class="modal-backdrop"></div>
+      <div class="modal show d-block" role="alertdialog" aria-modal="true" aria-label="${state.confirmDialog.title || "Confirm action"}">
+        <div class="modal-backdrop show"></div>
         <div class="modal-dialog modal-sm">
           <section class="modal-content">
             <div class="modal-header">
@@ -671,13 +672,13 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
       migrationFile: "sql/change_tasks_excel_import_20260331.sql",
     };
     const tasksFeatureAvailable = taskFeatureStatus.available !== false;
-    const linkedTasksClass = changeTasks.length > 4
-      ? "pt-note-task-picker pt-note-task-picker--scroll"
-      : "pt-note-task-picker";
+    const linkedTasksAttributes = changeTasks.length > 4
+      ? 'class="d-grid gap-2 overflow-auto pe-1" style="max-height:16rem;"'
+      : 'class="d-grid gap-2"';
 
     overlayNode.innerHTML = `
-      <div class="modal show" role="dialog" aria-modal="true" aria-label="${state.editingNoteId ? "Edit note" : "New note"}">
-        <div class="modal-backdrop"></div>
+      <div class="modal show d-block" role="dialog" aria-modal="true" aria-label="${state.editingNoteId ? "Edit note" : "New note"}">
+        <div class="modal-backdrop show"></div>
         <div class="modal-dialog modal-lg">
           <section class="modal-content">
             <div class="modal-header">
@@ -689,12 +690,12 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
             </div>
             <div class="modal-body">
               ${state.noteFormError ? `<section class="alert alert-danger"><strong>Unable to save.</strong><p>${state.noteFormError}</p></section>` : ""}
-              <div class="pt-project-editor-form">
+              <div class="d-grid gap-2">
                 <label class="form-label">Note</label>
                 <textarea class="form-control" data-field="note-text" placeholder="Write a note or TO-DO for this change...">${state.noteDraftText || ""}</textarea>
-                <div class="pt-note-mention-suggestions" data-note-mention-suggestions hidden></div>
+                <div class="list-group mt-2" data-note-mention-suggestions hidden></div>
               </div>
-              <div class="pt-project-editor-form">
+              <div class="d-grid gap-2">
                 <div class="d-flex align-items-center w-100 gap-2 flex-wrap">
                   <label class="form-label m-0">Linked Tasks</label>
                   <span class="badge rounded-pill text-bg-light border">${changeTasks.length} available</span>
@@ -704,9 +705,9 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
                     ? `<p class="form-text m-0">Linked tasks are unavailable until <code>${escapeHtml(taskFeatureStatus.migrationFile)}</code> is applied in Supabase.</p>`
                     : changeTasks.length
                     ? `
-                      <div class="${linkedTasksClass}">
+                      <div ${linkedTasksAttributes}>
                         ${changeTasks.map((task) => `
-                          <label class="form-check pt-note-task-option">
+                          <label class="form-check border rounded-3 p-3 bg-white">
                             <input
                               class="form-check-input"
                               type="checkbox"
@@ -870,7 +871,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     }
     syncWorkspaceUrl(state);
     if (!state.isReady) {
-      viewNode.className = "pt-view pt-workspace-view container-fluid px-4 px-xl-5 py-5";
+      viewNode.className = "container-fluid px-4 px-xl-5 py-5 d-grid gap-4 align-content-start flex-grow-1";
       viewNode.innerHTML = `
         <section class="card border-0 shadow-sm">
           <div class="card-body p-4 p-xl-5 text-center">
@@ -885,8 +886,8 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     }
 
     viewNode.className = state.currentView === "login"
-      ? "pt-view pt-view--login pt-workspace-view pt-workspace-view--login container-fluid px-4 px-xl-5 py-4 py-xl-5"
-      : "pt-view pt-workspace-view container-fluid px-4 px-xl-5 py-4 py-xl-5";
+      ? "container-fluid px-4 px-xl-5 py-4 py-xl-5 d-grid gap-4 align-content-start flex-grow-1 justify-items-center"
+      : "container-fluid px-4 px-xl-5 py-4 py-xl-5 d-grid gap-4 align-content-start flex-grow-1";
     renderNavBar();
     viewNode.innerHTML = renderProjectTrackView(state, state.data);
     overlayNode.innerHTML = "";
@@ -1188,7 +1189,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
         state.noteDraftText = noteTextarea.value;
         const suggestions = getNoteMentionSuggestions(state.data, noteTextarea.value);
         noteSuggestionNode.innerHTML = suggestions.map((item) => `
-          <button type="button" class="pt-note-suggestion-item" data-action="apply-note-mention" data-mention-value="${item.value}">
+          <button type="button" class="list-group-item list-group-item-action d-grid gap-1" data-action="apply-note-mention" data-mention-value="${item.value}">
             <strong>@${item.value}</strong>
             <span>${item.label}</span>
           </button>
@@ -1290,7 +1291,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
       const updateAssigneeSuggestions = () => {
         const suggestions = getAssigneeMentionSuggestions(state.data, changeAssigneeInput.value);
         changeAssigneeSuggestionNode.innerHTML = suggestions.map((item) => `
-          <button type="button" class="pt-note-suggestion-item" data-action="apply-change-assignee" data-assignee-value="${item.value}">
+          <button type="button" class="list-group-item list-group-item-action d-grid gap-1" data-action="apply-change-assignee" data-assignee-value="${item.value}">
             <strong>${item.value}</strong>
             <span>${item.label}</span>
           </button>
@@ -1395,7 +1396,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
           const row = removeButton.closest("[data-url-row]");
           row?.remove();
           if (group.querySelectorAll("[data-url-row]").length === 0) {
-            group.innerHTML = `<div class="list-group-item pt-editor-empty-row" data-empty-row><span>No URLs configured.</span></div>`;
+            group.innerHTML = `<div class="list-group-item text-secondary" data-empty-row><span>No URLs configured.</span></div>`;
           }
         });
       });
@@ -1407,7 +1408,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
         const group = row?.closest("[data-env-group]");
         row?.remove();
         if (group && group.querySelectorAll("[data-url-row]").length === 0) {
-          group.innerHTML = `<div class="list-group-item pt-editor-empty-row" data-empty-row><span>No URLs configured.</span></div>`;
+          group.innerHTML = `<div class="list-group-item text-secondary" data-empty-row><span>No URLs configured.</span></div>`;
         }
       });
     });
@@ -2042,8 +2043,8 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
 
 function buildUrlRowMarkup(index) {
   return `
-    <div class="list-group-item pt-editor-url-row" data-url-row>
-      <div class="pt-editor-url-header">
+    <div class="list-group-item d-grid gap-2" data-url-row>
+      <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
         <strong>URL ${index}</strong>
         <button type="button" class="btn btn-secondary btn-sm" data-action="remove-url-row">Remove</button>
       </div>

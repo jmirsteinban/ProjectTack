@@ -89,13 +89,13 @@ export function renderProjectDetailScreen(state, data) {
   const relatedChanges = getVisibleChangesForProject(data, project.name);
   const status = projectStatusLabel(relatedChanges);
   const recentChanges = relatedChanges.map((change) => `
-    <article class="list-group-item list-group-item-action py-3 pt-clickable-card" data-change-id="${escapeAttribute(change.id)}" role="button" tabindex="0">
+    <article class="list-group-item list-group-item-action py-3 focus-ring focus-ring-primary" data-change-id="${escapeAttribute(change.id)}" role="button" tabindex="0">
       <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
         <strong class="min-w-0">${escapeHtml(change.title)}</strong>
         <div class="d-flex gap-2 flex-wrap">
           <span class="badge rounded-pill text-bg-light border">${escapeHtml(change.id)}</span>
-          <span class="badge rounded-pill pt-pill ${statusClass(change.status)}">${escapeHtml(translateStatus(change.status))}</span>
-          <span class="badge rounded-pill pt-pill ${priorityClass(change.priority)}">${escapeHtml(translatePriority(change.priority))}</span>
+          <span class="badge rounded-pill ${statusClass(change.status)}">${escapeHtml(translateStatus(change.status))}</span>
+          <span class="badge rounded-pill ${priorityClass(change.priority)}">${escapeHtml(translatePriority(change.priority))}</span>
         </div>
       </div>
       <p class="mb-0 mt-2 small text-secondary">${escapeHtml(change.description || "No description")}</p>

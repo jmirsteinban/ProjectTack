@@ -91,7 +91,7 @@ function buildMetrics(data, changes, tasks) {
 function renderMetricCards(metrics) {
   return metrics.map((metric) => `
     <div class="col">
-      <article class="card h-100 pt-web-card pt-web-metric-card border-0">
+      <article class="card h-100 border-0 bg-white shadow-sm rounded-4">
         <div class="card-body">
           <p class="text-uppercase small fw-semibold text-secondary mb-2">${escapeHtml(metric.title)}</p>
           <div class="d-flex align-items-end justify-content-between gap-3">
@@ -219,13 +219,13 @@ function renderDashboard(initialized) {
   const userInitial = String(userName).trim().charAt(0).toUpperCase() || "P";
 
   root.innerHTML = `
-    <div class="pt-web-app">
-      <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top pt-web-navbar">
+    <div class="min-vh-100 d-flex flex-column">
+      <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top shadow-sm">
         <div class="container-fluid px-4 px-xl-5">
           <span class="navbar-brand d-flex align-items-center gap-3 mb-0">
             <img src="assets/projecttrack-icon.svg" alt="" width="34" height="34">
             <span class="d-grid">
-              <strong class="pt-web-brand-title">ProjectTrack</strong>
+              <strong>ProjectTrack</strong>
               <small class="text-secondary">Bootstrap dashboard</small>
             </span>
           </span>
@@ -235,17 +235,17 @@ function renderDashboard(initialized) {
             <div class="dropdown">
               <button
                 type="button"
-                class="btn pt-web-user-button dropdown-toggle"
+                class="btn btn-outline-secondary dropdown-toggle d-inline-flex align-items-center gap-2"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                <span class="pt-web-user-avatar" aria-hidden="true">${escapeHtml(userInitial)}</span>
-                <span class="pt-web-user-copy">
-                  <span class="pt-web-user-name">${escapeHtml(userName)}</span>
-                  <span class="pt-web-user-role">${escapeHtml(userRole)}</span>
+                <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-bg-secondary fw-bold flex-shrink-0" aria-hidden="true" style="width:2rem;height:2rem;">${escapeHtml(userInitial)}</span>
+                <span class="d-grid text-start lh-sm d-none d-lg-inline-grid">
+                  <span class="fw-semibold small">${escapeHtml(userName)}</span>
+                  <span class="text-secondary" style="font-size:0.72rem;">${escapeHtml(userRole)}</span>
                 </span>
               </button>
-              <ul class="dropdown-menu dropdown-menu-end pt-web-user-menu">
+              <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                 <li><a class="dropdown-item" href="${projectsUrl}">Projects</a></li>
                 <li><a class="dropdown-item" href="${profileUrl}">Profile</a></li>
               </ul>
@@ -262,7 +262,7 @@ function renderDashboard(initialized) {
           </div>
         `}
 
-        <section class="card border-0 pt-web-hero mb-4 mb-xl-5">
+        <section class="card border-0 text-white shadow-lg rounded-4 mb-4 mb-xl-5" style="background: var(--pt-gradient-hero);">
           <div class="card-body p-4 p-xl-5">
             <div class="row g-4 align-items-center">
               <div class="col-12 col-xl-8">
@@ -316,7 +316,7 @@ function renderDashboard(initialized) {
                 <span class="badge rounded-pill text-bg-light border">${escapeHtml(String(openChanges.length))} open</span>
               </div>
               <div class="card-body pt-3 px-4 pb-4">
-                <div class="list-group list-group-flush pt-web-list-group">
+                <div class="list-group list-group-flush">
                   ${renderWorkQueue(openChanges)}
                 </div>
               </div>
@@ -333,7 +333,7 @@ function renderDashboard(initialized) {
                 <span class="badge rounded-pill text-bg-light border">${escapeHtml(String(recentNotes.length))} notes</span>
               </div>
               <div class="card-body pt-3 px-4 pb-4">
-                <div class="list-group list-group-flush pt-web-list-group">
+                <div class="list-group list-group-flush">
                   ${renderNotes(recentNotes)}
                 </div>
               </div>
@@ -417,7 +417,7 @@ async function bootstrapDashboardPage() {
   }
 
   root.innerHTML = `
-    <main class="pt-web-loading d-flex align-items-center justify-content-center min-vh-100">
+      <main class="d-flex align-items-center justify-content-center min-vh-100">
       <div class="text-center">
         <div class="spinner-border text-success mb-3" role="status" aria-hidden="true"></div>
         <p class="mb-0 text-secondary">Loading ProjectTrack dashboard...</p>

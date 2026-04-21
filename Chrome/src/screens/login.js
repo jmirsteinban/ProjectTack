@@ -39,8 +39,8 @@ export function renderLoginScreen(state, data = {}) {
   return `
     <section class="card border-0 shadow-sm overflow-hidden w-100">
       <div class="card-body p-0">
-        <section class="pt-web-hero rounded-0 shadow-none">
-          <div class="p-4 p-xl-5">
+        <section class="card border-0 rounded-0 shadow-none text-white" style="background: var(--pt-gradient-hero);">
+          <div class="card-body p-4 p-xl-5">
             <div class="d-flex align-items-center gap-3 mb-3">
               ${renderProjectTrackBrand(34)}
               <span class="badge rounded-pill bg-white text-dark border">Home / Login</span>
