@@ -13,6 +13,9 @@
     "storage",
     "tabs"
   ],
+  "host_permissions": [
+    "https://*.supabase.co/*"
+  ],
   "background": {
     "service_worker": "service-worker.js"
   },

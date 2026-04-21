@@ -19,13 +19,7 @@ export const THEME_COMPONENT_REGISTRY = [
     id: "hero-card",
     name: "Hero Card",
     family: "ProjectTrack",
-    tokens: [
-      "--pt-gradient-hero",
-      "--pt-hero-card-radius",
-      "--pt-hero-card-shadow",
-      "--pt-color-text-on-dark",
-      "--pt-color-text-on-dark-muted"
-    ],
+    tokens: ["--pt-gradient-hero", "--pt-color-text-on-dark", "--pt-color-text-on-dark-muted"],
     bootstrapClasses: ["card", "card-body", "btn", "badge", "row", "col"],
     projectClasses: [],
     states: ["default", "focus"],
@@ -90,14 +84,7 @@ export const THEME_COMPONENT_REGISTRY = [
     id: "metric-card",
     name: "Metric Card",
     family: "ProjectTrack",
-    tokens: [
-      "--pt-card-bg",
-      "--pt-card-border-color",
-      "--pt-card-border-radius",
-      "--pt-card-box-shadow",
-      "--pt-card-body-padding-x",
-      "--pt-card-body-padding-y"
-    ],
+    tokens: ["--pt-card-bg", "--pt-card-border-color"],
     bootstrapClasses: ["card", "card-body", "shadow-sm", "rounded-4", "focus-ring"],
     projectClasses: [],
     states: ["default", "hover", "focus"],
@@ -107,13 +94,7 @@ export const THEME_COMPONENT_REGISTRY = [
     id: "inline-notice-toast",
     name: "Inline Notice Toast",
     family: "ProjectTrack",
-    tokens: [
-      "--pt-alert-radius",
-      "--pt-alert-padding-x",
-      "--pt-alert-padding-y",
-      "--pt-color-status-success-bg",
-      "--pt-color-status-danger-soft"
-    ],
+    tokens: ["--pt-color-status-success-bg", "--pt-color-status-danger-soft"],
     bootstrapClasses: ["alert", "alert-dismissible", "btn-close", "shadow-sm"],
     projectClasses: [],
     states: ["default", "success", "danger", "closing"],
@@ -123,12 +104,7 @@ export const THEME_COMPONENT_REGISTRY = [
     id: "release-update-panel",
     name: "Release Update Panel",
     family: "ProjectTrack",
-    tokens: [
-      "--pt-card-bg",
-      "--pt-card-border-radius",
-      "--pt-card-box-shadow",
-      "--pt-color-status-info-bg"
-    ],
+    tokens: ["--pt-card-bg", "--pt-color-status-info-bg"],
     bootstrapClasses: ["card", "btn", "alert"],
     projectClasses: [],
     states: ["idle", "checking", "available", "current", "error"],
@@ -138,12 +114,7 @@ export const THEME_COMPONENT_REGISTRY = [
     id: "change-history-entry",
     name: "Change History Entry",
     family: "ProjectTrack",
-    tokens: [
-      "--pt-card-bg",
-      "--pt-card-border-color",
-      "--pt-card-border-radius",
-      "--pt-color-text-secondary"
-    ],
+    tokens: ["--pt-card-bg", "--pt-card-border-color", "--pt-color-text-secondary"],
     bootstrapClasses: ["card", "list-group", "badge"],
     projectClasses: [],
     states: ["default", "linked", "empty"],

@@ -10,10 +10,10 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
 
 ## Referencias Principales
 
-- Guia UI Chrome: `Chrome/docs/projecttrack-ui.html`
 - Theme Manager Chrome: `docs/chrome/theme-manager.md`
 - Deployment Chrome privado: `docs/chrome/deployment-github-releases.md`
 - Tracking de migracion Bootstrap Chrome: `docs/chrome/bootstrap-migration-tracking.md`
+- Continuidad de sesion IA: `docs/AI_SESSION_HANDOFF.md`
 - Guia agentes IA: `docs/AGENTES_IA_PROJECTTRACK.md`
 - Feedback agentes IA: `docs/AGENTES_IA_FEEDBACK_LOG.md`
 - Historico visible del producto: `Chrome/src/data/project-changelog.js` y pagina `Change History`
@@ -24,7 +24,7 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
 - Chrome usa Bootstrap real como base visual y una sola capa custom: `Chrome/styles/projecttrack.css`.
 - Supabase es el backend real para auth, lectura, escritura, borrado logico y metadata del canal privado de releases.
 - El runtime Chrome y la documentacion funcional deben converger a ingles; el naming tecnico interno no se renombra por defecto.
-- Las pantallas principales de Chrome ya pasaron QA funcional principal: Projects, Project Details, Change Details, editors, Login, Profile, navbar, Change History y UI Guide.
+- Las pantallas principales de Chrome ya pasaron QA funcional principal: Projects, Project Details, Change Details, editors, Login, Profile, navbar y Change History.
 - Chrome incluye `Theme Manager` como pantalla del workspace para leer `projecttrack.css`, configurar tokens visuales, previsualizar componentes reales, exportar `:root`, revisar diff y guardar de forma segura mediante bloque marcado con backup.
 
 ## Estructura Del Proyecto
@@ -120,7 +120,6 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
 - `Chrome/src/projecttrack-app.js` controla navbar global, overlays, acciones y estado principal.
 - `Chrome/src/projecttrack-router.js` resuelve la vista activa.
 - `Chrome/styles/projecttrack.css` es la unica capa custom activa.
-- `Chrome/docs/projecttrack-ui.html` documenta la capa UI actual.
 - `Chrome/src/screens/theme-manager.js` implementa la herramienta activa para editar tokens y guardar el bloque controlado del tema.
 - `Chrome/src/theme/component-registry.js` registra el inventario inicial de componentes propios configurables.
 - `scripts/theme/theme_manager_server.py` expone el servidor local aprobado para lectura, guardado, backups y restauracion del CSS.
@@ -139,7 +138,6 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
 - Change Editor
 - Change History
 - Theme Manager
-- UI Guide
 
 ### UI Actual
 
@@ -294,7 +292,6 @@ Script:
 - Profile
 - Login
 - Change History
-- UI Guide
 - navbar global con breadcrumb contextual
 - clic en la marca `ProjectTrack` para volver a `Workspace / Dashboard`
 - navegacion principal desde dropdown del usuario
@@ -321,9 +318,8 @@ Si el cambio manual es sobre el navbar global, el breadcrumb o el clic en la mar
 
 ## QA Y Documentos Auxiliares
 
-Chrome:
+- Chrome:
 
-- UI Guide: `Chrome/docs/projecttrack-ui.html`
 - Theme Manager: `docs/chrome/theme-manager.md`
 - Bootstrap migration tracking: `docs/chrome/bootstrap-migration-tracking.md`
 - Deployment Chrome: `docs/chrome/deployment-github-releases.md`
@@ -353,15 +349,17 @@ IA:
 
 ## Hallazgos Activos
 
+- Limpieza CSS en progreso: el arbol de trabajo actual ya separo estilos de popup/side panel hacia `Chrome/styles/popup-panel.css` y retiro `Chrome/docs/projecttrack-ui.html`, pero `Chrome/styles/projecttrack.css` quedo temporalmente sin reglas activas del workspace/dominio; el siguiente reinicio seguro debe partir de `Chrome/styles/backups/projecttrack.2026-04-20-2206.css` para recuperar solo lo que el runtime todavia usa antes de seguir podando por bloques pequenos.
 - `Tasks`: falta futura pantalla o widget de burndown chart apoyado en `change_task_events`.
 - Bootstrap audit: la shell activa del workspace ya migro su markup base a Bootstrap puro (`body`, host root, navbar, contenedor principal y vista principal); queda pendiente seguir con componentes y CSS custom residuales.
 - Bootstrap audit: Hero Card, pills runtime, empty states basicos, metric cards y clickable rows activas ya usan markup Bootstrap-only; siguen pendientes Theme Manager, environment progress y la poda fuerte de `projecttrack.css`.
 - Bootstrap audit: Environment Progress ya usa markup Bootstrap-only; el mayor bloque restante del runtime visible sigue concentrado en Theme Manager y en el CSS residual.
 - Bootstrap audit: Theme Manager ya usa markup Bootstrap-only; el mayor bloque restante ya no es el HTML del runtime, sino la limpieza residual de `projecttrack.css`, registros internos y texto historico/documental.
+- Bootstrap audit: la limpieza de tokens `--pt-*` avanza hacia una base enfocada en color/gradientes; radios, spacing, sizing y sombras base deben recaer en Bootstrap/default salvo excepcion justificada.
 - Bootstrap audit: ya se retiraron wrappers presentacionales pequenos en Dashboard y Change Detail, pero la revision profunda del runtime sigue pendiente.
 - Bootstrap audit: `Change Detail` ya simplifico helpers de layout de la seccion `Tasks` usando utilidades Bootstrap directas.
 - Documentacion funcional: falta seguir migrando a ingles donde aplique y mantener las guias vivas alineadas al runtime actual.
-- CSS unico: validar visualmente que `workspace.html` y `Chrome/docs/projecttrack-ui.html` sigan correctos despues de consolidar estilos.
+- CSS unico: validar visualmente que `workspace.html` y `workspace.html?view=theme-manager` sigan correctos despues de consolidar estilos.
 - Theme Manager: falta completar la galeria completa de componentes, ampliar tokens por componente, mejorar diff por impacto y reemplazar la auditoria automatica inicial por registro explicito completo.
 - OpenCode: en este workspace la CLI puede resolver la raiz del proyecto como `C:\` en lugar del repo por la ruta con corchetes `[...]`; mientras no se corrija, conviene forzar `OPENCODE_CONFIG` apuntando a `opencode.jsonc` para que carguen agentes y comandos del proyecto.
 
@@ -371,7 +369,7 @@ IA:
 2. Ejecutar una revision profunda para confirmar que Chrome ya esta al 100% sobre Bootstrap real.
 3. Crear una pagina de documentacion para el usuario final.
 4. Continuar con el resto de pendientes y nuevas funciones priorizadas.
-5. Validar visualmente el stack CSS unico en Chrome cargando `workspace.html`, `workspace.html?view=theme-manager` y `Chrome/docs/projecttrack-ui.html`.
+5. Validar visualmente el stack CSS unico en Chrome cargando `workspace.html` y `workspace.html?view=theme-manager`.
 6. Aplicar en Supabase la migracion `sql/change_tasks_excel_import_20260331.sql`.
 7. Disenar la siguiente fase de `Tasks`: burndown chart por proyecto/cambio.
 8. Cerrar documentacion funcional restante en ingles.
@@ -401,6 +399,7 @@ IA:
 - Leer este documento antes de analizar, proponer cambios o documentar el proyecto.
 - Mantener aqui solo estado vigente, pendientes y decisiones actuales.
 - No duplicar bitacora historica: usar `Change History` para cambios realizados.
+- Si un trabajo queda a medias o depende de varios cortes de sesion, registrar el checkpoint operativo en `docs/AI_SESSION_HANDOFF.md` antes de cerrar la iteracion.
 - Para trabajo con agentes, seguir `docs/AGENTES_IA_PROJECTTRACK.md` y registrar fallas/mejoras en `docs/AGENTES_IA_FEEDBACK_LOG.md`.
 - Si aparece un hallazgo nuevo del runtime o del UI, agregarlo aqui si afecta trabajo pendiente.
 - Ruta con corchetes: el workspace contiene `[...]`, asi que en PowerShell conviene usar `-LiteralPath` o rutas absolutas bien escapadas para evitar que `[]` se interprete como patron.

@@ -57,7 +57,6 @@ Use this order unless the user explicitly changes the priority:
 
 - If a task affects Chrome UI, validate the result in `Chrome/workspace.html`.
 - If a task affects Theme Manager, validate the result in `Chrome/workspace.html?view=theme-manager`.
-- If a task affects the visual guide or documented runtime patterns, validate the result in `Chrome/docs/projecttrack-ui.html`.
 - If JavaScript files are modified, run syntax validation such as `node --check` on the changed files when feasible.
 - If a task changes Bootstrap usage or custom class removal, validate the affected runtime surfaces after the change.
 - If a task changes documentation about visible runtime behavior, confirm the documentation matches the current implementation before closing the task.
@@ -65,6 +64,7 @@ Use this order unless the user explicitly changes the priority:
 ## Documentation And Traceability Rules
 
 - Update `docs/PROJECTTRACK.md` when a task changes current project state, active risks, pending work, or operating rules.
+- For multistep or partial work that may span sessions, update `docs/AI_SESSION_HANDOFF.md` before stopping with the current checkpoint, touched files, validation status, and next exact step.
 - Update `Chrome/src/data/project-changelog.js` when the change is relevant to visible product history in `Change History`.
 - Register relevant agent feedback in `docs/AGENTES_IA_FEEDBACK_LOG.md`.
 - Keep `docs/chrome/theme-manager.md` aligned with Theme Manager changes.

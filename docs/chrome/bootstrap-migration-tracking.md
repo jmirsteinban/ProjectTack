@@ -1,12 +1,12 @@
 # ProjectTrack Chrome Bootstrap Migration Tracking
 
-Fecha de actualizacion: 2026-04-17
+Fecha de actualizacion: 2026-04-20
 
 ## Objetivo
 
-Mantener `Chrome/workspace.html` como experiencia Chrome full-tab basada en Bootstrap real. Bootstrap define la estructura del runtime; ProjectTrack aporta marca, tokens visuales y componentes de dominio.
+Usar este archivo como checklist operativo para mantener `Chrome/workspace.html` sobre Bootstrap real y evitar que vuelvan capas custom innecesarias.
 
-## Stack Activo
+## Stack activo
 
 - `Chrome/workspace.html`
 - `Chrome/vendor/bootstrap/bootstrap.min.css`
@@ -14,154 +14,91 @@ Mantener `Chrome/workspace.html` como experiencia Chrome full-tab basada en Boot
 - `Chrome/vendor/bootstrap/bootstrap.bundle.min.js`
 - `Chrome/src/main.js`
 
-## Contrato UI
+## Regla base
 
-Bootstrap estructura:
+Bootstrap debe resolver por defecto:
 
-- `container-fluid`
-- `row`
-- `col-*`
-- `card`
-- `card-header`
-- `card-body`
-- `list-group`
-- `list-group-item`
-- `table`
-- `table-responsive`
-- `alert`
-- `badge`
-- `btn`
-- `dropdown`
-- `navbar`
-- `form-label`
-- `form-control`
-- `form-select`
-- `input-group`
-- `modal`
-- `spinner-border`
+- layout
+- cards
+- alerts
+- badges
+- buttons
+- forms
+- tables
+- dropdowns
+- modal shell
+- spacing
+- radius
+- shadows
 
-ProjectTrack identidad y dominio:
+ProjectTrack solo debe aportar:
 
-- `pt-web-body`
-- `pt-web-app`
-- `pt-web-navbar`
-- `pt-workspace-navbar`
-- `pt-workspace-brand`
-- `pt-web-brand-title`
-- `pt-web-user-button`
-- `pt-web-user-avatar`
-- `pt-web-user-menu`
-- `pt-web-card`
-- `pt-web-metric-card`
-- `pt-hero-card`
-- `pt-pill`
-- `pt-clickable-card`
-- `pt-environment-progress`
-- tokens `--pt-*`
+- color e identidad de marca
+- gradientes propios
+- componentes de dominio que Bootstrap no cubre solo
+- estilos de popup/side-panel en `Chrome/styles/popup-panel.css`
 
-## Pantallas Activas
+## Estado actual practico
 
-- `Dashboard`: Bootstrap grid, metric cards, list groups, shared Hero Card.
-- `Projects`: Bootstrap cards, list groups, input group search and filter controls.
-- `Project Detail`: shared Hero Card, Bootstrap summaries, environment cards and related changes.
-- `Changes`: shared Hero Card, search input group, Bootstrap list groups and badges.
-- `Change Detail`: shared Hero Card, Bootstrap cards, list groups, alerts, forms and badges.
-- `Project Editor`: shared Hero Card, Bootstrap forms and environment URL lists.
-- `Change Editor`: shared Hero Card, Bootstrap forms and outline button choices.
-- `Login`: Bootstrap full-tab card, alerts and stable status actions.
-- `Profile`: shared Hero Card, Bootstrap profile/account/update sections.
-- `Change History`: shared Hero Card and grouped entries.
+- `workspace.html` ya carga Bootstrap primero y `projecttrack.css` despues.
+- La shell principal del workspace ya esta en markup Bootstrap-first.
+- Hero Card, pills runtime, empty states basicos, metric cards, clickable rows y Environment Progress ya migraron a markup Bootstrap-only.
+- `Theme Manager` tambien ya usa markup Bootstrap-only.
+- `Chrome/docs/projecttrack-ui.html` fue retirado del runtime.
+- La limpieza actual se concentra en `Chrome/styles/projecttrack.css` y en los registros/documentacion que todavia describen deuda ya retirada.
 
-## Componentes Editables
+## Decisiones activas
 
-- Navbar global: `Chrome/components/global-navbar.html`
-- Hero Card template: `Chrome/components/hero-card.html`
-- Hero Card renderer: `Chrome/src/components/hero-card.js`
-- Environment progress: `Chrome/src/components/environment-progress.js`
-- Brand mark: `Chrome/src/components/projecttrack-brand.js`
+- No reintroducir wrappers presentacionales si Bootstrap ya cubre el caso.
+- No reintroducir tokens `--pt-*` de spacing, radius, sizing o shadow como tema base.
+- Mantener `--pt-*` enfocado en color, superficies y gradientes.
+- Mantener la validacion visual principal en `workspace.html` y `workspace.html?view=theme-manager`.
 
-## Estado Actual
+## Que queda pendiente
 
-- `workspace.html` es la entrada principal del runtime Chrome.
-- La shell activa del workspace ya usa markup Bootstrap-first para `body`, host root, navbar y contenedor principal.
-- El navbar global vive en un template editable y muestra breadcrumbs dinamicos copiables.
-- Las pantallas principales usan Bootstrap real para layout, formularios, listas, cards, alerts, badges y botones.
-- El Hero Card compartido, los pills runtime, empty states basicos, metric cards y clickable rows activos ya migraron su markup a Bootstrap-only.
-- Environment Progress ya migró a markup Bootstrap-only usando `progress`, `card`, `badge`, `row` y `col`.
-- Theme Manager tambien ya migró su markup activo a Bootstrap-only; el trabajo restante se concentra sobre CSS residual y registros/documentacion heredada.
-- QA visual full-tab aprobado en Chrome para 360px, 550px, 960px y desktop wide.
-- QA funcional principal aprobado en Chrome para Projects, Project Details, Change Details, editors, Login, Profile, navbar, Change History y UI Guide.
-- `workspace.html` carga Bootstrap local primero y `projecttrack.css` despues.
-- `projecttrack.css` es la unica capa custom activa: tokens, marca, full-tab skin, workspace layout, componentes de dominio, popup/side-panel y helpers documentales.
-- Dashboard y Change Detail ya retiraron wrappers presentacionales pequenos que Bootstrap cubria con utilidades (`d-grid`, `min-w-0`, `d-flex`, `flex-wrap`, `gap-*`).
-- Change Detail tambien retiro helpers de layout de tareas que Bootstrap ya cubria directamente (`align-items-end`, `min-w-0`, `gap-*`).
+1. Confirmar visualmente el runtime despues de cada poda de CSS.
+2. Restaurar solo selectores realmente usados desde el backup cuando un corte de limpieza deje el runtime incompleto.
+3. Seguir reduciendo `projecttrack.css` por bloques pequenos y reversibles.
+4. Mantener el registro y la documentacion alineados con el estado real, no con markup legado.
 
-## Siguiente Trabajo
+## Validacion minima por slice
 
-1. Reducir `projecttrack.css` hasta dejar solo la capa minima de tema Bootstrap que siga siendo necesaria para el runtime activo.
-2. Limpiar registros, changelog y documentacion heredada que aun describen clases runtime ya migradas.
-3. Validar visualmente el stack CSS unico en `workspace.html` y `Chrome/docs/projecttrack-ui.html`.
+Cada vez que se elimine CSS custom del workspace:
 
-## QA Funcional
+1. Abrir `Chrome/workspace.html`
+2. Abrir `Chrome/workspace.html?view=theme-manager`
+3. Revisar como minimo:
+   - navbar
+   - hero card
+   - dashboard cards
+   - projects list
+   - change detail
+   - environment progress
+   - profile update panel
+   - change history
 
-Estado: aprobado en Chrome.
+Si hubo cambios JS en pantallas o app shell:
 
-- Login: aprobado.
-- Dashboard: aprobado.
-- Projects: aprobado.
-- Project Details: aprobado.
-- Change Details: aprobado.
-- Project Editor: aprobado.
-- Change Editor: aprobado.
-- Profile: aprobado.
-- Navbar: aprobado.
-- Change History: aprobado.
-- UI Guide: aprobado.
+```powershell
+node --check Chrome/src/projecttrack-app.js
+```
 
-## QA Visual
+## Comandos utiles
 
-Estado: aprobado en Chrome.
-
-- 360px: aprobado.
-- 550px: aprobado.
-- 960px: aprobado.
-- Desktop wide: aprobado.
-- Sin overflow horizontal.
-- Navbar y dropdown visibles sobre contenido.
-- Breadcrumb seleccionable para copiar texto.
-- Cards, listas, tablas, formularios y botones coherentes con la experiencia Bootstrap full-tab.
-
-## Comandos De Seguimiento
-
-Ver clases ProjectTrack aun usadas en runtime:
+Ver clases `pt-*` usadas en runtime:
 
 ```powershell
 rg -n "pt-[a-zA-Z0-9_-]+" Chrome/src/screens Chrome/src/components Chrome/src/projecttrack-app.js
 ```
 
-Verificar stack de workspace:
+Ver el stack del workspace:
 
 ```powershell
 Get-Content Chrome/workspace.html
 ```
 
-Verificar rutas de la guia interna:
+Ver el checkpoint recuperable mas reciente:
 
 ```powershell
-rg -n "../../Chrome|\\.\\./styles|\\.\\./vendor|\\.\\./assets" Chrome/docs/projecttrack-ui.html
-```
-
-Validar JavaScript modificado:
-
-```powershell
-node --check Chrome/src/projecttrack-app.js
-node --check Chrome/src/screens/dashboard.js
-node --check Chrome/src/screens/projects.js
-node --check Chrome/src/screens/project-detail.js
-node --check Chrome/src/screens/changes.js
-node --check Chrome/src/screens/change-detail.js
-node --check Chrome/src/screens/project-editor.js
-node --check Chrome/src/screens/change-editor.js
-node --check Chrome/src/screens/login.js
-node --check Chrome/src/screens/profile.js
+Get-Content docs/AI_SESSION_HANDOFF.md
 ```

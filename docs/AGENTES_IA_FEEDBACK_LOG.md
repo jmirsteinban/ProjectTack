@@ -34,3 +34,9 @@ Keep entries short, concrete, and action-oriented.
 - Problem: In this workspace, OpenCode can resolve the project root as `C:\` instead of the repository path because the directory includes brackets `[...]`. When that happens, the local `opencode.jsonc` is not loaded automatically.
 - Suggested improvement: Document the workaround and use `OPENCODE_CONFIG` with the absolute path to the repository `opencode.jsonc` until project-root detection is stable for this workspace shape.
 - Status: implemented
+
+### 2026-04-20 - session-handoff-checkpoint
+
+- Problem: A closed session can interrupt long CSS cleanup work and leave the repository in a partial state without an explicit restart checkpoint.
+- Suggested improvement: Keep a small persistent handoff file with the current checkpoint, touched files, validation status, and next exact step whenever multistep work stops mid-iteration.
+- Status: implemented

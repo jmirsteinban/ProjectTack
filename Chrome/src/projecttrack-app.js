@@ -48,15 +48,6 @@ import { renderProjectTrackBrand } from "./components/projecttrack-brand.js";
 import { escapeAttribute, escapeHtml } from "./services/html.js";
 import { bindThemeManagerControls } from "./screens/theme-manager.js";
 
-const PROJECTTRACK_UI_GUIDE_PATH = "docs/projecttrack-ui.html";
-
-function getProjectTrackUiGuideUrl() {
-  if (typeof chrome !== "undefined" && chrome.runtime?.getURL) {
-    return chrome.runtime.getURL(PROJECTTRACK_UI_GUIDE_PATH);
-  }
-  return `../${PROJECTTRACK_UI_GUIDE_PATH}`;
-}
-
 
 function setAuthSubmissionState(state, isSubmitting, pendingStep = "") {
   state.authIsSubmitting = isSubmitting;
@@ -495,7 +486,6 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
               {{MENU_ITEMS}}
               <li><hr class="dropdown-divider"></li>
               <li><button type="button" class="dropdown-item {{THEME_MANAGER_ACTIVE}}" data-action="navigate-main" data-view-id="theme-manager">Theme Manager</button></li>
-              <li><button type="button" class="dropdown-item" data-action="open-ui-guide">UI Guide</button></li>
               <li><button type="button" class="dropdown-item {{CHANGE_HISTORY_ACTIVE}}" data-action="navigate-main" data-view-id="change-history">Change History</button></li>
             </ul>
           </div>
@@ -507,30 +497,13 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
       (html, [placeholder, value]) => html.split(placeholder).join(value),
       template
     );
-    if (!navbar.querySelector("[data-action='open-ui-guide']")) {
-      navbar.querySelector("[data-user-menu]")?.insertAdjacentHTML(
-        "beforeend",
-        `<li><hr class="dropdown-divider"></li>
-        <li><button type="button" class="dropdown-item" data-action="open-ui-guide">UI Guide</button></li>`
-      );
-    }
     if (!navbar.querySelector("[data-view-id='theme-manager']")) {
-      const uiGuideItem = navbar.querySelector("[data-action='open-ui-guide']")?.closest("li");
       const themeManagerItem = `<li><button type="button" class="dropdown-item ${state.currentView === "theme-manager" ? "active" : ""}" data-action="navigate-main" data-view-id="theme-manager">Theme Manager</button></li>`;
-      if (uiGuideItem) {
-        uiGuideItem.insertAdjacentHTML("beforebegin", themeManagerItem);
-      } else {
-        navbar.querySelector("[data-user-menu]")?.insertAdjacentHTML("beforeend", themeManagerItem);
-      }
+      navbar.querySelector("[data-user-menu]")?.insertAdjacentHTML("beforeend", themeManagerItem);
     }
     if (!navbar.querySelector("[data-view-id='change-history']")) {
-      const uiGuideItem = navbar.querySelector("[data-action='open-ui-guide']")?.closest("li");
       const changeHistoryItem = `<li><button type="button" class="dropdown-item ${state.currentView === "change-history" ? "active" : ""}" data-action="navigate-main" data-view-id="change-history">Change History</button></li>`;
-      if (uiGuideItem) {
-        uiGuideItem.insertAdjacentHTML("afterend", changeHistoryItem);
-      } else {
-        navbar.querySelector("[data-user-menu]")?.insertAdjacentHTML("beforeend", changeHistoryItem);
-      }
+      navbar.querySelector("[data-user-menu]")?.insertAdjacentHTML("beforeend", changeHistoryItem);
     }
   }
 
@@ -999,15 +972,6 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
         setNotice("Workspace data could not be refreshed.", "danger", "Refresh Failed");
       }
       render();
-    });
-
-    navbar.querySelector("[data-action='open-ui-guide']")?.addEventListener("click", async () => {
-      const url = getProjectTrackUiGuideUrl();
-      if (typeof chrome !== "undefined" && chrome.tabs?.create) {
-        await chrome.tabs.create({ url });
-        return;
-      }
-      window.open(url, "_blank", "noopener,noreferrer");
     });
 
     navbar.querySelector("[data-action='dismiss-notice']")?.addEventListener("click", () => {

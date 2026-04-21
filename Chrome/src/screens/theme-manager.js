@@ -8,21 +8,6 @@ const START_MARKER = "/* THEME MANAGER TOKENS START */";
 const END_MARKER = "/* THEME MANAGER TOKENS END */";
 const LOCAL_FALLBACK_CSS_URL = "styles/projecttrack.css";
 
-const FONT_STACKS = {
-  Graphik: '"Graphik", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  "System UI": 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  Inter: '"Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  Roboto: '"Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  Montserrat: '"Montserrat", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  "Nunito Sans": '"Nunito Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  "Source Sans 3": '"Source Sans 3", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  "Open Sans": '"Open Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  Lato: '"Lato", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  Poppins: '"Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  "IBM Plex Sans": '"IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  "Noto Sans": '"Noto Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-};
-
 const THEME_TOKEN_DEFINITIONS = [
   { name: "--bs-primary", label: "Bootstrap primary", category: "Colors", type: "color", fallback: "#0d6efd" },
   { name: "--bs-secondary", label: "Bootstrap secondary", category: "Colors", type: "color", fallback: "#6c757d" },
@@ -55,21 +40,6 @@ const THEME_TOKEN_DEFINITIONS = [
   { name: "--pt-color-status-neutral-text", label: "Status neutral text", category: "States", type: "color", fallback: "#415046" },
   { name: "--pt-color-status-danger", label: "Status danger", category: "States", type: "color", fallback: "#dc2626" },
   { name: "--pt-color-status-danger-soft", label: "Status danger soft", category: "States", type: "color", fallback: "#fff0ee" },
-  { name: "--pt-font-sans", label: "Body font stack", category: "Typography", type: "font", fallback: FONT_STACKS["System UI"] },
-  { name: "--pt-font-heading", label: "Heading font stack", category: "Typography", type: "font", fallback: FONT_STACKS.Graphik },
-  { name: "--pt-text-step-base", label: "Base text size", category: "Typography", type: "range", min: 10, max: 18, step: 1, unit: "px", fallback: "12px" },
-  { name: "--pt-card-border-radius", label: "Card radius", category: "Shape", type: "select", options: BOOTSTRAP_THEME_SCALES.radius, fallback: "20px" },
-  { name: "--pt-btn-border-radius", label: "Button radius", category: "Shape", type: "select", options: BOOTSTRAP_THEME_SCALES.radius, fallback: "14px" },
-  { name: "--pt-form-control-radius", label: "Form radius", category: "Shape", type: "select", options: BOOTSTRAP_THEME_SCALES.radius, fallback: "12px" },
-  { name: "--pt-alert-radius", label: "Alert radius", category: "Shape", type: "select", options: BOOTSTRAP_THEME_SCALES.radius, fallback: "16px" },
-  { name: "--pt-modal-radius", label: "Modal radius", category: "Shape", type: "select", options: BOOTSTRAP_THEME_SCALES.radius, fallback: "22px" },
-  { name: "--pt-card-box-shadow", label: "Card shadow", category: "Shadows", type: "select", options: BOOTSTRAP_THEME_SCALES.shadow, fallback: "0 14px 28px rgba(22, 36, 27, 0.08)" },
-  { name: "--pt-btn-shadow", label: "Button shadow", category: "Shadows", type: "select", options: BOOTSTRAP_THEME_SCALES.shadow, fallback: "0 8px 18px rgba(22, 36, 27, 0.08)" },
-  { name: "--pt-card-body-padding-x", label: "Card padding X", category: "Spacing", type: "select", options: BOOTSTRAP_THEME_SCALES.spacing, fallback: "18px" },
-  { name: "--pt-card-body-padding-y", label: "Card padding Y", category: "Spacing", type: "select", options: BOOTSTRAP_THEME_SCALES.spacing, fallback: "18px" },
-  { name: "--pt-btn-padding-x", label: "Button padding X", category: "Spacing", type: "select", options: BOOTSTRAP_THEME_SCALES.spacing, fallback: "16px" },
-  { name: "--pt-alert-padding-x", label: "Alert padding X", category: "Spacing", type: "select", options: BOOTSTRAP_THEME_SCALES.spacing, fallback: "16px" },
-  { name: "--pt-alert-padding-y", label: "Alert padding Y", category: "Spacing", type: "select", options: BOOTSTRAP_THEME_SCALES.spacing, fallback: "14px" },
   { name: "--pt-gradient-hero", label: "Hero gradient", category: "Gradients", type: "text", fallback: "linear-gradient(135deg, #26263a 0%, #46307a 52%, #6740aa 100%)" },
   { name: "--pt-gradient-progress-track", label: "Progress gradient", category: "Gradients", type: "text", fallback: "linear-gradient(90deg, #f17d2f 0%, #ff4b5c 48%, #b33ee6 100%)" },
   { name: "--pt-gradient-progress-complete", label: "Progress complete gradient", category: "Gradients", type: "text", fallback: "linear-gradient(135deg, #f17d2f 0%, #ff4b5c 100%)" },
@@ -419,19 +389,6 @@ function renderValueInput(token) {
   const value = themeState.editedTokens[token.name] || token.fallback;
   const original = themeState.originalTokens[token.name] || token.fallback;
   const changed = value !== original;
-
-  if (token.type === "font") {
-    const selectedFont = Object.entries(FONT_STACKS).find(([, stack]) => stack === value)?.[0] || "Custom";
-    const options = Object.keys(FONT_STACKS)
-      .map((font) => `<option value="${escapeAttribute(FONT_STACKS[font])}" ${selectedFont === font ? "selected" : ""}>${escapeHtml(font)}</option>`)
-      .join("");
-    return `
-      <select class="form-select" data-theme-token="${escapeAttribute(token.name)}">
-        ${options}
-        <option value="${escapeAttribute(value)}" ${selectedFont === "Custom" ? "selected" : ""}>Custom / current</option>
-      </select>
-    `;
-  }
 
   if (token.type === "select") {
     const hasKnownValue = token.options.some((option) => option.value === value);
@@ -1274,29 +1231,6 @@ export function bindThemeManagerControls(rootNode = document) {
     renderInto(manager);
   });
 
-  manager.querySelector("[data-action='theme-add-google-font']")?.addEventListener("click", () => {
-    const family = window.prompt("Google Font family name");
-    if (!family) {
-      return;
-    }
-    const normalized = family.trim().replace(/\s+/g, "+");
-    const href = `https://fonts.googleapis.com/css2?family=${normalized}:wght@400;500;600;700&display=swap`;
-    let link = document.querySelector("link[data-theme-google-font]");
-    if (!link) {
-      link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.dataset.themeGoogleFont = "true";
-      document.head.appendChild(link);
-    }
-    link.href = href;
-    const stack = `"${family.trim()}", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
-    themeState.editedTokens["--pt-font-sans"] = stack;
-    themeState.editedTokens["--pt-font-heading"] = stack;
-    applyTheme(themeState.editedTokens);
-    setMessage(`${family.trim()} added to the preview. Export or save to persist the stack.`, "success");
-    renderInto(manager);
-  });
-
   manager.querySelector("[data-action='theme-import-css']")?.addEventListener("click", () => {
     const input = manager.querySelector("[data-theme-import]");
     themeState.importCss = input?.value || "";
@@ -1470,7 +1404,6 @@ export function renderThemeManagerScreen() {
         <div class="d-flex gap-2 flex-wrap justify-content-end">
           <button type="button" class="btn btn-outline-secondary" data-action="theme-load-css">Reload CSS</button>
           <button type="button" class="btn btn-outline-secondary" data-action="theme-reset-project">Reset to project CSS</button>
-          <button type="button" class="btn btn-outline-primary" data-action="theme-add-google-font">Add Google Font</button>
           <button type="button" class="btn btn-primary" data-action="theme-save-css">Save to projecttrack.css</button>
         </div>
         </div>

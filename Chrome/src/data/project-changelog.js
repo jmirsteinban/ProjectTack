@@ -3,6 +3,78 @@ export const PROJECT_CHANGELOG = [
     date: "2026-04-20",
     entries: [
       {
+        time: "22:45",
+        type: "Maintenance",
+        title: "Theme tokens narrowed to color surfaces",
+        description: "Stopped exposing non-color ProjectTrack theme tokens where Bootstrap/default values should own the surface.",
+        details: [
+          "Removed non-color pt tokens for shape, spacing, sizing, shadow, and typography from the active theme surface.",
+          "Kept the Theme Manager focused on color, status, surface, and gradient tokens that still represent real ProjectTrack identity.",
+          "Updated the component registry so component token summaries only track the remaining intentionally custom color-oriented tokens."
+        ]
+      },
+      {
+        time: "17:28",
+        type: "Fix",
+        title: "Theme Manager duplicated token control sync",
+        description: "Fixed inline component token controls so repeated variables stay synchronized while editing.",
+        details: [
+          "A token edited from one component card now updates the shared theme state directly from that control.",
+          "Duplicated controls for the same variable are synchronized immediately instead of overwriting the new value with an older duplicate.",
+          "Live preview, export output, and diff counters continue updating while editing."
+        ]
+      },
+      {
+        time: "16:57",
+        type: "Feature",
+        title: "Theme Manager component-aware diff",
+        description: "Improved the Theme Manager diff so changes are grouped by impacted ProjectTrack component.",
+        details: [
+          "The diff now summarizes changed tokens, impacted components, and changed categories.",
+          "Changed tokens are grouped by component using Chrome/src/theme/component-registry.js.",
+          "A flat token review remains available and now lists impacted components per variable.",
+          "Individual token revert actions continue to work from grouped and flat diff tables."
+        ]
+      },
+      {
+        time: "16:53",
+        type: "Feature",
+        title: "Theme Manager component token controls",
+        description: "Connected registered ProjectTrack components with editable token summaries and inline controls.",
+        details: [
+          "Component cards now show editable, pending, and changed token counts.",
+          "Known component tokens can be edited inline from the ProjectTrack Components section.",
+          "Referenced tokens that are not yet defined in the Theme Manager remain visible as pending token definitions.",
+          "Expanded the controlled token set for cards, overlays, alerts, status colors, progress gradients, and text on dark surfaces.",
+          "The marked Theme Manager token block now includes the newly controlled component tokens."
+        ]
+      },
+      {
+        time: "16:51",
+        type: "Feature",
+        title: "Theme Manager component gallery",
+        description: "Expanded the ProjectTrack Components section with a broader visual QA gallery.",
+        details: [
+          "Added previews for breadcrumbs, nav pills, form validation states, disabled and readonly fields.",
+          "Added metric cards, notes/tasks, release update panel, and Change History entry previews.",
+          "Added static modal and confirm dialog previews to cover overlay styling without opening runtime dialogs.",
+          "Theme Manager documentation now lists the expanded gallery coverage."
+        ]
+      },
+      {
+        time: "12:15",
+        type: "Feature",
+        title: "Theme Manager Bootstrap color coverage",
+        description: "Expanded Theme Manager coverage for Bootstrap theme colors and preview components.",
+        details: [
+          "Theme tokens now include Bootstrap info, warning, light, dark, body color, and body background.",
+          "The generated theme export derives RGB tokens for the Bootstrap color palette.",
+          "The Bootstrap section now previews primary, secondary, success, info, warning, danger, light, and dark color swatches.",
+          "The live preview now includes additional Bootstrap components: list group, dropdown, progress, table, badges, and state alerts.",
+          "Documentation clarifies that light and dark are currently colors in the active light theme, not separate Bootstrap color modes."
+        ]
+      },
+      {
         time: "12:05",
         type: "UI",
         title: "Theme Manager menu placement",

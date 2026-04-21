@@ -34,7 +34,6 @@ ProjectTack/
 ## Documentacion
 
 - `docs/PROJECTTRACK.md`: estado funcional, tecnico, operativo, pendientes y reglas de mantenimiento.
-- `Chrome/docs/projecttrack-ui.html`: guia viva del sistema UI de la extension Chrome.
 - `docs/chrome/deployment-github-releases.md`: guia de empaquetado y actualizacion privada de la extension Chrome.
 - `docs/chrome/bootstrap-migration-tracking.md`: seguimiento de la migracion Bootstrap Chrome.
 - `docs/AGENTES_IA_PROJECTTRACK.md`: playbook para usar agentes IA con roles, prompts y feedback preciso.
@@ -53,7 +52,6 @@ Puntos principales:
 - `Chrome/src/projecttrack-router.js`: router de pantallas.
 - `Chrome/workspace.html`: runtime principal full-tab con Bootstrap local.
 - `Chrome/styles/projecttrack.css`: unica capa custom de ProjectTrack.
-- `Chrome/docs/projecttrack-ui.html`: referencia viva de UI.
 
 Para probar la extension localmente:
 
@@ -102,6 +100,6 @@ El proyecto usa Supabase para:
 ## Contribuir
 
 - Revisa primero `docs/PROJECTTRACK.md`.
-- En Chrome, prioriza Bootstrap real y los patrones documentados en `Chrome/docs/projecttrack-ui.html`.
+- En Chrome, prioriza Bootstrap real y el runtime actual del workspace.
 - Si usas agentes IA, sigue `docs/AGENTES_IA_PROJECTTRACK.md` y registra mejoras en `docs/AGENTES_IA_FEEDBACK_LOG.md`.
 - Evita subir caches, builds o archivos locales sensibles; el `.gitignore` raiz ya cubre la mayoria de esos casos.

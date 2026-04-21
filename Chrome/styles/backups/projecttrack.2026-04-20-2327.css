@@ -246,7 +246,7 @@
 :root {
   /* Colors */
   --bs-primary: #46307a;
-  --bs-secondary: #2b475f;
+  --bs-secondary: #6c757d;
   --bs-success: #198754;
   --bs-info: #0dcaf0;
   --bs-warning: #ffc107;
@@ -258,15 +258,11 @@
   --pt-color-brand-primary: #204d38;
   --pt-color-brand-strong: #153426;
   --pt-color-brand-soft: #d9e9df;
-  --pt-color-text-primary: #1d2a23;
-  --pt-color-text-secondary: #66756c;
   --pt-color-bg-canvas: rgba(247, 246, 240, 0.92);
   --pt-color-card: #fbfaf6;
   --pt-color-border-subtle: rgba(29, 42, 35, 0.12);
-  --pt-color-text-on-dark: var(--pt-color-white);
-  --pt-color-text-on-dark-muted: rgba(255, 255, 255, 0.78);
   --bs-primary-rgb: 70, 48, 122;
-  --bs-secondary-rgb: 43, 71, 95;
+  --bs-secondary-rgb: 108, 117, 125;
   --bs-success-rgb: 25, 135, 84;
   --bs-info-rgb: 13, 202, 240;
   --bs-warning-rgb: 255, 193, 7;
@@ -314,9 +310,13 @@ body {
 .material-symbols-outlined,
 .material-symbols-rounded,
 .material-symbols-sharp {
+  --pt-material-symbol-fill: 0;
+  --pt-material-symbol-wght: 400;
+  --pt-material-symbol-grad: 0;
+  --pt-material-symbol-opsz: 24;
   font-weight: normal;
   font-style: normal;
-  font-size: 24px;
+  font-size: var(--pt-material-symbol-size, 24px);
   line-height: 1;
   letter-spacing: normal;
   text-transform: none;
@@ -330,10 +330,10 @@ body {
   -webkit-font-feature-settings: "liga";
   font-feature-settings: "liga";
   font-variation-settings:
-    "FILL" 0,
-    "wght" 400,
-    "GRAD" 0,
-    "opsz" 24;
+    "FILL" var(--pt-material-symbol-fill),
+    "wght" var(--pt-material-symbol-wght),
+    "GRAD" var(--pt-material-symbol-grad),
+    "opsz" var(--pt-material-symbol-opsz);
 }
 
 .material-symbols-outlined {
@@ -355,7 +355,7 @@ body {
 .material-icons-two-tone {
   font-weight: normal;
   font-style: normal;
-  font-size: 24px;
+  font-size: var(--pt-material-icon-size, 24px);
   line-height: 1;
   letter-spacing: normal;
   text-transform: none;
