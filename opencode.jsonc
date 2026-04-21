@@ -1,0 +1,289 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Global fallback only. Project agents and commands still define
+  // their own explicit `model` fields.
+  "model": "openai/gpt-5.4",
+  "small_model": "openai/gpt-5.4",
+  "default_agent": "build",
+  "share": "manual",
+  "snapshot": true,
+
+  "instructions": [
+    "./AGENTS.md",
+    "./docs/PROJECTTRACK.md"
+  ],
+
+  "watcher": {
+    "ignore": [
+      ".git/**",
+      "dist/**",
+      "Android/.gradle/**",
+      "Android/build/**"
+    ]
+  },
+
+  "permission": {
+    "webfetch": "ask",
+    "bash": {
+      "*": "allow",
+      "git push*": "ask",
+      "git reset*": "ask",
+      "git checkout --*": "ask",
+      "rm *": "ask",
+      "del *": "ask",
+      "Remove-Item *": "ask"
+    }
+  },
+
+  "agent": {
+    "build": {
+      "description": "Primary ProjectTrack implementation agent.",
+      "mode": "primary",
+      "model": "openai/gpt-5.4",
+      "temperature": 0.1,
+      "prompt": "You are the primary implementation agent for ProjectTrack. Follow `AGENTS.md` and read `docs/PROJECTTRACK.md` first. Prefer minimal, safe, reversible changes. Use specialized subagents when a task clearly belongs to their scope. Do not refactor unrelated code.",
+      "permission": {
+        "task": {
+          "*": "deny",
+          "general": "allow",
+          "explore": "allow",
+          "theme-tokenizer": "allow",
+          "theme-builder": "allow",
+          "bootstrap-auditor": "allow",
+          "error-handler": "allow",
+          "tasks-builder": "allow",
+          "docs-writer": "allow",
+          "auto-updater": "allow",
+          "tester": "allow",
+          "qa-reviewer": "allow"
+        }
+      },
+      "color": "primary"
+    },
+
+    "plan": {
+      "description": "Primary ProjectTrack planning and analysis agent.",
+      "mode": "primary",
+      "model": "openai/gpt-5.4",
+      "temperature": 0.1,
+      "prompt": "You are the primary planning agent for ProjectTrack. Follow `AGENTS.md` and read `docs/PROJECTTRACK.md` first. Focus on analysis, scoping, sequencing, and risk identification. Prefer proposing before broad or structural changes.",
+      "permission": {
+        "edit": "ask",
+        "bash": "ask",
+        "webfetch": "ask",
+        "task": {
+          "*": "deny",
+          "explore": "allow",
+          "qa-reviewer": "allow"
+        }
+      },
+      "color": "secondary"
+    },
+
+    "general": {
+      "description": "General-purpose ProjectTrack subagent for focused implementation work.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.4",
+      "temperature": 0.1,
+      "prompt": "You are a general ProjectTrack subagent. Follow `AGENTS.md` and read `docs/PROJECTTRACK.md` first. Stay within the requested scope, keep changes minimal, and avoid unrelated refactors.",
+      "color": "info"
+    },
+
+    "explore": {
+      "description": "Read-only ProjectTrack exploration subagent.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.4",
+      "temperature": 0.1,
+      "prompt": "You are a read-only exploration subagent for ProjectTrack. Follow `AGENTS.md` and read `docs/PROJECTTRACK.md` first. Focus on locating files, tracing behavior, and surfacing concrete references quickly.",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "webfetch": "deny"
+      },
+      "color": "info"
+    },
+
+    "compaction": {
+      "description": "Internal ProjectTrack context compaction agent.",
+      "mode": "primary",
+      "model": "openai/gpt-5.4"
+    },
+
+    "title": {
+      "description": "Internal ProjectTrack title generation agent.",
+      "mode": "primary",
+      "model": "openai/gpt-5.4"
+    },
+
+    "summary": {
+      "description": "Internal ProjectTrack summary generation agent.",
+      "mode": "primary",
+      "model": "openai/gpt-5.4"
+    },
+
+    "theme-tokenizer": {
+      "description": "Repairs Theme Manager token definitions, typing, and token-level consistency.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.4",
+      "temperature": 0.1,
+      "prompt": "Read `docs/PROJECTTRACK.md` first, then `docs/chrome/theme-manager.md`. Focus on Theme Manager token correctness and consistency. Prioritize token typing, especially `--pt-color-*` tokens using proper color semantics, the missing `--pt-color-white` token, and token-level contrast robustness where it belongs. Do not redesign Theme Manager, refactor unrelated UI, or broaden the task into gallery or preview expansion. Validate visible Theme Manager impact when relevant, and keep changes minimal and reversible.",
+      "color": "#1f7a5a"
+    },
+
+    "theme-builder": {
+      "description": "Expands Theme Manager coverage for typography, gallery completeness, previews, and backup-related workflow consistency.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.4",
+      "temperature": 0.1,
+      "prompt": "Read `docs/PROJECTTRACK.md` first, then `docs/chrome/theme-manager.md`. Focus on completing Theme Manager as a working tool: typography tokens such as `--pt-text-step-*`, real gallery coverage, preview consistency, and consistency between preview, export, and backup-related flows. Do not redesign the whole screen, do not break the marked save boundary, and do not refactor unrelated runtime areas. Validate visible Theme Manager impact when relevant, and keep changes minimal and reversible.",
+      "color": "#2d936c"
+    },
+
+    "bootstrap-auditor": {
+      "description": "Drives Chrome UI toward real Bootstrap as the dominant implementation layer and removes unjustified custom presentation classes.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.4",
+      "temperature": 0.1,
+      "prompt": "Read `docs/PROJECTTRACK.md` first, then `docs/chrome/bootstrap-migration-tracking.md`. Audit and improve the Chrome UI so Bootstrap is the default implementation layer for all standard UI patterns. Replace unjustified custom presentation classes when Bootstrap already provides the correct solution. Keep custom classes only where they are strictly required for ProjectTrack identity, tokens, or domain-specific behavior. Do not preserve custom classes by inertia, and do not redesign approved screens without a concrete task-driven reason. Validate affected runtime surfaces when relevant, and keep changes minimal and reversible.",
+      "color": "#0d6efd"
+    },
+
+    "error-handler": {
+      "description": "Improves Chrome runtime error handling, policies, and local-vs-remote identifier edge cases.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.4",
+      "temperature": 0.1,
+      "prompt": "Read `docs/PROJECTTRACK.md` first. Focus on Chrome runtime error handling, policy clarity, and edge cases, especially where local and remote identifiers interact. Improve error behavior and messaging with minimal, safe, reversible changes. Do not rewrite unrelated sync architecture, do not invent new business rules without basis, and do not broaden the task beyond the affected failure paths. Validate impacted behavior when relevant and keep documentation aligned if runtime expectations change.",
+      "color": "#dc3545"
+    },
+
+    "tasks-builder": {
+      "description": "Builds the next Tasks workflow, including migration alignment and burndown-related work.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.4",
+      "temperature": 0.1,
+      "prompt": "Read `docs/PROJECTTRACK.md` first, then `sql/change_tasks_excel_import_20260331.sql`. Focus on the Tasks domain: migration alignment, runtime setup guidance, and future burndown-related functionality. Preserve current task import behavior unless the task explicitly changes it. Do not redesign unrelated parts of Change Detail or invent undocumented schema behavior. Keep runtime, migration expectations, and documentation aligned.",
+      "color": "#6f42c1"
+    },
+
+    "docs-writer": {
+      "description": "Maintains end-user and project documentation in alignment with the current runtime.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.4",
+      "temperature": 0.1,
+      "prompt": "Read `docs/PROJECTTRACK.md` first, then the task-specific documentation. Focus on end-user documentation and closing documentation gaps in English where appropriate, while preserving files that are intentionally maintained in Spanish. Prefer updating existing documents over creating parallel documents. Do not invent features, and do not document future behavior as already implemented. Keep documentation aligned with the current runtime.",
+      "permission": {
+        "bash": "deny",
+        "webfetch": "deny"
+      },
+      "color": "#198754"
+    },
+
+    "auto-updater": {
+      "description": "Evaluates and supports the future Chrome extension update-channel strategy.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.4",
+      "temperature": 0.1,
+      "prompt": "Read `docs/PROJECTTRACK.md` first, then `docs/chrome/deployment-github-releases.md`. Focus on the extension update-channel strategy, including GitHub Releases, Supabase metadata, private Chrome Web Store options, or enterprise distribution paths. Prefer secure, realistic, low-friction approaches. Do not add secrets to the extension, do not assume unsupported self-update behavior, and do not impose a new delivery architecture without an explicit decision.",
+      "permission": {
+        "webfetch": "allow"
+      },
+      "color": "#fd7e14"
+    },
+
+    "tester": {
+      "description": "Adds or improves targeted unit and UI tests with minimal tooling churn.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.4",
+      "temperature": 0.1,
+      "prompt": "Read `docs/PROJECTTRACK.md` first. Inspect the existing test and build tooling before changing test setup. Focus on high-value unit tests and UI tests around the target behavior. Prefer the smallest useful testing step over broad tooling changes. Do not introduce heavy framework churn without a concrete need tied to this repository.",
+      "color": "#20c997"
+    },
+
+    "qa-reviewer": {
+      "description": "Read-only practical reviewer for ProjectTrack code, workflow, and documentation quality.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.4",
+      "temperature": 0.1,
+      "prompt": "Read `docs/PROJECTTRACK.md` first and then the task-specific documentation. You are a read-only practical reviewer. Report findings first, ordered by severity, with concrete file references and clear risk. Focus on bugs, regressions, Bootstrap mismatches, Theme Manager gaps, missing tests, and documentation drift. Do not edit files or act as an implementation agent.",
+      "permission": {
+        "edit": "deny",
+        "webfetch": "deny",
+        "bash": {
+          "*": "deny",
+          "git status*": "allow",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "node --check *": "allow"
+        }
+      },
+      "color": "warning"
+    }
+  },
+
+  "command": {
+    "theme-tokenizer": {
+      "description": "Normalize Theme Manager token semantics and consistency.",
+      "agent": "theme-tokenizer",
+      "model": "openai/gpt-5.4",
+      "template": "Work on ProjectTrack Theme Manager token normalization. Read `docs/PROJECTTRACK.md` first, then `docs/chrome/theme-manager.md`. Focus on token typing, color-token semantics, the missing `--pt-color-white` token, and token-level consistency. Keep changes minimal and reversible. Extra scope: $ARGUMENTS"
+    },
+
+    "theme-builder": {
+      "description": "Advance Theme Manager typography, gallery coverage, and preview consistency.",
+      "agent": "theme-builder",
+      "model": "openai/gpt-5.4",
+      "template": "Advance the ProjectTrack Theme Manager implementation. Read `docs/PROJECTTRACK.md` first, then `docs/chrome/theme-manager.md`. Focus on typography coverage, `--pt-text-step-*`, gallery completeness, preview consistency, and consistency across preview, export, and backup-related flows. Keep changes minimal and reversible. Extra scope: $ARGUMENTS"
+    },
+
+    "bootstrap-audit": {
+      "description": "Drive Chrome UI toward real Bootstrap and remove unjustified custom presentation classes.",
+      "agent": "bootstrap-auditor",
+      "model": "openai/gpt-5.4",
+      "template": "Run the ProjectTrack Chrome Bootstrap audit. Read `docs/PROJECTTRACK.md` first, then `docs/chrome/bootstrap-migration-tracking.md`. Drive Bootstrap toward 100% use for standard UI patterns and remove unjustified custom presentation classes. Keep custom classes only where they are strictly necessary for ProjectTrack identity, tokens, or domain-specific behavior. Keep changes minimal and reversible. Extra scope: $ARGUMENTS"
+    },
+
+    "error-handler": {
+      "description": "Refine Chrome runtime error handling and policy edge cases.",
+      "agent": "error-handler",
+      "model": "openai/gpt-5.4",
+      "template": "Improve ProjectTrack Chrome error handling. Read `docs/PROJECTTRACK.md` first. Focus on runtime error behavior, policy clarity, and local-vs-remote identifier edge cases. Keep changes minimal, safe, and reversible. Extra scope: $ARGUMENTS"
+    },
+
+    "tasks-builder": {
+      "description": "Build the next Tasks workflow, including migration alignment and burndown work.",
+      "agent": "tasks-builder",
+      "model": "openai/gpt-5.4",
+      "template": "Work on the ProjectTrack Tasks roadmap. Read `docs/PROJECTTRACK.md` first, then `sql/change_tasks_excel_import_20260331.sql`. Focus on migration alignment, setup guidance, and burndown-related work while preserving current task import behavior unless explicitly required otherwise. Keep changes minimal and reversible. Extra scope: $ARGUMENTS"
+    },
+
+    "docs-user": {
+      "description": "Create or update end-user documentation and close relevant English documentation gaps.",
+      "agent": "docs-writer",
+      "model": "openai/gpt-5.4",
+      "template": "Update ProjectTrack documentation for end users and other relevant English-facing documentation. Read `docs/PROJECTTRACK.md` first, then the task-specific documents. Keep documentation aligned with the current runtime, preserve intentionally Spanish-maintained files, and avoid documenting future behavior as implemented. Extra scope: $ARGUMENTS"
+    },
+
+    "auto-updater": {
+      "description": "Evaluate and support the future Chrome extension update-channel strategy.",
+      "agent": "auto-updater",
+      "model": "openai/gpt-5.4",
+      "template": "Evaluate the ProjectTrack Chrome update-channel strategy. Read `docs/PROJECTTRACK.md` first, then `docs/chrome/deployment-github-releases.md`. Focus on realistic, secure update-distribution paths, including the current GitHub Releases plus Supabase flow and future options such as private Chrome Web Store or enterprise distribution. Do not add secrets to the extension or assume unsupported self-update behavior. Extra scope: $ARGUMENTS"
+    },
+
+    "test-suite": {
+      "description": "Add, improve, or run the most relevant ProjectTrack tests.",
+      "agent": "tester",
+      "model": "openai/gpt-5.4",
+      "template": "Work on ProjectTrack test coverage. Read `docs/PROJECTTRACK.md` first. Inspect the existing test and build tooling before changing test setup. Focus on the smallest useful unit or UI testing step for the target behavior. Avoid heavy tooling changes unless clearly justified. Extra scope: $ARGUMENTS"
+    },
+
+    "review-projecttrack": {
+      "description": "Run a read-only practical review of ProjectTrack changes or target areas.",
+      "agent": "qa-reviewer",
+      "model": "openai/gpt-5.4",
+      "template": "Review the current ProjectTrack state in read-only mode. Read `docs/PROJECTTRACK.md` first, then the task-specific documentation. Report findings first, ordered by severity, with clear file references and concrete risk. Focus on bugs, regressions, Bootstrap mismatches, Theme Manager gaps, missing tests, and documentation drift. Review scope: $ARGUMENTS"
+    }
+  }
+}
