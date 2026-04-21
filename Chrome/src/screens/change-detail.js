@@ -288,7 +288,7 @@ export function renderChangeDetailScreen(state, data) {
             <span class="small text-secondary">TSKID ${index + 1}</span>
             <span class="badge rounded-pill pt-pill ${taskStatusClass(task.status)}">${escapeHtml(translateTaskStatus(task.status))}</span>
           </div>
-          <div class="d-flex flex-wrap align-items-center gap-2 min-w-0 pt-change-task-meta">
+          <div class="d-flex flex-wrap align-items-center gap-2 min-w-0">
             ${task.page ? `<span class="badge rounded-pill text-bg-light border">Page ${escapeHtml(task.page)}</span>` : ""}
             ${task.itemNumber ? `<span class="badge rounded-pill text-bg-light border">#${escapeHtml(task.itemNumber)}</span>` : ""}
             ${task.annotationType ? `<span class="badge rounded-pill text-bg-light border">${escapeHtml(task.annotationType)}</span>` : ""}
@@ -298,7 +298,7 @@ export function renderChangeDetailScreen(state, data) {
             ${task.documentName ? `<strong class="pt-change-task-title">${escapeHtml(task.documentName)}</strong>` : ""}
             <p class="pt-change-task-request m-0">${escapeHtml(task.requestText)}</p>
           </div>
-          <div class="row g-2 pt-change-task-controls">
+          <div class="row g-2 align-items-end">
             <div class="col-12 col-sm-6">
               <label class="form-label" for="task-assignee-${escapeAttribute(task.id)}">Assignee</label>
               <select id="task-assignee-${escapeAttribute(task.id)}" class="form-select" data-action="change-task-assignee" data-task-id="${escapeAttribute(task.id)}"${tasksFeatureAvailable ? "" : " disabled"}>
@@ -331,8 +331,8 @@ export function renderChangeDetailScreen(state, data) {
       : `<div class="pt-empty-state-card"><strong>No tasks imported</strong><p>Import the tracker workbook to register the requested modifications for this change.</p></div>`;
   const taskListClass =
     tasks.length > 4
-      ? "list-group pt-change-task-list pt-change-task-list--scroll"
-      : "list-group pt-change-task-list";
+      ? "list-group min-w-0 pt-change-task-list--scroll"
+      : "list-group min-w-0";
 
   const siblingRows = siblingChanges
     .slice(0, 3)
