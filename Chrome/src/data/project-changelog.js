@@ -3,6 +3,17 @@ export const PROJECT_CHANGELOG = [
     date: "2026-04-20",
     entries: [
       {
+        time: "23:20",
+        type: "Release",
+        title: "ProjectTrack Chrome 0.1.3 release prep",
+        description: "Prepared the next Chrome version number while holding the release until the pending workspace CSS validation is completed.",
+        details: [
+          "Chrome/manifest.json now targets version 0.1.3 so the next release can use a fresh tag.",
+          "The release remains blocked until visual validation is completed in workspace.html and workspace.html?view=theme-manager.",
+          "The current package/release flow continues to depend on a matching git tag v0.1.3 before GitHub Release publication."
+        ]
+      },
+      {
         time: "22:45",
         type: "Maintenance",
         title: "Theme tokens narrowed to color surfaces",

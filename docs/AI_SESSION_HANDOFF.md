@@ -43,6 +43,8 @@ Update it before stopping whenever the repository is left in a partial or unvali
   - Non-color `--pt-*` theme tokens were removed from the active Theme Manager surface so the theme now focuses on color, surfaces, and gradients.
   - Material icon helper variables `--pt-material-*` were removed after checking they were not used outside the base font rules; the icon baseline now uses fixed safe defaults.
   - Theme Manager and Bootstrap migration docs were rewritten into shorter practical guides tied to the current runtime.
+  - `Chrome/manifest.json` was bumped to `0.1.3` so the next release can use a new tag once visual validation is complete.
+  - A local package was generated for `0.1.3` in `dist/chrome/` to confirm the release script still produces the expected zip and metadata files.
 - Incomplete or risky right now:
   - `Chrome/styles/projecttrack.css` currently keeps tokens and base font rules, but the active workspace/domain selectors that the runtime still uses were removed from this file and were not yet re-homed.
   - The current tree should be treated as an intermediate cleanup checkpoint, not as a visually validated final state.
@@ -53,12 +55,14 @@ Update it before stopping whenever the repository is left in a partial or unvali
   - `node --check` for `Chrome/src/screens/theme-manager.js`.
   - `node --check` for `Chrome/src/theme/component-registry.js`.
   - Search-based verification that `--pt-material-*` helpers were not referenced outside the removed base icon rules.
+  - Local packaging via `scripts/package-chrome-release.ps1` with `0.1.3` output generated in `dist/chrome/`.
 - Validation still pending:
   - Visual validation in `Chrome/workspace.html`.
   - Visual validation in `Chrome/workspace.html?view=theme-manager`.
 - Next exact step:
-  - Restore only the workspace/domain selectors still used by the active runtime from `Chrome/styles/backups/projecttrack.2026-04-20-2206.css` back into `Chrome/styles/projecttrack.css`.
-  - After that, continue pruning CSS in small sections, validating each slice before deleting the next block.
+  - Validate `Chrome/workspace.html` and `Chrome/workspace.html?view=theme-manager` against the current CSS cleanup state.
+  - If the UI is correct, create the version-bump commit for `0.1.3`, tag `v0.1.3`, and publish the Chrome release.
+  - If the UI is not correct, restore only the workspace/domain selectors still used by the active runtime from `Chrome/styles/backups/projecttrack.2026-04-20-2206.css` and continue pruning by small validated slices.
 
 ## Update Template
 

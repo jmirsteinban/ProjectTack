@@ -360,6 +360,7 @@ IA:
 - Bootstrap audit: `Change Detail` ya simplifico helpers de layout de la seccion `Tasks` usando utilidades Bootstrap directas.
 - Documentacion funcional: falta seguir migrando a ingles donde aplique y mantener las guias vivas alineadas al runtime actual.
 - CSS unico: validar visualmente que `workspace.html` y `workspace.html?view=theme-manager` sigan correctos despues de consolidar estilos.
+- Release Chrome siguiente preparado sobre `0.1.3`, pero debe quedar bloqueado hasta cerrar la validacion visual pendiente del workspace y del Theme Manager.
 - Theme Manager: falta completar la galeria completa de componentes, ampliar tokens por componente, mejorar diff por impacto y reemplazar la auditoria automatica inicial por registro explicito completo.
 - OpenCode: en este workspace la CLI puede resolver la raiz del proyecto como `C:\` en lugar del repo por la ruta con corchetes `[...]`; mientras no se corrija, conviene forzar `OPENCODE_CONFIG` apuntando a `opencode.jsonc` para que carguen agentes y comandos del proyecto.
 
