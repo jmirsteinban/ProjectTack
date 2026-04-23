@@ -1,0 +1,17 @@
+<div class="card border-0 shadow-sm sticky-top pt-theme-nav-card" style="top: 96px;">
+  <div class="card-body d-grid gap-3">
+    <div class="d-grid gap-1">
+      <p class="text-uppercase text-secondary fw-bold small mb-0">Theme Manager</p>
+      <h2 class="h6 mb-0">Sections</h2>
+      <p class="small text-secondary mb-0">Move between token editing, previews, backups, and diff review.</p>
+    </div>
+    <nav class="nav flex-column gap-2" aria-label="Theme Manager sections">
+      {{PRIMARY_ITEMS}}
+      {{SECONDARY_BLOCK}}
+    </nav>
+    <div class="pt-theme-nav-summary border-top pt-3 d-grid gap-1 text-secondary small">
+      <strong data-theme-diff-count>{{UNSAVED_COUNT}}</strong>
+      <span>unsaved changes</span>
+    </div>
+  </div>
+</div>

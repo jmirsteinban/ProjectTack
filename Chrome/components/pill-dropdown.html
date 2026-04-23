@@ -1,0 +1,18 @@
+<div class="dropdown position-relative">
+  <button
+    type="button"
+    class="btn pt-header-pill-trigger d-inline-flex align-items-center p-0 border-0 bg-transparent"
+    data-action="{{TOGGLE_ACTION}}"
+    aria-expanded="{{IS_OPEN}}"
+    aria-haspopup="true"
+    title="{{TITLE}}"
+  >
+    <span class="badge rounded-pill pt-header-pill-badge {{CURRENT_TONE_CLASS}}">
+      {{CURRENT_LABEL}}
+      <svg viewBox="0 0 16 16" focusable="false" aria-hidden="true">
+        <path d="M4.47 6.97a.75.75 0 0 1 1.06 0L8 9.44l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06Z"></path>
+      </svg>
+    </span>
+  </button>
+  {{MENU_PANEL}}
+</div>

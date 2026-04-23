@@ -17,23 +17,7 @@
       Refresh Data
     </button>
 
-    <div class="dropdown">
-      <button type="button" class="btn btn-outline-secondary dropdown-toggle d-inline-flex align-items-center gap-2" data-bs-toggle="dropdown"
-        aria-expanded="false">
-        <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-bg-secondary fw-bold flex-shrink-0" aria-hidden="true" style="width:2rem;height:2rem;">{{USER_INITIAL}}</span>
-        <span class="d-grid text-start lh-sm d-none d-lg-inline-grid">
-          <span class="fw-semibold small">{{USER_NAME}}</span>
-          <span class="text-secondary" style="font-size:0.72rem;">{{USER_ROLE}}</span>
-        </span>
-      </button>
-
-      <ul class="dropdown-menu dropdown-menu-end shadow-sm" data-user-menu>
-        {{MENU_ITEMS}}
-        <li><hr class="dropdown-divider"></li>
-        <li><button type="button" class="dropdown-item {{THEME_MANAGER_ACTIVE}}" data-action="navigate-main" data-view-id="theme-manager">Theme Manager</button></li>
-        <li><button type="button" class="dropdown-item {{CHANGE_HISTORY_ACTIVE}}" data-action="navigate-main" data-view-id="change-history">Change History</button></li>
-      </ul>
-    </div>
+    {{USER_MENU}}
   </div>
 </div>
 

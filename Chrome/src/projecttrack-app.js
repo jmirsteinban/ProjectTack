@@ -45,8 +45,9 @@ import {
 } from "./services/ui-copy.js";
 import { getVisibleProjects, getVisibleTasksForChange } from "./services/workspace-selectors.js";
 import { renderProjectTrackBrand } from "./components/projecttrack-brand.js";
+import { renderUserMenu } from "./components/user-menu.js";
 import { escapeAttribute, escapeHtml } from "./services/html.js";
-import { bindThemeManagerControls } from "./screens/theme-manager.js";
+import { bindThemeManagerControls, setThemeManagerNavTemplate } from "./screens/theme-manager.js";
 
 
 function setAuthSubmissionState(state, isSubmitting, pendingStep = "") {
@@ -86,6 +87,48 @@ async function loadGlobalNavbarTemplate() {
     return await response.text();
   } catch (error) {
     console.warn("[ProjectTrack] Could not load global navbar template.", error);
+    return "";
+  }
+}
+
+async function loadUserMenuTemplate() {
+  try {
+    const templateUrl = new URL("../components/user-menu.html", import.meta.url);
+    const response = await fetch(templateUrl);
+    if (!response.ok) {
+      throw new Error(`Template request failed with ${response.status}`);
+    }
+    return await response.text();
+  } catch (error) {
+    console.warn("[ProjectTrack] Could not load user menu template.", error);
+    return "";
+  }
+}
+
+async function loadPillDropdownTemplate() {
+  try {
+    const templateUrl = new URL("../components/pill-dropdown.html", import.meta.url);
+    const response = await fetch(templateUrl);
+    if (!response.ok) {
+      throw new Error(`Template request failed with ${response.status}`);
+    }
+    return await response.text();
+  } catch (error) {
+    console.warn("[ProjectTrack] Could not load pill dropdown template.", error);
+    return "";
+  }
+}
+
+async function loadSectionNavTemplate() {
+  try {
+    const templateUrl = new URL("../components/section-nav.html", import.meta.url);
+    const response = await fetch(templateUrl);
+    if (!response.ok) {
+      throw new Error(`Template request failed with ${response.status}`);
+    }
+    return await response.text();
+  } catch (error) {
+    console.warn("[ProjectTrack] Could not load section nav template.", error);
     return "";
   }
 }
@@ -402,6 +445,11 @@ async function reloadWorkspaceState(state, reason = "workspace.reload") {
 export async function mountProjectTrackApp(rootNode, options = {}) {
   const state = createProjectTrackState(options);
   const globalNavbarTemplate = await loadGlobalNavbarTemplate();
+  const userMenuTemplate = await loadUserMenuTemplate();
+  const pillDropdownTemplate = await loadPillDropdownTemplate();
+  const sectionNavTemplate = await loadSectionNavTemplate();
+  state.pillDropdownTemplate = pillDropdownTemplate;
+  setThemeManagerNavTemplate(sectionNavTemplate);
   state.releaseUpdate = {
     ...createIdleReleaseUpdateState(),
     ...(state.releaseUpdate ?? {})
@@ -440,17 +488,24 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
       const isProjectBranch = id === "projects" && ["project-detail", "project-editor"].includes(state.currentView);
       const isChangeBranch = id === "changes" && ["change-detail", "change-editor"].includes(state.currentView);
       const isActive = isBase || isProjectBranch || isChangeBranch;
-      return `<li><button type="button" class="dropdown-item ${isActive ? "active" : ""}" data-action="navigate-main" data-view-id="${escapeAttribute(id)}">${escapeHtml(label)}</button></li>`;
-    }).join("");
+      return { id, label, active: isActive };
+    });
+    const userMenuHtml = renderUserMenu({
+      userInitial,
+      userName,
+      userRole,
+      template: userMenuTemplate,
+      items: [
+        ...menuItems,
+        { type: "divider" },
+        { id: "theme-manager", label: "Theme Manager", active: state.currentView === "theme-manager" },
+        { id: "change-history", label: "Change History", active: state.currentView === "change-history" }
+      ]
+    });
     const replacements = {
       "{{BRAND_MARK}}": renderProjectTrackBrand(34),
-      "{{USER_INITIAL}}": escapeHtml(userInitial),
-      "{{USER_NAME}}": escapeHtml(userName),
-      "{{USER_ROLE}}": escapeHtml(userRole),
       "{{BREADCRUMB_LABEL}}": escapeHtml(breadcrumbLabel),
-      "{{MENU_ITEMS}}": menuItems,
-      "{{THEME_MANAGER_ACTIVE}}": state.currentView === "theme-manager" ? "active" : "",
-      "{{CHANGE_HISTORY_ACTIVE}}": state.currentView === "change-history" ? "active" : "",
+      "{{USER_MENU}}": userMenuHtml,
       "{{NOTICE}}": renderNotice()
     };
     const template = globalNavbarTemplate || `
@@ -469,26 +524,7 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
         <div class="d-flex align-items-center gap-2 ms-auto flex-wrap justify-content-end">
           <button type="button" class="btn btn-outline-primary" data-action="navigate-main" data-view-id="dashboard">Open Classic Workspace</button>
           <button type="button" class="btn btn-primary" data-action="refresh-workspace">Refresh Data</button>
-          <div class="dropdown">
-            <button
-              type="button"
-              class="btn btn-outline-secondary dropdown-toggle d-inline-flex align-items-center gap-2"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-bg-secondary fw-bold flex-shrink-0" aria-hidden="true" style="width:2rem;height:2rem;">{{USER_INITIAL}}</span>
-              <span class="d-grid text-start lh-sm d-none d-lg-inline-grid">
-                <span class="fw-semibold small">{{USER_NAME}}</span>
-                <span class="text-secondary" style="font-size:0.72rem;">{{USER_ROLE}}</span>
-              </span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow-sm" data-user-menu>
-              {{MENU_ITEMS}}
-              <li><hr class="dropdown-divider"></li>
-              <li><button type="button" class="dropdown-item {{THEME_MANAGER_ACTIVE}}" data-action="navigate-main" data-view-id="theme-manager">Theme Manager</button></li>
-              <li><button type="button" class="dropdown-item {{CHANGE_HISTORY_ACTIVE}}" data-action="navigate-main" data-view-id="change-history">Change History</button></li>
-            </ul>
-          </div>
+          {{USER_MENU}}
         </div>
       </div>
       {{NOTICE}}
@@ -497,14 +533,6 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
       (html, [placeholder, value]) => html.split(placeholder).join(value),
       template
     );
-    if (!navbar.querySelector("[data-view-id='theme-manager']")) {
-      const themeManagerItem = `<li><button type="button" class="dropdown-item ${state.currentView === "theme-manager" ? "active" : ""}" data-action="navigate-main" data-view-id="theme-manager">Theme Manager</button></li>`;
-      navbar.querySelector("[data-user-menu]")?.insertAdjacentHTML("beforeend", themeManagerItem);
-    }
-    if (!navbar.querySelector("[data-view-id='change-history']")) {
-      const changeHistoryItem = `<li><button type="button" class="dropdown-item ${state.currentView === "change-history" ? "active" : ""}" data-action="navigate-main" data-view-id="change-history">Change History</button></li>`;
-      navbar.querySelector("[data-user-menu]")?.insertAdjacentHTML("beforeend", changeHistoryItem);
-    }
   }
 
   function renderNotice() {

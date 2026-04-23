@@ -1,4 +1,4 @@
-﻿import {
+import {
   getVisibleChanges,
   getVisibleNotes,
 } from "../services/workspace-selectors.js";
@@ -10,6 +10,7 @@ import {
   translateStatus,
 } from "../services/ui-copy.js";
 import { escapeAttribute, escapeHtml } from "../services/html.js";
+import { renderMetricCard } from "../components/metric-card.js";
 import { renderHeroCard } from "../components/hero-card.js";
 
 function normalizeIdentity(value) {
@@ -96,15 +97,11 @@ export function renderDashboardScreen(data) {
     .map(
       (metric) => `
     <div class="col">
-      <article class="card h-100 border-0 bg-white shadow-sm rounded-4">
-        <div class="card-body">
-          <p class="text-uppercase small fw-semibold text-secondary mb-2">${escapeHtml(metric.title)}</p>
-          <div class="d-flex align-items-end justify-content-between gap-3">
-            <h3 class="display-6 mb-0 fw-bold">${escapeHtml(metric.value)}</h3>
-            <span class="badge rounded-pill text-bg-light border">${escapeHtml(metric.tone || "summary")}</span>
-          </div>
-        </div>
-      </article>
+      ${renderMetricCard({
+        title: metric.title,
+        value: metric.value,
+        tone: metric.tone || "summary",
+      })}
     </div>
   `,
     )

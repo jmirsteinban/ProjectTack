@@ -3,6 +3,183 @@ export const PROJECT_CHANGELOG = [
     date: "2026-04-20",
     entries: [
       {
+        time: "13:55",
+        type: "UI",
+        title: "Bootstrap Core token families",
+        description: "Expanded Bootstrap Core so related Bootstrap body, surface, semantic, subtle, border, emphasis, and RGB tokens are grouped together in the Theme flow.",
+        details: [
+          "Bootstrap Core now organizes tokens by families such as Body, Secondary, Tertiary, Emphasis, Border, Primary, Success, Danger, Warning, Info, Light, and Dark.",
+          "Family rows now expose the requested Bootstrap subtle, border, text emphasis, and RGB companions in the same area where they belong.",
+          "Derived RGB values are surfaced in the Theme flow so Bootstrap companions stay visible with the main editable colors."
+        ]
+      },
+      {
+        time: "13:40",
+        type: "UI",
+        title: "Bootstrap Core labels and order",
+        description: "Renamed the visible Bootstrap Core controls to shorter labels and reordered them so body and neutral surfaces appear before semantic theme colors.",
+        details: [
+          "Removed the repeated Bootstrap prefix from the visible control labels in Theme.",
+          "Bootstrap Core now starts with Body, Secondary, Tertiary, Emphasis, and Border before Primary, Success, Danger, Warning, Info, Light, and Dark.",
+          "Body Text remains editable in Brand & Text so the Bootstrap Core group stays closer to the requested neutral-to-semantic order."
+        ]
+      },
+      {
+        time: "13:30",
+        type: "Maintenance",
+        title: "Bootstrap-only theme row layout",
+        description: "Replaced the recent custom row helpers in Theme with Bootstrap utility layout so the token list stays lighter and closer to the Bootstrap-first rule.",
+        details: [
+          "Theme rows now use Bootstrap grid, spacing, and border utilities instead of dedicated per-row helper classes.",
+          "The lightweight line-separated layout remains, but with less custom CSS overhead.",
+          "Only the color input sizing rule remains as CSS support for the compact selector column."
+        ]
+      },
+      {
+        time: "13:20",
+        type: "UI",
+        title: "Theme rows with divider layout",
+        description: "Refined the Theme row layout so controls are separated by horizontal dividers instead of individual card boxes.",
+        details: [
+          "Theme rows now sit in a cleaner list-style layout with line separators.",
+          "The per-token card chrome was removed so the editing surface feels lighter and closer to a property sheet.",
+          "Changed rows remain highlighted, but without bringing back the old boxed layout."
+        ]
+      },
+      {
+        time: "13:05",
+        type: "UI",
+        title: "Theme rows for Bootstrap Core",
+        description: "Changed the Theme editing layout from card-per-token blocks to compact rows so Bootstrap Core controls are easier to scan and edit.",
+        details: [
+          "Theme groups now render each token on a single line with label, control, current value, and token name.",
+          "Changed rows stay highlighted so unsaved edits remain visible without the older card-heavy layout.",
+          "The compact layout was introduced for the main Theme editing flow while component token controls keep their existing card treatment."
+        ]
+      },
+      {
+        time: "12:45",
+        type: "UI",
+        title: "Theme Manager visual polish",
+        description: "Refined the new Theme Manager flow with clearer panel styling, KPI cards, and path cards so the main sections read more like a product workflow than a technical tool.",
+        details: [
+          "Overview, Source, Components, Review, and Advanced now share more consistent panel styling.",
+          "Theme status counters and quick-path cards now have stronger hierarchy and spacing.",
+          "The new flow is visually clearer without changing the save boundary or the runtime behavior of the underlying theme tools."
+        ]
+      },
+      {
+        time: "12:25",
+        type: "UI",
+        title: "Theme Manager Phase 5 advanced tools split",
+        description: "Added a dedicated Advanced entry so maintenance tools stay available without competing with the main theme-editing flow.",
+        details: [
+          "Advanced now acts as the secondary entry point for backups, import/export, accessibility, and audit tools.",
+          "The main sidebar flow is now shorter and clearer for day-to-day theme work.",
+          "Technical tools remain accessible but are visually separated from the Bootstrap, component, and review workflow."
+        ]
+      },
+      {
+        time: "12:05",
+        type: "UI",
+        title: "Theme Manager Phase 4 review flow",
+        description: "Reworked Review into a clearer closing step with save, copy, reset, diff, and backup access in one place.",
+        details: [
+          "Review now acts as the final decision screen before saving the theme.",
+          "Backups are summarized directly in Review instead of living only as a separate advanced page.",
+          "The closing flow now keeps save, copy, reset, diff, and backup recovery together so the final step is easier to follow."
+        ]
+      },
+      {
+        time: "11:45",
+        type: "UI",
+        title: "Theme Manager Phase 3 component focus",
+        description: "Reworked Components into a focused flow where one reusable component is selected, inspected, and previewed at a time.",
+        details: [
+          "Components now has a picker panel instead of a broad registry-plus-gallery wall.",
+          "The selected component shows its screens, Bootstrap classes, states, token summary, and inline token controls in one focused area.",
+          "A dedicated preview panel now follows the currently selected component so the editing flow is closer to the real reusable component model."
+        ]
+      },
+      {
+        time: "11:25",
+        type: "UI",
+        title: "Theme Manager Phase 2 theme groups",
+        description: "Reworked the main Theme section into practical editing groups so Bootstrap and ProjectTrack theme work is easier to follow than the previous category-heavy token list.",
+        details: [
+          "Theme now groups controls into Bootstrap Core, Brand & Text, Surfaces, Status Colors, and Gradients.",
+          "Each group shows a short purpose summary and a changed-count badge to keep editing focused.",
+          "The main Theme flow no longer starts with the older Bootstrap info/scales block and raw category dump."
+        ]
+      },
+      {
+        time: "11:05",
+        type: "UI",
+        title: "Theme Manager Phase 1 navigation regroup",
+        description: "Regrouped Theme Manager into Overview, Theme, Components, Review, and Advanced so the main flow focuses on practical theme work instead of technical tooling first.",
+        details: [
+          "Theme now combines source, token editing, Bootstrap controls, and preview in one main area.",
+          "Components and Review now have dedicated top-level entries in the sidebar.",
+          "Backups, import/export, accessibility, and audit moved under an Advanced group so the first-use flow is shorter and clearer."
+        ]
+      },
+      {
+        time: "10:50",
+        type: "UI",
+        title: "Theme Manager source section",
+        description: "Moved the Theme Manager source/status/action block into its own navigable section below Overview in the sidebar.",
+        details: [
+          "The source card no longer stays pinned above the main Theme Manager content.",
+          "Source now appears as a dedicated section in the sidebar navigation directly below Overview.",
+          "Reload, reset, and save actions moved into that section so the main layout is less crowded while keeping the same behavior."
+        ]
+      },
+      {
+        time: "10:35",
+        type: "UI",
+        title: "Theme Manager navigation component",
+        description: "Moved the Theme Manager section menu into a dedicated component and tightened the sidebar presentation for easier navigation.",
+        details: [
+          "The section menu no longer lives inline in theme-manager.js.",
+          "A dedicated HTML template and component renderer now control the Theme Manager navigation card.",
+          "The sidebar gained a clearer section heading, denser button rhythm, and a more readable unsaved-change summary block."
+        ]
+      },
+      {
+        time: "10:10",
+        type: "UI",
+        title: "Reusable dashboard metric cards",
+        description: "Moved the Dashboard summary tiles into a dedicated component/template pair so the metric card surface is reusable and easier to keep consistent.",
+        details: [
+          "The repeated Dashboard metric tile markup now renders from a dedicated Chrome component instead of living inline in dashboard.js.",
+          "A matching HTML template was added so the metric card follows the same component-plus-template pattern used in newer Chrome UI work.",
+          "The visual output stays aligned with the existing Dashboard summary layout."
+        ]
+      },
+      {
+        time: "23:50",
+        type: "UI",
+        title: "Reusable Change Detail pill dropdown",
+        description: "Moved the Change Detail status and priority pill dropdowns into a dedicated component and aligned their menu surface with the restored user menu style.",
+        details: [
+          "Status and priority dropdown markup no longer lives inline in change-detail.js.",
+          "The pill dropdown shell now also comes from a separate Chrome/components/pill-dropdown.html template.",
+          "The open menu now uses the same rounded white panel treatment as the generic user menu component for visual consistency.",
+          "The trigger still keeps the existing status/priority badge semantics and action wiring."
+        ]
+      },
+      {
+        time: "23:35",
+        type: "UI",
+        title: "Reusable workspace user menu",
+        description: "Extracted the navbar user dropdown into a dedicated HTML component and restored the earlier rounded menu look.",
+        details: [
+          "The user menu now renders from a dedicated Chrome component and a separate Chrome/components/user-menu.html template instead of inline navbar markup.",
+          "The trigger and dropdown panel recovered the earlier pill/card feel with a rounded profile chip and highlighted active item.",
+          "The current runtime menu entries remain unchanged, so removed items like UI Guide were not reintroduced."
+        ]
+      },
+      {
         time: "23:20",
         type: "Release",
         title: "ProjectTrack Chrome 0.1.3 release prep",

@@ -11,6 +11,7 @@ Esta pagina no define una vision futura amplia. Documenta que se puede tocar, qu
 ## Archivos involucrados
 
 - Pantalla runtime: `Chrome/src/screens/theme-manager.js`
+- Navegacion lateral: `Chrome/src/components/section-nav.js`
 - Registro de componentes: `Chrome/src/theme/component-registry.js`
 - CSS runtime: `Chrome/styles/projecttrack.css`
 - Servidor local opcional: `scripts/theme/theme_manager_server.py`
@@ -32,6 +33,30 @@ Esta pagina no define una vision futura amplia. Documenta que se puede tocar, qu
 6. La validacion visual principal debe hacerse en:
    - `Chrome/workspace.html`
    - `Chrome/workspace.html?view=theme-manager`
+
+## Secciones visibles actuales
+
+La navegacion lateral principal del `Theme Manager` debe incluir:
+
+- Overview
+- Theme
+- Components
+- Review
+
+Y un grupo secundario `Advanced` con:
+
+- Backups / Versions
+- Import / Export
+- Accessibility
+- Legacy / Audit
+
+Notas operativas:
+
+- `Theme` concentra el bloque Source, los controles de tokens y Bootstrap, y el preview principal.
+- Dentro de `Theme`, la edicion principal debe organizarse en grupos practicos: `Bootstrap Core`, `Brand & Text`, `Surfaces`, `Status Colors` y `Gradients`.
+- `Components` debe centrarse en un componente seleccionado a la vez: selector, metadata, tokens y preview del componente activo.
+- `Review` debe concentrar diff, acciones finales de guardado/copia/reset y un resumen practico de backups para cerrar el flujo principal.
+- `Advanced` debe funcionar como entrada secundaria para backups completos, import/export, accessibility y audit.
 
 ## Alcance real del tema
 

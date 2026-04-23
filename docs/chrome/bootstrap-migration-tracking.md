@@ -42,6 +42,8 @@ ProjectTrack solo debe aportar:
 
 - `workspace.html` ya carga Bootstrap primero y `projecttrack.css` despues.
 - La shell principal del workspace ya esta en markup Bootstrap-first.
+- El dropdown del usuario en el navbar ya vive en un componente reutilizable (`Chrome/src/components/user-menu.js`) y conserva una capa visual propia limitada a identidad y estados del menu.
+- Las metric cards del Dashboard ya viven en un componente reutilizable (`Chrome/src/components/metric-card.js`) con template HTML dedicado.
 - Hero Card, pills runtime, empty states basicos, metric cards, clickable rows y Environment Progress ya migraron a markup Bootstrap-only.
 - `Theme Manager` tambien ya usa markup Bootstrap-only.
 - `Chrome/docs/projecttrack-ui.html` fue retirado del runtime.

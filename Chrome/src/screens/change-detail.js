@@ -18,6 +18,7 @@ import {
   getVisibleTasksForChange,
 } from "../services/workspace-selectors.js";
 import { renderHeroCard } from "../components/hero-card.js";
+import { renderPillDropdown } from "../components/pill-dropdown.js";
 import { escapeAttribute, escapeHtml, isHttpUrl } from "../services/html.js";
 
 function urlsByEnvironment(project, environment) {
@@ -135,45 +136,6 @@ function formatHistoryTimestamp(value) {
     hour: "numeric",
     minute: "2-digit",
   }).format(date);
-}
-
-function renderHeaderPillDropdown({
-  menuKey,
-  state,
-  title,
-  currentValue,
-  toggleAction,
-  itemAction,
-  dataAttribute,
-  options,
-  toneClass,
-  translate,
-}) {
-  const isOpen = state.changeHeaderMenu === menuKey;
-  const items = options
-    .filter((value) => value !== currentValue)
-    .map(
-      (value) => `
-      <button type="button" class="dropdown-item d-flex align-items-center justify-content-start p-1" data-action="${escapeAttribute(itemAction)}" data-${dataAttribute}="${escapeAttribute(value)}">
-        <span class="badge rounded-pill ${toneClass(value)}">${escapeHtml(translate(value))}</span>
-      </button>
-    `,
-    )
-    .join("");
-
-  return `
-    <div class="dropdown">
-      <button type="button" class="btn btn-light dropdown-toggle" data-action="${toggleAction}" aria-expanded="${isOpen ? "true" : "false"}" aria-haspopup="true" title="${escapeAttribute(title)}">
-        <span class="badge rounded-pill ${toneClass(currentValue)}">
-          ${escapeHtml(translate(currentValue))}
-          <svg viewBox="0 0 16 16" focusable="false" aria-hidden="true">
-            <path d="M4.47 6.97a.75.75 0 0 1 1.06 0L8 9.44l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06Z"></path>
-          </svg>
-        </span>
-      </button>
-      ${isOpen ? `<div class="dropdown-menu dropdown-menu-end show">${items}</div>` : ""}
-    </div>
-  `;
 }
 
 export function renderChangeDetailScreen(state, data) {
@@ -403,7 +365,7 @@ export function renderChangeDetailScreen(state, data) {
           </div>
 
           <div class="d-flex gap-2 ms-auto">
-            ${renderHeaderPillDropdown({
+            ${renderPillDropdown({
               menuKey: "status",
               state,
               title: "Change status",
@@ -414,8 +376,9 @@ export function renderChangeDetailScreen(state, data) {
               options: CHANGE_STATUS_OPTIONS,
               toneClass: statusClass,
               translate: translateStatus,
+              template: state.pillDropdownTemplate,
             })}
-            ${renderHeaderPillDropdown({
+            ${renderPillDropdown({
               menuKey: "priority",
               state,
               title: "Change priority",
@@ -426,6 +389,7 @@ export function renderChangeDetailScreen(state, data) {
               options: CHANGE_PRIORITY_OPTIONS,
               toneClass: priorityClass,
               translate: translatePriority,
+              template: state.pillDropdownTemplate,
             })}
           </div>
 
