@@ -1,8 +1,8 @@
 # Documentacion Central - ProjectTrack
 
-Actualizado al: 2026-04-20
+Actualizado al: 2026-04-24
 Estado general: En progreso
-Alcance actual: Android + Extension Chrome
+Alcance actual: Extension Chrome
 
 ## Objetivo
 
@@ -20,6 +20,8 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
 
 ## Resumen Ejecutivo
 
+- El desarrollo Android queda detenido hasta nuevo aviso.
+- El frente activo para desarrollo y validacion continua es la extension Chrome.
 - El side panel queda oculto temporalmente hasta nuevo aviso.
 - Chrome usa Bootstrap real como base visual y una sola capa custom: `Chrome/styles/projecttrack.css`.
 - Supabase es el backend real para auth, lectura, escritura, borrado logico y metadata del canal privado de releases.
@@ -73,8 +75,27 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
 - Credenciales de referencia leidas desde `Android/ProjectTrack/local.properties`:
   - `SUPABASE_URL`
   - `SUPABASE_PUBLISHABLE_KEY`
-- La extension Chrome puede guardar su propia configuracion en `Profile`.
+- La extension Chrome puede guardar su propia configuracion en `Configuration`.
 - En Chrome, la key publica sola no basta si RLS permite lectura solo a usuarios `authenticated`.
+
+## Validacion En Equipo Nuevo
+
+Checklist operativo para primera ejecucion en este equipo:
+
+1. Cargar `Chrome/` en `chrome://extensions` con `Load unpacked`.
+2. Confirmar que el popup abre `Chrome/workspace.html`.
+3. Verificar que `login` no muestre el navbar global.
+4. Como `God Mode`, abrir `Configuration`, guardar la configuracion backend e iniciar sesion.
+5. Confirmar lectura remota en `Projects`, `Change Detail` y `Configuration / Extension Updates`.
+6. Validar visualmente `Chrome/workspace.html` y `Chrome/workspace.html?view=theme-manager`.
+7. Si se necesita guardar tema con backups, levantar `scripts/theme/theme_manager_server.py`.
+
+Validado exitosamente el 2026-04-24:
+
+- Login con `jmirsteinban@gmail.com`
+- Acceso a `Configuration`
+- Cambio de password de un usuario normal desde `Set password`
+- Inicio de sesion exitoso posterior con la nueva password
 
 ## Android - Estado Funcional
 
@@ -120,8 +141,11 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
 - `Chrome/src/projecttrack-app.js` controla navbar global, overlays, acciones y estado principal.
 - `Chrome/src/projecttrack-router.js` resuelve la vista activa.
 - `Chrome/styles/projecttrack.css` es la unica capa custom activa.
+- `Chrome/src/components/login-card.js` encapsula la tarjeta reutilizable de acceso usada por Login y Theme Manager.
 - `Chrome/src/screens/theme-manager.js` implementa la herramienta activa para editar tokens y guardar el bloque controlado del tema.
+- `Chrome/src/screens/admin-users.js` centraliza la vista administrativa `Configuration` y el comportamiento `God Mode`.
 - `Chrome/src/theme/component-registry.js` registra el inventario inicial de componentes propios configurables.
+- `supabase/functions/admin-set-password/index.ts` permite cambio server-side de password para usuarios no-God cuando no hay SMTP.
 - `scripts/theme/theme_manager_server.py` expone el servidor local aprobado para lectura, guardado, backups y restauracion del CSS.
 - `scripts/theme/save_theme.py` permite aplicar manualmente un bloque `:root` como fallback.
 
@@ -138,6 +162,7 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
 - Change Editor
 - Change History
 - Theme Manager
+- Configuration
 
 ### UI Actual
 
@@ -174,7 +199,12 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
 
 ### Integracion Remota Actual
 
-- Auth real con email/password en `Profile`.
+- Auth real con email/password en `Login`.
+- `Configuration` concentra la configuracion backend, el canal privado de updates y la administracion del directorio de usuarios.
+- `jmirsteinban@gmail.com` es la cuenta `God Mode`: tiene acceso administrativo al directorio de usuarios, pero queda oculta del flujo normal de asignaciones, tareas y sugerencias.
+- Cuando no hay SMTP, `God Mode` puede fijar una nueva password para otro usuario mediante `supabase/functions/admin-set-password`; esta operacion requiere `SUPABASE_SERVICE_ROLE_KEY` y no debe ejecutarse desde el cliente sin la Edge Function.
+- El flujo `Configuration > Set password` ya fue validado exitosamente en Chrome el 2026-04-24 sobre la funcion `admin-set-password`.
+- `Profile` ya no duplica backend ni login tecnico; se enfoca en la identidad del usuario y guarda `Display Name` en `public.users` cuando la policy lo permite.
 - lectura remota inicial de:
   - `projects`
   - `changes`
@@ -215,7 +245,7 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
   - tabla: `public.app_releases`
   - app: `projecttrack-chrome`
   - migracion: `sql/app_releases_chrome_20260416.sql`
-- El panel `Profile / Extension Updates` compara la version local de `Chrome/manifest.json` con la version activa de Supabase.
+- El panel `Configuration / Extension Updates` compara la version local de `Chrome/manifest.json` con la version activa de Supabase.
 - Si existe una version nueva, la extension abre el release privado para descargar `ProjectTrack-Chrome.zip`.
 - No se guarda token de GitHub en la extension.
 - Chrome no permite que una extension `Load unpacked` se reemplace sola; la actualizacion sigue siendo manual:
@@ -236,10 +266,10 @@ Este es el documento canonico de ProjectTrack. Reune el estado funcional, tecnic
   - intenta relogin automatico
   - repite la lectura/escritura contra Supabase
 - Si nunca hubo login o el usuario hizo logout manual:
-  - la extension muestra login en `Profile`
+  - la extension muestra la pantalla `Login`
   - no muestra datos locales de workspace como sustituto
 - Si la autenticacion no puede recuperarse:
-  - la UI redirige a `Profile`
+  - la UI redirige a `Login`
   - muestra aviso visible de reautenticacion requerida
 
 ## Reglas De Borrado Logico
@@ -307,6 +337,7 @@ Tabla de referencia para edicion manual de pantallas:
 | `Workspace / Projects / Details / Edit`              | `Chrome/src/screens/project-editor.js` |
 | `Workspace / Login`                                  | `Chrome/src/screens/login.js`          |
 | `Workspace / Profile`                                | `Chrome/src/screens/profile.js`        |
+| `Workspace / Configuration`                          | `Chrome/src/screens/admin-users.js`    |
 | `Workspace / Change History`                         | `Chrome/src/screens/change-history.js` |
 | `Workspace / Theme Manager`                          | `Chrome/src/screens/theme-manager.js`  |
 | `Workspace / Projects / Details / Changes`           | `Chrome/src/screens/changes.js`        |
@@ -340,7 +371,7 @@ IA:
 ## Riesgos Actuales
 
 - RLS puede bloquear lectura/escritura aun con backend configurado.
-- En ambientes nuevos, si `sql/app_releases_chrome_20260416.sql` no esta aplicado, `Profile / Extension Updates` mostrara que falta setup del canal de releases.
+- En ambientes nuevos, si `sql/app_releases_chrome_20260416.sql` no esta aplicado, `Configuration / Extension Updates` mostrara que falta setup del canal de releases.
 - GitHub Releases privado exige que el usuario tenga acceso al repo para descargar el zip.
 - Chrome no permite auto-reemplazo completo de una extension `Load unpacked`; el paso final de actualizacion es manual.
 - Si `public.users` falla, las sugerencias `@` se degradan.
@@ -360,7 +391,7 @@ IA:
 - Bootstrap audit: `Change Detail` ya simplifico helpers de layout de la seccion `Tasks` usando utilidades Bootstrap directas.
 - Documentacion funcional: falta seguir migrando a ingles donde aplique y mantener las guias vivas alineadas al runtime actual.
 - CSS unico: validar visualmente que `workspace.html` y `workspace.html?view=theme-manager` sigan correctos despues de consolidar estilos.
-- Release Chrome siguiente preparado sobre `0.1.3`, pero debe quedar bloqueado hasta cerrar la validacion visual pendiente del workspace y del Theme Manager.
+- Release Chrome: cada corte debe seguir usando el zip estable `ProjectTrack-Chrome.zip` y mantener alineada la metadata de `public.app_releases` con el tag publicado.
 - Theme Manager: falta completar la galeria completa de componentes, ampliar tokens por componente, mejorar diff por impacto y reemplazar la auditoria automatica inicial por registro explicito completo.
 - OpenCode: en este workspace la CLI puede resolver la raiz del proyecto como `C:\` en lugar del repo por la ruta con corchetes `[...]`; mientras no se corrija, conviene forzar `OPENCODE_CONFIG` apuntando a `opencode.jsonc` para que carguen agentes y comandos del proyecto.
 

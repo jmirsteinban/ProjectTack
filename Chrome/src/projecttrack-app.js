@@ -6,6 +6,7 @@ import {
   clearBackendConfig,
   clearBackendSession,
   clearSavedBackendCredentials,
+  adminSetRemoteUserPassword,
   fetchRemoteUsersDirectory,
   isBackendAuthError,
   loadBackendStatus,
@@ -48,6 +49,11 @@ import { renderProjectTrackBrand } from "./components/projecttrack-brand.js";
 import { renderUserMenu } from "./components/user-menu.js";
 import { escapeAttribute, escapeHtml } from "./services/html.js";
 import { bindThemeManagerControls, setThemeManagerNavTemplate } from "./screens/theme-manager.js";
+import {
+  buildCurrentWorkspaceUser,
+  canAccessAdminDirectory,
+  getVisibleWorkspaceUsers,
+} from "./services/access-control.js";
 
 
 function setAuthSubmissionState(state, isSubmitting, pendingStep = "") {
@@ -276,6 +282,8 @@ function buildWorkspaceBreadcrumbLabel(state) {
       return "Workspace / Change History";
     case "theme-manager":
       return "Workspace / Theme Manager";
+    case "admin-users":
+      return "Workspace / Configuration";
     case "login":
       return "Workspace / Login";
     case "profile":
@@ -490,16 +498,31 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
       const isActive = isBase || isProjectBranch || isChangeBranch;
       return { id, label, active: isActive };
     });
+    const extraMenuItems = [
+      { id: "theme-manager", label: "Theme Manager", active: state.currentView === "theme-manager" },
+      { id: "change-history", label: "Change History", active: state.currentView === "change-history" }
+    ];
+    if (canAccessAdminDirectory(state.data?.user)) {
+      extraMenuItems.push({
+        id: "admin-users",
+        label: "Configuration",
+        active: state.currentView === "admin-users"
+      });
+    }
     const userMenuHtml = renderUserMenu({
       userInitial,
       userName,
       userRole,
       template: userMenuTemplate,
       items: [
-        ...menuItems,
+        ...menuItems.filter((item) => item.id !== "profile"),
         { type: "divider" },
-        { id: "theme-manager", label: "Theme Manager", active: state.currentView === "theme-manager" },
-        { id: "change-history", label: "Change History", active: state.currentView === "change-history" }
+        ...extraMenuItems,
+        { type: "divider" },
+        ...menuItems.filter((item) => item.id === "profile"),
+        ...(hasAuthenticatedSession(state)
+          ? [{ label: "Sign Out", action: "sign-out-backend" }]
+          : [])
       ]
     });
     const replacements = {
@@ -752,11 +775,13 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     }
 
     try {
-      const users = await fetchRemoteUsersDirectory(state.backendConfig);
-      if (users.length) {
+      const userDirectory = await fetchRemoteUsersDirectory(state.backendConfig);
+      if (userDirectory.length) {
         state.data = {
           ...state.data,
-          users
+          userDirectory,
+          users: getVisibleWorkspaceUsers(userDirectory),
+          user: buildCurrentWorkspaceUser(state.data?.user, state.backendSession?.user, userDirectory)
         };
       }
       return true;
@@ -889,7 +914,12 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
     viewNode.className = state.currentView === "login"
       ? "container-fluid px-4 px-xl-5 py-4 py-xl-5 d-grid gap-4 align-content-start flex-grow-1 justify-items-center"
       : "container-fluid px-4 px-xl-5 py-4 py-xl-5 d-grid gap-4 align-content-start flex-grow-1";
-    renderNavBar();
+    if (state.currentView === "login") {
+      navbar.hidden = true;
+      navbar.innerHTML = "";
+    } else {
+      renderNavBar();
+    }
     viewNode.innerHTML = renderProjectTrackView(state, state.data);
     overlayNode.innerHTML = "";
     if (!renderNoteDialog()) {
@@ -1659,8 +1689,17 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
         return;
       }
 
-      state.data = await saveProfileName(state.data, nextName);
-      setNotice("The display name was updated.", "success", "Profile Updated");
+      const nextData = await runProtectedAction(() => saveProfileName(state.data, nextName), {
+        authMessage: "Your session expired while updating the display name.",
+        errorTitle: "Profile Not Updated"
+      });
+      if (!nextData) {
+        render();
+        return;
+      }
+
+      state.data = nextData;
+      applySyncNotice("Profile Updated", "The display name was updated.", "Profile Not Synced");
       render();
     });
 
@@ -1774,6 +1813,61 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
       state.authMessage = "Signed out manually. The extension will stay on the login view until you sign in again.";
       await reloadWorkspaceState(state);
       setNotice("The remote session was closed.", "info", "Session Closed");
+      render();
+    });
+
+    bindSimpleAction("admin-set-user-password", async (event) => {
+      if (!canAccessAdminDirectory(state.data?.user)) {
+        setNotice("Only God Mode can change another user's password.", "info", "Admin Access Required");
+        render();
+        return;
+      }
+
+      const target = event?.currentTarget;
+      const targetUserId = target?.dataset?.userId ?? "";
+      const targetUserName = target?.dataset?.userName ?? "the selected user";
+      if (!targetUserId) {
+        setNotice("The selected user could not be resolved.", "info", "Password Not Updated");
+        render();
+        return;
+      }
+
+      const nextPassword = window.prompt(`Set a new password for ${targetUserName}.\nMinimum 12 characters.`, "");
+      if (nextPassword === null) {
+        return;
+      }
+
+      const trimmedPassword = nextPassword.trim();
+      if (trimmedPassword.length < 12) {
+        setNotice("The new password must contain at least 12 characters.", "info", "Password Not Updated");
+        render();
+        return;
+      }
+
+      const confirmation = window.prompt(`Repeat the new password for ${targetUserName}.`, "");
+      if (confirmation === null) {
+        return;
+      }
+
+      if (trimmedPassword !== confirmation.trim()) {
+        setNotice("The passwords do not match.", "info", "Password Not Updated");
+        render();
+        return;
+      }
+
+      const result = await runProtectedAction(
+        () => adminSetRemoteUserPassword(state.backendConfig, targetUserId, trimmedPassword),
+        {
+          authMessage: "Your session expired while changing the password.",
+          errorTitle: "Password Not Updated",
+        },
+      );
+      if (!result) {
+        render();
+        return;
+      }
+
+      setNotice(`A new password was saved for ${targetUserName}. Share it through a secure channel and ask the user to change it after sign-in.`, "success", "Password Updated");
       render();
     });
 
@@ -2015,6 +2109,9 @@ export async function mountProjectTrackApp(rootNode, options = {}) {
   }
 
   function bindSimpleAction(actionName, handler) {
+    navbar.querySelectorAll(`[data-action='${actionName}']`).forEach((node) => {
+      node.addEventListener("click", handler);
+    });
     viewNode.querySelectorAll(`[data-action='${actionName}']`).forEach((node) => {
       node.addEventListener("click", handler);
     });

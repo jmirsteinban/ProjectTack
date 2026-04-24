@@ -1,3 +1,9 @@
+import {
+  buildCurrentWorkspaceUser,
+  getVisibleWorkspaceUsers,
+  normalizeWorkspaceUser,
+} from "./access-control.js";
+
 const CONFIG_KEY = "projecttrack.chrome.backend.config";
 const SESSION_KEY = "projecttrack.chrome.backend.session";
 const CREDENTIALS_KEY = "projecttrack.chrome.backend.credentials";
@@ -415,6 +421,31 @@ async function fetchUsersWithFallback(config, session) {
   throw lastError ?? new Error("Could not read the users table");
 }
 
+function isMissingIdentifierColumnError(error) {
+  const message = String(error?.message ?? "").toLowerCase();
+  return message.includes("does not exist") && (
+    message.includes("id")
+    || message.includes("user_id")
+    || message.includes("email")
+  );
+}
+
+function isUsersUpdatePermissionError(error) {
+  return isRelationPermissionError(error, "users");
+}
+
+async function patchUserRow(config, session, filter, body) {
+  return requestJson(
+    config,
+    `users?${filter}`,
+    {
+      method: "PATCH",
+      body,
+    },
+    session,
+  );
+}
+
 function normalizeStatus(status) {
   switch (canonicalChangeStatus(status)) {
     case "pendiente":
@@ -593,13 +624,7 @@ function visibleEnvironmentsFromChange(row) {
 }
 
 function normalizeUserRow(row) {
-  const id = row.id ?? row.user_id ?? row.email ?? "";
-  const name = row.display_name ?? row.full_name ?? row.name ?? row.email ?? id;
-  return {
-    id,
-    name,
-    email: row.email ?? ""
-  };
+  return normalizeWorkspaceUser(row);
 }
 
 function toUrlMap(value) {
@@ -632,7 +657,10 @@ function mapRemoteChanges(changeRows, projectsById, assigneesByChangeId, usersBy
     const assigneeIds = assigneesByChangeId.get(row.id) ?? [];
     const fallbackAssigned = row.assigned_to ? [row.assigned_to] : [];
     const combined = Array.from(new Set([...assigneeIds, ...fallbackAssigned]));
-    const assignees = combined.map((id) => usersById.get(id)?.name || usersById.get(id)?.email || id);
+    const assignees = combined
+      .map((id) => usersById.get(id))
+      .filter((user) => user && !user.hideFromWorkspace)
+      .map((user) => user.name || user.email || user.id);
 
     return {
       id: row.id,
@@ -658,17 +686,22 @@ function mapRemoteNotes(noteRows, projectsById, changesById, noteAssigneesByNote
     const fallbackAssigned = row.assigned_to ? [row.assigned_to] : [];
     const combined = Array.from(new Set([...assigneeIds, ...fallbackAssigned]));
     const linkedTaskIds = Array.from(new Set(noteTaskIdsByNoteId.get(row.id) ?? []));
-    const mentionUsers = combined.map((id) => {
-      const resolved = usersById.get(id);
-      const handleSource = resolved?.name || resolved?.email || id;
-      const handle = `@${String(handleSource).replace(/\s+/g, "").replace(/[^A-Za-z0-9._-]/g, "")}`;
-      return {
-        id,
-        name: resolved?.name || handleSource,
-        email: resolved?.email || null,
-        handle
-      };
-    });
+    const mentionUsers = combined
+      .map((id) => {
+        const resolved = usersById.get(id);
+        if (!resolved || resolved.hideFromWorkspace) {
+          return null;
+        }
+        const handleSource = resolved.name || resolved.email || id;
+        const handle = `@${String(handleSource).replace(/\s+/g, "").replace(/[^A-Za-z0-9._-]/g, "")}`;
+        return {
+          id,
+          name: resolved.name || handleSource,
+          email: resolved.email || null,
+          handle
+        };
+      })
+      .filter(Boolean);
 
     return {
       id: row.id,
@@ -681,7 +714,7 @@ function mapRemoteNotes(noteRows, projectsById, changesById, noteAssigneesByNote
       isTodo: row.is_todo ?? true,
       createdBy: row.created_by ?? null,
       createdAt: row.created_at ?? null,
-      mentions: Array.from(new Set((String(row.text ?? "").match(/@[A-Za-z0-9._-]+/g) ?? []))),
+      mentions: mentionUsers.map((mention) => mention.handle),
       mentionUsers,
       linkedTaskIds,
       linkedTasks: linkedTaskIds
@@ -923,8 +956,9 @@ export async function fetchRemoteWorkspaceData(config, currentData) {
     ),
   );
 
-  const users = userRows.map(normalizeUserRow).filter((user) => user.id);
-  const usersById = new Map(users.map((user) => [user.id, user]));
+  const userDirectory = userRows.map(normalizeUserRow).filter((user) => user.id);
+  const users = getVisibleWorkspaceUsers(userDirectory);
+  const usersById = new Map(userDirectory.map((user) => [user.id, user]));
   const assigneesByChangeId = changeAssigneeRows.reduce((map, row) => {
     if (!row.change_id || !row.user_id) {
       return map;
@@ -1007,13 +1041,9 @@ export async function fetchRemoteWorkspaceData(config, currentData) {
 
   return {
     ...structuredClone(currentData),
-    user: session.user?.email ? {
-      ...currentData.user,
-      email: session.user.email,
-      id: session.user.id ?? currentData.user.id,
-      name: session.user.user_metadata?.display_name || session.user.user_metadata?.full_name || currentData.user.name
-    } : currentData.user,
-    users: users.length ? users : currentData.users,
+    user: buildCurrentWorkspaceUser(currentData.user, session.user, userDirectory),
+    users,
+    userDirectory,
     projects,
     changes,
     changeHistory,
@@ -1038,6 +1068,98 @@ export async function fetchRemoteUsersDirectory(config) {
 
   const userRows = await fetchUsersWithFallback(config, session);
   return userRows.map(normalizeUserRow).filter((user) => user.id);
+}
+
+export async function saveRemoteProfileName(config, nextName) {
+  if (!config?.url || !config?.publishableKey) {
+    throw new Error("Backend not configured");
+  }
+
+  const session = await ensureAuthenticatedBackendSession(config);
+  const targetName = String(nextName ?? "").trim();
+  if (!targetName) {
+    throw new Error("Display name is required.");
+  }
+
+  const rawUsers = await fetchUsersWithFallback(config, session);
+  const currentRow = rawUsers.find((row) =>
+    (session.user?.id && (row?.id === session.user.id || row?.user_id === session.user.id))
+    || (session.user?.email && String(row?.email ?? "").trim().toLowerCase() === String(session.user.email).trim().toLowerCase())
+  );
+
+  if (!currentRow) {
+    throw new Error("The current user could not be resolved in public.users.");
+  }
+
+  const candidateBodyEntries = [
+    ["display_name", currentRow.display_name],
+    ["full_name", currentRow.full_name],
+    ["name", currentRow.name],
+  ].filter(([, value]) => value !== undefined);
+
+  if (!candidateBodyEntries.length) {
+    throw new Error("public.users does not expose a writable display name column for this user.");
+  }
+
+  const body = Object.fromEntries(
+    candidateBodyEntries.map(([fieldName]) => [fieldName, targetName]),
+  );
+  const candidateFilters = [
+    currentRow.id ? `id=eq.${encodeURIComponent(currentRow.id)}` : null,
+    currentRow.user_id ? `user_id=eq.${encodeURIComponent(currentRow.user_id)}` : null,
+    currentRow.email ? `email=eq.${encodeURIComponent(currentRow.email)}` : null,
+  ].filter(Boolean);
+
+  let lastError = null;
+  for (const filter of candidateFilters) {
+    try {
+      await patchUserRow(config, session, filter, body);
+      return {
+        ok: true,
+        name: targetName,
+      };
+    } catch (error) {
+      if (isMissingIdentifierColumnError(error)) {
+        lastError = error;
+        continue;
+      }
+      if (isUsersUpdatePermissionError(error)) {
+        throw new Error(
+          "Supabase is blocking updates to public.users. Review the update policy for authenticated users.",
+        );
+      }
+      throw error;
+    }
+  }
+
+  throw lastError ?? new Error("Could not update the display name in public.users.");
+}
+
+export async function adminSetRemoteUserPassword(config, userId, password) {
+  if (!config?.url || !config?.publishableKey) {
+    throw new Error("Backend not configured");
+  }
+
+  const session = await ensureAuthenticatedBackendSession(config);
+  const response = await fetch(`${config.url.replace(/\/+$/, "")}/functions/v1/admin-set-password`, {
+    method: "POST",
+    headers: {
+      apikey: config.publishableKey,
+      Authorization: `Bearer ${session.accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userId,
+      password,
+    }),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || payload.ok === false) {
+    throw new Error(payload.error || payload.message || "Could not update the user password.");
+  }
+
+  return payload;
 }
 
 export async function signInWithPassword(config, email, password, options = {}) {

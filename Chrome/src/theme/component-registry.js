@@ -36,6 +36,26 @@ export const THEME_COMPONENT_REGISTRY = [
     screens: ["Login", "Navbar", "Launcher"]
   },
   {
+    id: "login-card",
+    name: "Login Card",
+    family: "ProjectTrack",
+    tokens: [
+      "--pt-gradient-hero",
+      "--pt-color-text-on-dark",
+      "--pt-color-text-on-dark-muted",
+      "--pt-card-bg",
+      "--pt-card-border-color",
+      "--bs-body-bg",
+      "--bs-body-color",
+      "--bs-border-color",
+      "--bs-primary"
+    ],
+    bootstrapClasses: ["card", "form-control", "btn", "alert", "display-6", "lead"],
+    projectClasses: [],
+    states: ["default", "submitting", "processing", "error"],
+    screens: ["Login", "Theme Manager"]
+  },
+  {
     id: "environment-progress",
     name: "Environment Progress",
     family: "ProjectTrack",

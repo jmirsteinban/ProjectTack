@@ -24,7 +24,7 @@ Chrome no permite que una extension desempaque y reemplace sus propios archivos.
 Si el repositorio sigue privado, la extension no debe guardar un token de GitHub. En este modo:
 
 1. Supabase guarda solo metadata liviana en `public.app_releases`.
-2. `Profile / Extension Updates` compara `Chrome/manifest.json` contra la version activa en Supabase.
+2. `Configuration / Extension Updates` compara `Chrome/manifest.json` contra la version activa en Supabase.
 3. `Open Release` abre el release privado de GitHub.
 4. El usuario descarga el zip usando una cuenta de GitHub con acceso al repo.
 5. La instalacion sigue siendo manual: descomprimir y recargar en `chrome://extensions`.
@@ -121,13 +121,13 @@ Prueba base con la version actual `0.1.0`:
 
 1. Aplicar `sql/app_releases_chrome_20260416.sql` en Supabase.
 2. Abrir la extension e iniciar sesion.
-3. Ir a `Profile / Extension Updates`.
+3. Ir a `Configuration / Extension Updates`.
 4. Confirmar que el estado indique que la version instalada esta al dia.
 
 Prueba simulando una version nueva:
 
 1. Insertar una fila temporal con `version = '0.1.1'`, `app_name = 'projecttrack-chrome'` y `active = true`.
-2. Volver a `Profile / Extension Updates`.
+2. Volver a `Configuration / Extension Updates`.
 3. Presionar `Check for updates`.
 4. Confirmar que aparece el aviso de nueva version.
 5. Presionar `Open Release` y validar que abre GitHub Releases.

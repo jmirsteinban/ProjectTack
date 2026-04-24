@@ -21,8 +21,11 @@ const DEFAULT_USER_MENU_TEMPLATE = `
   </div>
 `;
 
-function renderMenuButton({ id, label, active = false }) {
-  return `<li><button type="button" class="dropdown-item pt-user-menu-link ${active ? "active" : ""}" data-action="navigate-main" data-view-id="${escapeAttribute(id)}">${escapeHtml(label)}</button></li>`;
+function renderMenuButton({ id, label, active = false, action = "navigate-main" }) {
+  const viewIdAttr = action === "navigate-main" && id
+    ? ` data-view-id="${escapeAttribute(id)}"`
+    : "";
+  return `<li><button type="button" class="dropdown-item pt-user-menu-link ${active ? "active" : ""}" data-action="${escapeAttribute(action)}"${viewIdAttr}>${escapeHtml(label)}</button></li>`;
 }
 
 export function renderUserMenu({

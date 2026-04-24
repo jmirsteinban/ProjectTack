@@ -6,25 +6,66 @@ export const projectTrackMockData = {
   },
   user: {
     name: "Demo User",
-    role: "Analysis and tracking",
+    role: "Workspace User",
     email: "demo.user@example.com",
     id: "user_12345678"
   },
-  users: [
+  userDirectory: [
     {
       id: "user_12345678",
       name: "Demo User",
-      email: "demo.user@example.com"
+      email: "demo.user@example.com",
+      role: "Workspace User",
+      isAdmin: false,
+      isGodMode: false,
+      hideFromWorkspace: false
     },
     {
       id: "user_qa_team",
       name: "QA Team",
-      email: "qa.team@example.com"
+      email: "qa.team@example.com",
+      role: "Workspace User",
+      isAdmin: false,
+      isGodMode: false,
+      hideFromWorkspace: false
     },
     {
       id: "user_support",
       name: "Support",
-      email: "support@example.com"
+      email: "support@example.com",
+      role: "Workspace User",
+      isAdmin: false,
+      isGodMode: false,
+      hideFromWorkspace: false
+    }
+  ],
+  users: [
+    {
+      id: "user_12345678",
+      name: "Demo User",
+      email: "demo.user@example.com",
+      role: "Workspace User",
+      isAdmin: false,
+      isGodMode: false,
+      hideFromWorkspace: false
+    },
+    {
+      id: "user_qa_team",
+      name: "QA Team",
+      email: "qa.team@example.com",
+      role: "Workspace User",
+      isAdmin: false,
+      isGodMode: false,
+      hideFromWorkspace: false
+    },
+    {
+      id: "user_support",
+      name: "Support",
+      email: "support@example.com",
+      role: "Workspace User",
+      isAdmin: false,
+      isGodMode: false,
+      hideFromWorkspace: false
     }
   ],
   dashboardHero: {

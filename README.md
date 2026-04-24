@@ -5,6 +5,10 @@ ProjectTrack es un repositorio mixto con dos frentes del producto:
 - `Android/`: aplicacion Android, fuente funcional principal.
 - `Chrome/`: extension Chrome con experiencia popup/full-tab.
 
+Importante:
+- El desarrollo de `Android/` queda pausado hasta nuevo aviso.
+- El frente activo para desarrollo y validacion continua es `Chrome/`.
+
 La documentacion canonica del estado actual vive en:
 
 - `docs/PROJECTTRACK.md`
@@ -66,7 +70,7 @@ La distribucion privada de Chrome usa GitHub Releases para paquetes `.zip` y Sup
 
 Chrome no permite que una extension instalada como `Load unpacked` se reemplace sola. La actualizacion sigue siendo manual:
 
-1. Abrir `Profile / Extension Updates`.
+1. Abrir `Configuration / Extension Updates`.
 2. Abrir el release privado de GitHub.
 3. Descargar `ProjectTrack-Chrome.zip`.
 4. Descomprimirlo sobre la carpeta local usada en `Load unpacked`.

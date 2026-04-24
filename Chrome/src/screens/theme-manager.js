@@ -1,5 +1,6 @@
 import { renderEnvironmentProgress } from "../components/environment-progress.js";
 import { renderHeroCard } from "../components/hero-card.js";
+import { renderLoginCard } from "../components/login-card.js";
 import { renderProjectTrackBrand } from "../components/projecttrack-brand.js";
 import { renderSectionNav } from "../components/section-nav.js";
 import {
@@ -1542,6 +1543,10 @@ function renderSelectedComponentPreview(component) {
           </div>
         </div>
       `;
+    case "login-card":
+      return renderLoginCard({
+        savedEmail: "demo.user@example.com",
+      });
     case "environment-progress":
       return `
         <div class="border rounded-3 p-3 bg-white d-grid gap-3">

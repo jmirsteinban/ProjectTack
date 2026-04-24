@@ -10,6 +10,7 @@ import {
   loadSavedBackendCredentials,
   saveRemoteChange,
   saveRemoteNote,
+  saveRemoteProfileName,
   saveRemoteProject,
   replaceRemoteChangeTasks,
   softDeleteRemoteChange,
@@ -18,6 +19,10 @@ import {
   toggleRemoteNoteStatus,
   updateRemoteChangeTask
 } from "./backend.js";
+import {
+  buildCurrentWorkspaceUser,
+  getVisibleWorkspaceUsers,
+} from "./access-control.js";
 
 let lastWorkspaceSyncMeta = {
   channel: "auth-required",
@@ -73,24 +78,18 @@ function toUrlMap(rows) {
 
 function createLockedWorkspace(seedData, session = null) {
   const base = structuredClone(seedData);
-  const resolvedName =
-    session?.user?.user_metadata?.display_name ||
-    session?.user?.user_metadata?.full_name ||
-    base.user.name;
+  const currentUser = buildCurrentWorkspaceUser(
+    base.user,
+    session?.user ?? null,
+    base.userDirectory ?? base.users ?? [],
+  );
+  const directory = currentUser.email ? [currentUser] : [];
 
   return {
     ...base,
-    user: {
-      ...base.user,
-      id: session?.user?.id ?? base.user.id,
-      email: session?.user?.email ?? base.user.email,
-      name: resolvedName
-    },
-    users: session?.user?.email ? [{
-      id: session.user.id ?? base.user.id,
-      email: session.user.email,
-      name: resolvedName
-    }] : [],
+    user: currentUser,
+    userDirectory: directory,
+    users: getVisibleWorkspaceUsers(directory),
     projects: [],
     changes: [],
     changeHistory: [],
@@ -269,19 +268,11 @@ export async function saveChange(data, payload, mode, selectedChangeId, options 
 }
 
 export async function saveProfileName(data, name) {
-  const nextData = structuredClone(data);
-  nextData.user = {
-    ...nextData.user,
-    name: name || nextData.user.name
-  };
-
-  setWorkspaceSyncMeta({
-    channel: "session",
-    operation: "update-profile-name",
-    ok: true,
-    message: "Display name updated in memory only"
-  });
-  return nextData;
+  return executeRemoteMutation(
+    "update-profile-name",
+    (backendConfig) => saveRemoteProfileName(backendConfig, name),
+    data
+  );
 }
 
 export async function softDeleteProject(data, selectedProjectId) {

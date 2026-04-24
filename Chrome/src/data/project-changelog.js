@@ -1,5 +1,54 @@
 export const PROJECT_CHANGELOG = [
   {
+    date: "2026-04-24",
+    entries: [
+      {
+        time: "16:10",
+        type: "Release",
+        title: "ProjectTrack Chrome 0.1.4 release prep",
+        description: "Prepared the next Chrome release after the new-machine validation pass and the latest account-management updates.",
+        details: [
+          "Chrome/manifest.json now targets version 0.1.4 for the next tagged release.",
+          "ProjectTrack documentation and visible change history were updated so the new admin/configuration flow is traceable from the runtime and the repo.",
+          "The private release channel continues to publish the stable ProjectTrack-Chrome.zip package plus JSON metadata."
+        ]
+      },
+      {
+        time: "15:55",
+        type: "Feature",
+        title: "Configuration and God Mode administration",
+        description: "Moved backend, release-channel, and user-directory administration into a dedicated Configuration screen reserved for the God account.",
+        details: [
+          "Configuration now centralizes backend settings, extension update checks, and the authenticated user directory.",
+          "The God account jmirsteinban@gmail.com is hidden from normal workspace assignee, task, and mention flows while retaining full administrative access.",
+          "The user menu now exposes Configuration only when the authenticated account has administrative access."
+        ]
+      },
+      {
+        time: "15:45",
+        type: "Feature",
+        title: "Admin password reset via Supabase Edge Function",
+        description: "Added a protected server-side path so God Mode can set another user's password when SMTP is not available.",
+        details: [
+          "supabase/functions/admin-set-password uses SUPABASE_SERVICE_ROLE_KEY server-side and refuses calls from non-God accounts.",
+          "Configuration exposes Set password for normal users while keeping the God account outside that shortcut.",
+          "The end-to-end flow was validated on 2026-04-24 by changing a normal user's password and signing in successfully with the new password."
+        ]
+      },
+      {
+        time: "15:30",
+        type: "UI",
+        title: "Login card and profile account polish",
+        description: "Refined the sign-in and account surfaces with a reusable login component and a cleaner Profile screen.",
+        details: [
+          "Login now hides the global navbar, uses the new reusable Login Card component, and exposes the same component inside Theme Manager previews.",
+          "Profile now focuses on account identity, inline display-name editing, and simpler badge-driven status instead of duplicating backend and release controls.",
+          "Saving the display name now attempts to persist the change to public.users instead of updating local in-memory state only."
+        ]
+      }
+    ]
+  },
+  {
     date: "2026-04-20",
     entries: [
       {
