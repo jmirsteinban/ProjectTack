@@ -41,7 +41,6 @@ jobs:
         with:
           files: |
             dist/chrome/ProjectTrack-Chrome.zip
-            dist/chrome/ProjectTrack-Chrome-v*.zip
             dist/chrome/projecttrack-chrome-release.json
 
       - name: Update Supabase release metadata

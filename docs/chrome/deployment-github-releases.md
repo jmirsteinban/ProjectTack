@@ -101,7 +101,6 @@ Desde la raiz del repo:
 El script genera:
 
 - `dist/chrome/ProjectTrack-Chrome.zip`
-- `dist/chrome/ProjectTrack-Chrome-vX.Y.Z.zip`
 - `dist/chrome/projecttrack-chrome-release.json`
 
 ## Publicar release

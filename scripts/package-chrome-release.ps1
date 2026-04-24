@@ -40,8 +40,6 @@ $stamp = $generatedAtUtc.ToString("yyyyMMddHHmmss")
 $releaseId = "$version+$stamp"
 $stagingPath = Join-PathLiteral $outputPath.FullName "ProjectTrack-Chrome"
 $stableZipPath = Join-PathLiteral $outputPath.FullName "ProjectTrack-Chrome.zip"
-$versionedZipName = "ProjectTrack-Chrome-v$version.zip"
-$versionedZipPath = Join-PathLiteral $outputPath.FullName $versionedZipName
 $metadataPath = Join-PathLiteral $outputPath.FullName "projecttrack-chrome-release.json"
 
 if (Test-Path -LiteralPath $stagingPath) {
@@ -53,20 +51,17 @@ Get-ChildItem -LiteralPath $chromeDirectory -Force | ForEach-Object {
   Copy-Item -LiteralPath $_.FullName -Destination $stagingPath -Recurse -Force
 }
 
-foreach ($zipPath in @($stableZipPath, $versionedZipPath)) {
-  if ([System.IO.File]::Exists($zipPath)) {
-    [System.IO.File]::Delete($zipPath)
-  }
+if ([System.IO.File]::Exists($stableZipPath)) {
+  [System.IO.File]::Delete($stableZipPath)
 }
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::CreateFromDirectory(
   $stagingPath,
-  $versionedZipPath,
+  $stableZipPath,
   [System.IO.Compression.CompressionLevel]::Optimal,
   $false
 )
-Copy-Item -LiteralPath $versionedZipPath -Destination $stableZipPath -Force
 
 $hash = Get-FileHash -LiteralPath $stableZipPath -Algorithm SHA256
 $metadata = [ordered]@{
@@ -76,7 +71,6 @@ $metadata = [ordered]@{
   releaseId = $releaseId
   generatedAtUtc = $generatedAtUtc.ToString("o")
   zipAssetName = "ProjectTrack-Chrome.zip"
-  versionedZipAssetName = $versionedZipName
   sha256 = $hash.Hash
   installSteps = @(
     "Download ProjectTrack-Chrome.zip from the latest GitHub Release.",
@@ -93,5 +87,4 @@ if (-not $KeepStaging) {
 
 Write-Host "ProjectTrack Chrome package created:"
 Write-Host "  $stableZipPath"
-Write-Host "  $versionedZipPath"
 Write-Host "  $metadataPath"
